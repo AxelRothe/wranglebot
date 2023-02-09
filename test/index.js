@@ -6,20 +6,23 @@ config()
 
 LogBot.addSpinner("load", "Loading...");
 
-const conf = {
-  token: process.env.CLOUD_SYNC_TOKEN,
-  key: process.env.CLOUD_SYNC_DATABASE_KEY,
-  database : process.env.CLOUD_SYNC_DATABASE_URL,
+let conf = {
   debugNotifications: process.env.DEBUG_NOTIFICATIONS === "true",
+}
+
+if (process.env.DATABASE_KEY){
+  conf.key = process.env.DATABASE_KEY
+} else {
+  conf = {
+    ...conf,
+    key: process.env.CLOUD_SYNC_DATABASE_KEY,
+    token: process.env.CLOUD_SYNC_TOKEN,
+    database : process.env.CLOUD_SYNC_DATABASE_URL,
+  }
 }
 
 console.log("LOADING CONFIG")
 console.log(conf);
-
-if (!conf.token || !conf.key || !conf.database) {
-  LogBot.endSpinner("load", "failure", "Missing token, key, or database URL.");
-  process.exit(1);
-}
 
 wb.open({
   token: conf.token,

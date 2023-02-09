@@ -16,9 +16,7 @@ As of right now, WrangleBot is still in development. This means that there are s
 **These limitations are as follows:**
 
 - WrangleBot is only available for MacOS. (We are looking for contributors to help us port WrangleBot to other platforms.)
-- WrangleBot is only usable with our free Cloud Sync Service, we are working on an 100% offline version of WrangleBot.
-- WrangleBot **Cloud Sync does not yet utilize end-to-end encryption** to protect your data, but uses TLS-Encryption to communicate and send data between you and the cloud sync servers. This means that **your data is encrypted while it is in transit, but not while it is stored on the cloud sync servers**. 
-- We are working on implementing end-to-end encryption and other extensive security measures, but this is not yet available and we'd like you take this into consideration when using WrangleBot.
+- WrangleBot **Cloud Sync does not yet utilize end-to-end encryption** to protect your data, but uses TLS-Encryption to communicate and send data between you and the cloud sync servers. This means that **your data is encrypted while it is in transit, but not while it is stored on the cloud sync servers**.
 
 We are committed to addressing these limitations and implementing new features as soon as possible. We are also committed to protecting your data and privacy. We will never sell your data to third parties, and we will never use your data for any other purpose than to provide you with the best possible experience with WrangleBot. Please review our data [privacy policy here](https://wranglebot.io/privacy) for more information.
 
@@ -50,11 +48,21 @@ npm run test
 ⚠️ You will require a `.env` to run the test environment:
 
 ```
-CLOUD_SYNC_DATABASE_KEY="xxxx-xxxx-xxxx-xxxx" //get at wranglebot.io  
+CLOUD_SYNC_DATABASE_KEY="xxxx-xxxx-xxxx-xxxx" //get at wranglebot.io
 CLOUD_SYNC_TOKEN="xxxx-xxxx-xxxx-xxxx" //please contact for developer token
 CLOUD_SYNC_DATABASE_URL="https://db2.wranglebot.io"
 DEBUG_NOTIFICATIONS="false" //show notifications in console
 ```
+
+## 🪨 Offline Mode
+
+If you are not using Cloud Sync, then you can use the offline mode. This mode will allow you to use WrangleBot without an internet connection. To use the offline mode, you will need to create a `.env` file in the root directory of the project. The `.env` file should contain the following:
+
+```
+DATABASE_KEY="xxxx-xxxx-xxxx-xxxx"
+```
+
+The key can be any string of characters.
 
 ## 🧰 Features
 

@@ -102,28 +102,37 @@ class WrangleBot extends EventEmitter {
 
     if (!config) throw new Error("Config failed to load. Aborting. Delete the config file and restart the bot.");
 
-    if (!options.key || !options.token) {
-      this.emit("notification", {
-        title: "No API key or token provided",
-        message: "Please provide an license key in the config file",
-      });
-
-      throw new Error("Missing key and/or token. Aborting.");
-    }
-
-    if (!options.database) options.database = config.get("database");
     if (!options.port) options.port = config.get("port");
 
     this.pingInterval = this.config.get("pingInterval") || 5000;
 
     try {
-      const db = await DB(options.database, options.token, options.key);
-      db.on("notification", (notification) => {
-        this.emit("notification", notification);
-      });
-      await db.connect(options.key);
+      let db;
+      if (options.database) {
+        db = DB({
+          url: options.database,
+          token: options.token,
+          key: options.key,
+        });
+        await DB().rebuildLocalModel()
+        await db.connect(options.key);
+      } else {
+        db = DB({
+          key: options.key
+        });
+        await DB().rebuildLocalModel()
+      }
 
       if (db) {
+
+        DB().on("transaction", (transaction) => {
+          this.applyTransaction(transaction);
+        });
+
+        db.on("notification", (notification) => {
+          this.emit("notification", notification);
+        });
+
         //start Account Manager
         await AccountManager.init();
 
@@ -188,9 +197,7 @@ class WrangleBot extends EventEmitter {
           message: "WrangleBot is ready to rumble.",
         });
 
-        DB().on("transaction", (transaction) => {
-          this.applyTransaction(transaction);
-        });
+
 
         this.emit("connectedToCloud", this);
 

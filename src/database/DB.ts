@@ -6,6 +6,7 @@ import { config, finder } from "../system";
 import EventEmitter from "events";
 import { clearTimeout } from "timers";
 import md5 from "md5";
+import { v4 as uuidv4 } from "uuid";
 
 interface DBOptions {
   url: string;
@@ -52,23 +53,51 @@ class DB extends EventEmitter {
 
   private pathToTransactions: string;
 
-  private keySalt = "salty:caramel";
+  private keySalt = "Wr4ngle_b0t";
 
   constructor(options: DBOptions) {
     super();
+    if (!options.url && !options.key && !options.token) throw new Error("No database, key or token provided. Aborting.");
+
     this.url = options.url;
     this.token = options.token;
     this.key = options.key;
 
+    //this is not a good solution but it obfuscates the key a bit
     this.pathToTransactions = config.getPathToUserData() + "/transactions/" + `${md5(this.key + this.keySalt)}`;
+
     if (!finder.existsSync(this.pathToTransactions)) {
       finder.mkdirSync(this.pathToTransactions, { recursive: true });
     }
-
-    this.rebuildLocalModel();
   }
 
-  private rebuildLocalModel() {
+  private async rebuildLocalModel() {
+
+    //check if offline mode
+    if (!this.url && !this.token && this.key) {
+      let skip = false;
+        if (!finder.existsSync(this.pathToTransactions)) {
+          finder.mkdirSync(this.pathToTransactions, { recursive: true });
+          skip = true
+        }
+
+        if (finder.getContentOfFolder(this.pathToTransactions).length === 0) {
+          //create and save the initial transaction
+          await this.saveTransaction(new Transaction({ $collection: "users", $query: {
+              id: uuidv4(),
+            }, $set: {
+              username: "admin",
+              password: md5("admin"+this.keySalt),
+              roles: ["admin"],
+              firstName: "Admin",
+              lastName: "Admin",
+              email: "admin@wranglebot.local",
+            }, $method: "updateOne" }));
+        }
+
+    }
+
+
     if (finder.exists("transactions")) {
       let folderContents = finder.getContentOfFolder(this.pathToTransactions);
 
@@ -512,18 +541,17 @@ class DB extends EventEmitter {
 }
 
 let db;
-const getDB = (url?: string, token?: string, key?: string) => {
+const getDB = (options: DBOptions | undefined = undefined) => {
   if (db instanceof DB) return db;
-  else {
-    if (!url || !token || !key) throw new Error("Missing DB Parameters");
-
+  else if (options) {
     db = new DB({
-      url,
-      token,
-      key,
+      url: options.url,
+      key: options.key,
+      token: options.token,
     });
     return db;
   }
+  throw new Error("No database instance found");
 };
 export default getDB;
 module.exports = getDB;
