@@ -24,13 +24,13 @@ We are committed to addressing these limitations and implementing new features a
 
 ## 👋 Getting Started
 
-To build WrangleBot, you will need to have [Node.js](https://nodejs.org/en/) installed on your computer. Create a new folder and clone the repository into it. Then, run `npm install` to install all of the dependencies. After that, run `npm run build` to build the application. Finally, run `npm run test` to start the application.
+To build WrangleBot, you will need to have [Node.js](https://nodejs.org/en/) installed on your computer. 
 
 ### 📦 Install
 
-```
-npm install wranglebot
-```
+Create a new folder and clone the repository into it. Then, run `npm install` to install all of the dependencies. After that, run `npm run build` to build the application. Finally, run `npm run test` to start the application.
+
+Alternatively you can use npm to install wranglebot using `npm install wranglebot` in your newly created folder.
 
 ### 🛠 Build
 
