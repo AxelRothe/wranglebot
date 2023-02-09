@@ -4,6 +4,7 @@ import RouteResult from "../../RouteResult";
 export default {
   method: 'post',
   url: '/login',
+  public: true,
   handler: async (req, res, wranglebot, socketServer) =>{
 
     const { username, password, token } = req.body;

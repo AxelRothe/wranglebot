@@ -8,6 +8,7 @@ export default {
   method: "post",
   url: "/users",
   requiredBody: ["username", "password", "roles", "libraries"],
+  requiredRole: "admin",
   handler: async (req, res, bot: WrangleBot, socketServer: SocketServer) => {
     const { username, password, roles, libraries, firstName, lastName, email } = req.body;
 
