@@ -2,7 +2,7 @@
   "name": "wranglebot",
   "appName": "wranglebot",
   "description": "open source media asset management",
-  "version": "5.14.0",
+  "version": "5.14.1",
   "license": "GPL-3.0",
   "author": "Axel Rothe",
   "main": "./build/src/index.js",
