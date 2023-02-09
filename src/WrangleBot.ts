@@ -121,7 +121,7 @@ class WrangleBot extends EventEmitter {
       db.on("notification", (notification) => {
         this.emit("notification", notification);
       });
-      await db.connect(options.key || this.config.get("licenseKey"));
+      await db.connect(options.key);
 
       if (db) {
         //start Account Manager
