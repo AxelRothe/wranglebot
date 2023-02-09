@@ -3,12 +3,13 @@ import { WrangleBot } from "../WrangleBot";
 import { SocketServer } from "./SocketServer";
 const LogBot = require("logbotjs");
 
-interface routeOptions {
+interface RouteOptions {
   method: string; //"get" | "post" | "put" | "delete"
   url: string;
   requiredRole?: string;
   requiredParams?: string[] | undefined;
   requiredBody?: string[] | undefined;
+  public?: boolean;
   handler: (req: express.Request, res: express.Response, bot: WrangleBot, server: SocketServer) => Promise<any>;
 }
 
@@ -34,7 +35,7 @@ export default class RouteFactory {
     this.mail = options.mailServer;
   }
 
-  build(options: routeOptions) {
+  build(options: RouteOptions) {
     if (!options.method) throw new Error("Method is required");
 
     LogBot.log(100, `Building route ${options.method.toUpperCase()} ${this.baseUrl}${options.url}`);
@@ -42,6 +43,7 @@ export default class RouteFactory {
     this.app[options.method](`${this.baseUrl}${options.url}`, async (req, res) => {
       try {
         if (options.requiredRole && !this.server.checkRequestAuthorization(req, res, options.requiredRole)) return;
+        else if (!options.public && !this.server.checkRequestAuthorization(req, res)) return;
 
         const resolvedHandler = await options.handler(req, res, this.bot, this.server);
 
@@ -52,10 +54,12 @@ export default class RouteFactory {
       } catch (e: any) {
         LogBot.log(500, `[API] ${options.method.toUpperCase()} ${this.baseUrl}${options.url} by IP ${req.ip}`);
         console.error(e);
-        res.status(500).send({
-          status: "error",
-          message: e.message,
-        });
+        if (!res.headersSent) {
+          res.status(500).send({
+            status: "error",
+            message: e.message,
+          });
+        }
       }
     });
   }

@@ -292,7 +292,7 @@ class SocketServer {
   checkRequestAuthorization = (req, res, role = "") => {
     const auth = req.get("authorization");
     if (!auth || !auth.startsWith("Bearer ")) {
-      res.status(401).send({ error: `Invalid Authorization Format or Token. Should be: Bearer <token>` });
+      res.status(401).send({ error: `Invalid Authorization Format or Token. Should be: Bearer <token>.` });
       return false;
     }
 
