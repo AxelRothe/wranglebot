@@ -37,7 +37,6 @@ interface ReturnObject {
 interface WrangleBotOptions {
   token: string;
   key: string;
-  libraries?: string[];
   database?: string;
   port?: number;
 }
@@ -137,7 +136,7 @@ class WrangleBot extends EventEmitter {
         await this.driveBot.updateDrives();
         this.driveBot.watch(); //start drive watching
 
-        const libraries = options.libraries || this.getAvailableLibraries().map((l) => l.name);
+        const libraries = this.getAvailableLibraries().map((l) => l.name);
 
         let i = 1;
         let total = libraries.length;
