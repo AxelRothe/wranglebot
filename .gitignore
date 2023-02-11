@@ -1,6 +1,5 @@
 # Project exclude paths
 /node_modules/
-/build/
 .env
 .idea
 /assets/luts
