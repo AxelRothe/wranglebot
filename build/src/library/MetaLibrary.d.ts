@@ -140,7 +140,7 @@ export default class MetaLibrary {
      */
     runOneTask(id: any, cb: any, cancelToken?: {
         cancel: boolean;
-    }): Promise<Task | undefined>;
+    }): Promise<Task>;
     /**
      * Returns all tasks of the library
      * @returns {Task[]}

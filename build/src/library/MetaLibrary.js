@@ -33,6 +33,7 @@ const Scraper_1 = __importDefault(require("./Scraper"));
 const Espresso_1 = __importDefault(require("../media/Espresso"));
 const TranscodeTask_1 = require("../transcode/TranscodeTask");
 const Indexer_1 = require("../media/Indexer");
+const Status_1 = __importDefault(require("../media/Status"));
 class MetaLibrary {
     constructor(wb, options) {
         _MetaLibrary_instances.add(this);
@@ -694,11 +695,15 @@ class MetaLibrary {
             try {
                 //iterate over all jobs
                 for (let job of task.jobs) {
+                    if (job.status === Status_1.default.DONE) {
+                        continue;
+                    }
                     let executedJob;
-                    //run the job
-                    executedJob = yield task.runOneJob(job, cb, cancelToken);
                     if (cancelToken.cancel)
-                        return; //listen on cancel and skip
+                        break; //listen on cancel and exit task before the job is executed
+                    executedJob = yield task.runOneJob(job, cb, cancelToken); //run the job
+                    if (cancelToken.cancel)
+                        break; //listen on cancel and skip after the job is executed
                     //search for hash in library
                     const foundMetaFile = this.findMetaFileByHash(executedJob.result.hash);
                     if (foundMetaFile) {
@@ -714,7 +719,7 @@ class MetaLibrary {
                             });
                             //push changes to the database
                             yield this.addOneMetaCopy(newMetaCopy, foundMetaFile);
-                            yield utility_1.default.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
+                            yield utility_1.default.twiddleThumbs(5); //wait 5 milliseconds to make sure the timestamp is incremented
                         }
                     }
                     else {
@@ -743,7 +748,7 @@ class MetaLibrary {
                                 thumbnails: executedJob.result.thumbnails,
                             });
                             yield this.addOneMetaCopy(newMetaCopy, newMetaFile);
-                            yield utility_1.default.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
+                            yield utility_1.default.twiddleThumbs(5); //wait 5 milliseconds to make sure the timestamp is incremented
                             //executedJob.result.metaCopies.push(newMetaCopy);
                         }
                     }

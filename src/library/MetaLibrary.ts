@@ -21,6 +21,7 @@ import Espresso from "../media/Espresso";
 import { TranscodeTask } from "../transcode/TranscodeTask";
 import { Indexer } from "../media/Indexer";
 import Job from "../media/Job";
+import Status from "../media/Status";
 
 interface Folders {
   name: string;
@@ -822,12 +823,17 @@ export default class MetaLibrary {
     try {
       //iterate over all jobs
       for (let job of task.jobs) {
+        if (job.status === Status.DONE) {
+          continue;
+        }
+
         let executedJob;
 
-        //run the job
-        executedJob = await task.runOneJob(job, cb, cancelToken);
+        if (cancelToken.cancel) break; //listen on cancel and exit task before the job is executed
 
-        if (cancelToken.cancel) return; //listen on cancel and skip
+        executedJob = await task.runOneJob(job, cb, cancelToken); //run the job
+
+        if (cancelToken.cancel) break; //listen on cancel and skip after the job is executed
 
         //search for hash in library
         const foundMetaFile = this.findMetaFileByHash(executedJob.result.hash);
@@ -844,7 +850,7 @@ export default class MetaLibrary {
             });
             //push changes to the database
             await this.addOneMetaCopy(newMetaCopy, foundMetaFile);
-            await utility.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
+            await utility.twiddleThumbs(5); //wait 5 milliseconds to make sure the timestamp is incremented
           }
         } else {
           //create new metafile
@@ -875,7 +881,7 @@ export default class MetaLibrary {
             });
 
             await this.addOneMetaCopy(newMetaCopy, newMetaFile);
-            await utility.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
+            await utility.twiddleThumbs(5); //wait 5 milliseconds to make sure the timestamp is incremented
 
             //executedJob.result.metaCopies.push(newMetaCopy);
           }
