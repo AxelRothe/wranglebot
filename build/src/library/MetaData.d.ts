@@ -21,9 +21,9 @@ export class MetaData {
      * metaData.get("key")
      *
      * @param {String} index
-     * @return {MetaDataEntry|Error}
+     * @return {any}
      */
-    getEntry(index: string): MetaDataEntry | Error;
+    getEntry(index: string): any;
     get(key: any): any;
     /**
      * Updates an Entry in the MetaData

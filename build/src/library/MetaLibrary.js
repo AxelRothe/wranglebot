@@ -687,8 +687,11 @@ class MetaLibrary {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.readOnly)
                 throw new Error("Library is read only");
+            const task = this.getOneTask(id);
+            if (!task) {
+                throw new Error("Task not found");
+            }
             try {
-                const task = this.getOneTask(id);
                 //iterate over all jobs
                 for (let job of task.jobs) {
                     let executedJob;
@@ -749,6 +752,7 @@ class MetaLibrary {
                 return task;
             }
             catch (e) {
+                yield (0, DB_1.default)().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
                 logbotjs_1.default.log(500, "Task failed or cancelled");
                 throw e;
             }

@@ -24,7 +24,7 @@ class MetaData {
      * metaData.get("key")
      *
      * @param {String} index
-     * @return {MetaDataEntry|Error}
+     * @return {any}
      */
     getEntry(index) {
         if (this.entries[index])

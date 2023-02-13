@@ -814,9 +814,12 @@ export default class MetaLibrary {
   async runOneTask(id, cb, cancelToken = { cancel: false }) {
     if (this.readOnly) throw new Error("Library is read only");
 
-    try {
-      const task = this.getOneTask(id);
+    const task = this.getOneTask(id);
+    if (!task) {
+      throw new Error("Task not found");
+    }
 
+    try {
       //iterate over all jobs
       for (let job of task.jobs) {
         let executedJob;
@@ -882,6 +885,7 @@ export default class MetaLibrary {
       await DB().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
       return task;
     } catch (e) {
+      await DB().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
       LogBot.log(500, "Task failed or cancelled");
       throw e;
     }
