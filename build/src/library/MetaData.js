@@ -1,5 +1,4 @@
 "use strict";
-const { MetaDataEntry } = require("./MetaDataEntry");
 class MetaData {
     /**
      * @typedef {Object<string, string>} MetaDataTemplate

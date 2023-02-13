@@ -744,9 +744,8 @@ class MetaLibrary {
                             //executedJob.result.metaCopies.push(newMetaCopy);
                         }
                     }
-                    //update the task in the database
-                    yield (0, DB_1.default)().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
                 }
+                yield (0, DB_1.default)().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
                 return task;
             }
             catch (e) {

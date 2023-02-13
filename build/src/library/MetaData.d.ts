@@ -24,7 +24,7 @@ export class MetaData {
      * @return {MetaDataEntry|Error}
      */
     getEntry(index: string): MetaDataEntry | Error;
-    get(key: any): Error | MetaDataEntry;
+    get(key: any): any;
     /**
      * Updates an Entry in the MetaData
      *
@@ -60,5 +60,4 @@ export class MetaData {
         [x: string]: string;
     };
 }
-import { MetaDataEntry } from "./MetaDataEntry";
 //# sourceMappingURL=MetaData.d.ts.map

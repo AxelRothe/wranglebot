@@ -1,6 +1,6 @@
 _type: export
 __export_format: 4
-__export_date: 2023-02-03T11:14:01.895Z
+__export_date: 2023-02-13T13:33:24.995Z
 __export_source: insomnia.desktop.app:v2022.7.5
 resources:
   - _id: req_e708dad9d8524605ac87ac562955f0c2
@@ -138,6 +138,59 @@ resources:
       type: bearer
       token: "{{ _.authKey }}"
     metaSortKey: -1664374719983
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: req_f791dafe4ba847c1b2e460d526000bfd
+    parentId: fld_3698211331cb470abd8045180d607475
+    modified: 1675693707299
+    created: 1675690548401
+    url: "{{ _.api_url }}/utility/list"
+    name: list
+    description: ""
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"path" : "/Users/axelrothe"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: application/json
+    authentication:
+      type: bearer
+      token: "{{ _.authKey }}"
+    metaSortKey: -1664373334257
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: req_d1701824c1144c0daddc1c33f3ca0a39
+    parentId: fld_3698211331cb470abd8045180d607475
+    modified: 1675694336544
+    created: 1675694320136
+    url: "{{ _.api_url }}/utility/test/hello-world"
+    name: test
+    description: ""
+    method: GET
+    body: {}
+    parameters: []
+    headers: []
+    authentication:
+      type: bearer
+      token: "{{ _.authKey }}"
+    metaSortKey: -1664372641394
     isPrivate: false
     settingStoreCookies: true
     settingSendCookies: true
@@ -999,92 +1052,6 @@ resources:
     settingRebuildPath: true
     settingFollowRedirects: global
     _type: request
-  - _id: req_2edce45db29b4af0bdca0222c9091038
-    parentId: fld_b9ae4421d18b45d3967c7ca3ac88552b
-    modified: 1664891103962
-    created: 1664880222354
-    url: "{{ _.api_url }}/drops/"
-    name: drops
-    description: ""
-    method: GET
-    body: {}
-    parameters: []
-    headers: []
-    authentication:
-      type: bearer
-      token: "{{ _.authKey }}"
-    metaSortKey: -1664386130738
-    isPrivate: false
-    settingStoreCookies: true
-    settingSendCookies: true
-    settingDisableRenderRequestBody: false
-    settingEncodeUrl: true
-    settingRebuildPath: true
-    settingFollowRedirects: global
-    _type: request
-  - _id: fld_b9ae4421d18b45d3967c7ca3ac88552b
-    parentId: wrk_4c9fb3bc9f52427e98844d0122b3e3d8
-    modified: 1664889336105
-    created: 1664386129488
-    name: drives
-    description: ""
-    environment: {}
-    environmentPropertyOrder: null
-    metaSortKey: -1664374740574
-    _type: request_group
-  - _id: req_d4345a3aaa23405488941f7956591025
-    parentId: fld_b9ae4421d18b45d3967c7ca3ac88552b
-    modified: 1667389444221
-    created: 1665159180401
-    url: "{{ _.api_url }}/library/{{ _.libraryName }}/drops/"
-    name: drops
-    description: ""
-    method: POST
-    body:
-      mimeType: application/json
-      text: |-
-        {
-        	"test2" : "test6"
-        }
-    parameters: []
-    headers:
-      - name: Content-Type
-        value: application/json
-    authentication:
-      type: bearer
-      token: "{{ _.authKey }}"
-    metaSortKey: -1664386130713
-    isPrivate: false
-    settingStoreCookies: true
-    settingSendCookies: true
-    settingDisableRenderRequestBody: false
-    settingEncodeUrl: true
-    settingRebuildPath: true
-    settingFollowRedirects: global
-    _type: request
-  - _id: req_e2684b7a3b9d43f4892a6aa9960449b4
-    parentId: fld_b9ae4421d18b45d3967c7ca3ac88552b
-    modified: 1664889333614
-    created: 1664386130688
-    url: "{{ _.api_url }}/drives"
-    name: drives
-    description: ""
-    method: GET
-    body: {}
-    parameters: []
-    headers: []
-    authentication:
-      type: bearer
-      token: "{{ _.authKey }}"
-    metaSortKey: -1664386130688
-    isPrivate: false
-    settingStoreCookies: true
-    settingSendCookies: true
-    settingDisableRenderRequestBody: false
-    settingEncodeUrl: true
-    settingRebuildPath: true
-    settingFollowRedirects: global
-    _type: request
   - _id: req_063e01a4bb4f4ad881186241a2f2a484
     parentId: fld_b9ae4421d18b45d3967c7ca3ac88552b
     modified: 1675422293612
@@ -1109,6 +1076,16 @@ resources:
     settingRebuildPath: true
     settingFollowRedirects: global
     _type: request
+  - _id: fld_b9ae4421d18b45d3967c7ca3ac88552b
+    parentId: wrk_4c9fb3bc9f52427e98844d0122b3e3d8
+    modified: 1664889336105
+    created: 1664386129488
+    name: drives
+    description: ""
+    environment: {}
+    environmentPropertyOrder: null
+    metaSortKey: -1664374740574
+    _type: request_group
   - _id: req_46a129c26c904ee58c98b09ff0f73814
     parentId: fld_b9ae4421d18b45d3967c7ca3ac88552b
     modified: 1675422285209
@@ -1125,61 +1102,6 @@ resources:
       token: "{{ _.authKey }}"
       disabled: false
     metaSortKey: -1664382624124.1875
-    isPrivate: false
-    settingStoreCookies: true
-    settingSendCookies: true
-    settingDisableRenderRequestBody: false
-    settingEncodeUrl: true
-    settingRebuildPath: true
-    settingFollowRedirects: global
-    _type: request
-  - _id: req_63f6ebe5fbc24a9e9f6cfc2cd2881a13
-    parentId: fld_b9ae4421d18b45d3967c7ca3ac88552b
-    modified: 1666867782865
-    created: 1664446409959
-    url: "{{ _.api_url }}/drives"
-    name: drives
-    description: ""
-    method: POST
-    body:
-      mimeType: application/json
-      text: |-
-        {
-        	"mountpoint" : "/Volumes/CACHE",
-        	"type" : "source"
-        }
-    parameters: []
-    headers:
-      - name: Content-Type
-        value: application/json
-        id: pair_bb7ede6c70ef413a848fea78a4ca71c0
-    authentication:
-      type: bearer
-      token: "{{ _.authKey }}"
-    metaSortKey: -1664381121311.125
-    isPrivate: false
-    settingStoreCookies: true
-    settingSendCookies: true
-    settingDisableRenderRequestBody: false
-    settingEncodeUrl: true
-    settingRebuildPath: true
-    settingFollowRedirects: global
-    _type: request
-  - _id: req_8a76052636404821bc9a6c3a9ee68831
-    parentId: fld_b9ae4421d18b45d3967c7ca3ac88552b
-    modified: 1675422274785
-    created: 1664450045290
-    url: "{{ _.api_url }}/drives/"
-    name: drives
-    description: ""
-    method: DELETE
-    body: {}
-    parameters: []
-    headers: []
-    authentication:
-      type: bearer
-      token: "{{ _.authKey }}"
-    metaSortKey: -1664380119435.75
     isPrivate: false
     settingStoreCookies: true
     settingSendCookies: true
@@ -1307,7 +1229,7 @@ resources:
     _type: request
   - _id: req_7e728ef3b1f749e4aca49851c76170b9
     parentId: fld_5587408926754a268a690ff1e7fe8ccb
-    modified: 1669031782668
+    modified: 1675704449761
     created: 1665067482769
     url: "{{ _.api_url }}/library/{{ _.libraryName }}/"
     name: library
@@ -1320,8 +1242,7 @@ resources:
         	"drops": {
         		"test":"testa",
         		"owner":"axelrothe"
-        	},
-        	"pathToLibrary": "/Volumes/73DB3_SSD/new library"
+        	}
         }
     parameters: []
     headers:
@@ -1332,6 +1253,71 @@ resources:
       type: bearer
       token: "{{ _.authKey }}"
     metaSortKey: -1664374756557.7812
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: req_d4bd5e20b8ad43478febfdcc770cc744
+    parentId: fld_5587408926754a268a690ff1e7fe8ccb
+    modified: 1675620721271
+    created: 1675603971739
+    url: "{{ _.api_url }}/library/{{ _.libraryName }}/folders/"
+    name: rename folder
+    description: ""
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"pathToFolder": "/Other/",
+        	"overwrite": {
+        		"name": "Misc",
+        		"watch": false
+        	}
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: application/json
+        id: pair_e227e24466d4462b8eafdfd573a1f793
+    authentication:
+      type: bearer
+      token: "{{ _.authKey }}"
+    metaSortKey: -1664374755934.0781
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: req_d4345a3aaa23405488941f7956591025
+    parentId: fld_5587408926754a268a690ff1e7fe8ccb
+    modified: 1675690510445
+    created: 1665159180401
+    url: "{{ _.api_url }}/library/{{ _.libraryName }}/drops/"
+    name: drops
+    description: ""
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"test2" : "test6"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: application/json
+    authentication:
+      type: bearer
+      token: "{{ _.authKey }}"
+    metaSortKey: -1664374755622.2266
     isPrivate: false
     settingStoreCookies: true
     settingSendCookies: true
@@ -1499,6 +1485,29 @@ resources:
     settingRebuildPath: true
     settingFollowRedirects: global
     _type: request
+  - _id: req_9952638c2334480fb2e0121b3e99ba3f
+    parentId: fld_3ef64836346e462582f22c49e69bb467
+    modified: 1675766748806
+    created: 1675766725932
+    url: "{{ _.api_url }}/users/subscriptions"
+    name: subscriptions
+    description: ""
+    method: GET
+    body: {}
+    parameters: []
+    headers: []
+    authentication:
+      type: bearer
+      token: "{{ _.authKey }}"
+    metaSortKey: -1664371948456
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
   - _id: req_d5d5094a79c843daa0fba947bada0865
     parentId: fld_3ef64836346e462582f22c49e69bb467
     modified: 1675422249124
@@ -1537,7 +1546,7 @@ resources:
     _type: request
   - _id: req_e9406a41c5c5483dbca91e615eb86735
     parentId: fld_3ef64836346e462582f22c49e69bb467
-    modified: 1675422253351
+    modified: 1675967265884
     created: 1664373647106
     url: "{{ _.api_url }}/users/"
     name: user
@@ -1547,7 +1556,7 @@ resources:
       mimeType: application/json
       text: |-
         {
-        	"username": "test7",
+        	"username": "test01",
         	"password": "12345678",
         	"email": "a.rothe@vanrothe.com",
         	"firstName": "Michaela",
@@ -1597,11 +1606,11 @@ resources:
     _type: request
   - _id: env_5b6785ae3d2131464d43159c555fdd99fd453432
     parentId: wrk_4c9fb3bc9f52427e98844d0122b3e3d8
-    modified: 1675422779945
+    modified: 1676295180676
     created: 1664371167174
     name: Base Environment
     data:
-      libraryName: example
+      libraryName: ""
       api_url: http://127.0.0.1:3200/api/v1
       authKey: ""
       metaFile: ""

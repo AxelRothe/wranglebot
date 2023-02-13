@@ -877,10 +877,9 @@ export default class MetaLibrary {
             //executedJob.result.metaCopies.push(newMetaCopy);
           }
         }
-        //update the task in the database
-        await DB().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
       }
 
+      await DB().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
       return task;
     } catch (e) {
       LogBot.log(500, "Task failed or cancelled");
