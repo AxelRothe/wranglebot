@@ -1,5 +1,11 @@
 # Welcome to WrangleBot
 
+![GitHub last commit](https://img.shields.io/github/last-commit/AxelRothe/wranglebot)
+![GitHub package.json version](https://img.shields.io/github/package-json/v/AxelRothe/wranglebot)
+![GitHub repo size](https://img.shields.io/github/repo-size/AxelRothe/wranglebot)
+![Platforms](https://img.shields.io/badge/platforms-macos%20(x64%2C%20arm64)-blue)
+![Discord](https://img.shields.io/discord/1070819210265104434?logo=discord&logoColor=blue)
+
 WrangleBot is an open source media asset management tool designed to make digital asset management simple. Whether you are a media producer, content creator, or any other type of professional in the media industry, WrangleBot can help you manage and organize your assets.
 
 ## Desktop App
