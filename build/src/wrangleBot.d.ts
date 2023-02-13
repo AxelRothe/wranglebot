@@ -298,7 +298,7 @@ declare class WrangleBot extends EventEmitter {
                 tasks: {
                     one: (id: any) => {
                         fetch(): Task;
-                        run: (cb: any, cancelToken: any) => Promise<Task | undefined>;
+                        run: (cb: any, cancelToken: any) => Promise<Task>;
                         put: (options: any) => Promise<true | Error>;
                         delete: () => Promise<void>;
                     };
