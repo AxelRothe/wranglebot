@@ -41,7 +41,6 @@ Alternatively you can use npm to install wranglebot using `npm install wranglebo
 ### 🛠 Build
 
 ```
-npm run install
 npm run build
 ```
 
