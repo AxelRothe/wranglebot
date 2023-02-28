@@ -6,6 +6,14 @@
 ![Platforms](https://img.shields.io/badge/platforms-macos%20(x64%2C%20arm64)-blue)
 ![Discord](https://img.shields.io/discord/1070819210265104434?logo=discord&logoColor=blue)
 
+### Status
+
+_Live Server Status_
+
+![Website](https://img.shields.io/website?label=Cloud%20Sync&url=https%3A%2F%2Fdb2.wranglebot.io%2Fversion)
+
+---
+
 WrangleBot is an open source media asset management tool designed to make digital asset management simple. Whether you are a media producer, content creator, or any other type of professional in the media industry, WrangleBot can help you manage and organize your assets.
 
 ## Desktop App
