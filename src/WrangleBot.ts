@@ -112,19 +112,17 @@ class WrangleBot extends EventEmitter {
         db = DB({
           url: options.database,
           token: options.token,
-          key: options.key,
         });
-        await DB().rebuildLocalModel()
+        await DB().rebuildLocalModel();
         await db.connect(options.key);
       } else {
         db = DB({
-          key: options.key
+          key: options.key,
         });
-        await DB().rebuildLocalModel()
+        await DB().rebuildLocalModel();
       }
 
       if (db) {
-
         DB().on("transaction", (transaction) => {
           this.applyTransaction(transaction);
         });
@@ -197,8 +195,6 @@ class WrangleBot extends EventEmitter {
           message: "WrangleBot is ready to rumble.",
         });
 
-
-
         this.emit("connectedToCloud", this);
 
         return this;
@@ -237,7 +233,6 @@ class WrangleBot extends EventEmitter {
    * @return {Promise<string>}
    */
   async close() {
-    await DB().disconnect();
     this.status = WrangleBot.CLOSED;
     clearInterval(this.ping);
     this.driveBot.watcher.close();

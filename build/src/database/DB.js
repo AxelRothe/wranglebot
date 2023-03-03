@@ -12,7 +12,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const axios_1 = __importDefault(require("axios"));
 const Transaction_1 = __importDefault(require("./Transaction"));
 const logbotjs_1 = __importDefault(require("logbotjs"));
 const socket_io_client_1 = require("socket.io-client");
@@ -33,13 +32,12 @@ class DB extends events_1.default {
         this.unsavedChanges = false;
         this.saving = false;
         this.keySalt = "Wr4ngle_b0t";
-        if (!options.url && !options.key && !options.token)
-            throw new Error("No database, key or token provided. Aborting.");
+        if (!options.url && !options.token)
+            throw new Error("No database or token provided. Aborting.");
         this.url = options.url;
         this.token = options.token;
-        this.key = options.key;
         //this is not a good solution but it obfuscates the key a bit
-        this.pathToTransactions = system_1.config.getPathToUserData() + "/transactions/" + `${(0, md5_1.default)(this.key + this.keySalt)}`;
+        this.pathToTransactions = system_1.config.getPathToUserData() + "/transactions/" + `${(0, md5_1.default)(this.token + this.keySalt)}`;
         if (!system_1.finder.existsSync(this.pathToTransactions)) {
             system_1.finder.mkdirSync(this.pathToTransactions, { recursive: true });
         }
@@ -47,7 +45,7 @@ class DB extends events_1.default {
     rebuildLocalModel() {
         return __awaiter(this, void 0, void 0, function* () {
             //check if offline mode
-            if (!this.url && !this.token && this.key) {
+            if (!this.url && this.token) {
                 let skip = false;
                 if (!system_1.finder.existsSync(this.pathToTransactions)) {
                     system_1.finder.mkdirSync(this.pathToTransactions, { recursive: true });
@@ -55,16 +53,21 @@ class DB extends events_1.default {
                 }
                 if (system_1.finder.getContentOfFolder(this.pathToTransactions).length === 0) {
                     //create and save the initial transaction
-                    yield this.saveTransaction(new Transaction_1.default({ $collection: "users", $query: {
+                    yield this.saveTransaction(new Transaction_1.default({
+                        $collection: "users",
+                        $query: {
                             id: (0, uuid_1.v4)(),
-                        }, $set: {
+                        },
+                        $set: {
                             username: "admin",
                             password: (0, md5_1.default)("admin" + this.keySalt),
                             roles: ["admin"],
                             firstName: "Admin",
                             lastName: "Admin",
                             email: "admin@wranglebot.local",
-                        }, $method: "updateOne" }));
+                        },
+                        $method: "updateOne",
+                    }));
                 }
             }
             if (system_1.finder.exists("transactions")) {
@@ -108,12 +111,12 @@ class DB extends events_1.default {
      *
      * @return {Promise<DB>}
      */
-    connect(key = this.key) {
+    connect(token = this.token) {
         return __awaiter(this, void 0, void 0, function* () {
             (0, timers_1.clearTimeout)(this.connectTimeout);
-            if (!key)
-                throw new Error("No license key provided. Aborting.");
-            this.key = key;
+            if (!token)
+                throw new Error("No token provided. Aborting.");
+            this.token = token;
             try {
                 if (!this.socket)
                     yield this.listen();
@@ -123,35 +126,10 @@ class DB extends events_1.default {
             catch (e) {
                 logbotjs_1.default.log(600, "Could not connect to database. Trying again in 5 seconds.");
                 this.connectTimeout = setTimeout(() => {
-                    this.connect(key);
+                    this.connect(token);
                 }, 5000);
             }
             return this;
-        });
-    }
-    /**
-     * Disconnects from MongoDB
-     *
-     * @return {Promise<boolean>}
-     */
-    disconnect() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const result = yield axios_1.default.post(`${this.url}/disconnect/${this.key}`, {}, {
-                    headers: {
-                        "Content-Type": "application/json;charset=UTF-8",
-                        Authorization: "Bearer " + this.token,
-                    },
-                });
-                if (result.status === 200) {
-                    this.offline = true;
-                    return true;
-                }
-            }
-            catch (e) {
-                console.error(e);
-                return false;
-            }
         });
     }
     fetchTransactions() {
@@ -380,9 +358,6 @@ class DB extends events_1.default {
                 auth: {
                     token: this.token,
                 },
-                query: {
-                    key: this.key,
-                },
             });
             let timer = setTimeout(() => {
                 if (!this.socket.connected) {
@@ -464,7 +439,7 @@ class DB extends events_1.default {
     saveTransaction(transaction) {
         return new Promise((resolve, reject) => {
             system_1.finder
-                .saveAsync(`/transactions/${(0, md5_1.default)(this.key + this.keySalt)}/${transaction.uuid}`, JSON.stringify(transaction))
+                .saveAsync(`/transactions/${(0, md5_1.default)(this.token + this.keySalt)}/${transaction.uuid}`, JSON.stringify(transaction))
                 .then(() => {
                 logbotjs_1.default.log(200, "Saved transaction " + transaction.uuid + " to disk");
                 resolve(true);
@@ -482,7 +457,6 @@ const getDB = (options = undefined) => {
     else if (options) {
         db = new DB({
             url: options.url,
-            key: options.key,
             token: options.token,
         });
         return db;

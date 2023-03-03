@@ -1,33 +1,31 @@
 const LogBot = require("logbotjs");
 const wb = require("../build/src/");
 LogBot.verbose = true;
-const {config } = require('dotenv')
-config()
+const { config } = require("dotenv");
+config();
 
 LogBot.addSpinner("load", "Loading...");
 
 let conf = {
   debugNotifications: process.env.DEBUG_NOTIFICATIONS === "true",
-}
+};
 
-if (process.env.DATABASE_KEY){
-  conf.key = process.env.DATABASE_KEY
+if (process.env.DATABASE_TOKEN) {
+  conf.token = process.env.DATABASE_TOKEN;
 } else {
   conf = {
     ...conf,
-    key: process.env.CLOUD_SYNC_DATABASE_KEY,
-    token: process.env.CLOUD_SYNC_TOKEN,
-    database : process.env.CLOUD_SYNC_DATABASE_URL,
-  }
+    token: process.env.CLOUD_SYNC_DATABASE_TOKEN,
+    database: process.env.CLOUD_SYNC_DATABASE_URL,
+  };
 }
 
-console.log("LOADING CONFIG")
+console.log("LOADING CONFIG");
 console.log(conf);
 
 wb.open({
   token: conf.token,
-  key: conf.key,
-  database: conf.database
+  database: conf.database,
 });
 
 if (conf.debugNotifications) {

@@ -11,7 +11,6 @@ import { v4 as uuidv4 } from "uuid";
 interface DBOptions {
   url: string;
   token: string;
-  key: string;
 }
 
 type TransactionMethod = "updateOne" | "updateMany" | "removeOne" | "removeMany" | "insertMany";
@@ -34,7 +33,7 @@ class DB extends EventEmitter {
   private readOnly: boolean = false;
   private readonly url: string;
   private key: string | undefined = undefined;
-  private readonly token: string;
+  private token: string;
 
   transactions: Transaction[] = [];
   private socket: any;
@@ -57,14 +56,13 @@ class DB extends EventEmitter {
 
   constructor(options: DBOptions) {
     super();
-    if (!options.url && !options.key && !options.token) throw new Error("No database, key or token provided. Aborting.");
+    if (!options.url && !options.token) throw new Error("No database or token provided. Aborting.");
 
     this.url = options.url;
     this.token = options.token;
-    this.key = options.key;
 
     //this is not a good solution but it obfuscates the key a bit
-    this.pathToTransactions = config.getPathToUserData() + "/transactions/" + `${md5(this.key + this.keySalt)}`;
+    this.pathToTransactions = config.getPathToUserData() + "/transactions/" + `${md5(this.token + this.keySalt)}`;
 
     if (!finder.existsSync(this.pathToTransactions)) {
       finder.mkdirSync(this.pathToTransactions, { recursive: true });
@@ -72,31 +70,35 @@ class DB extends EventEmitter {
   }
 
   private async rebuildLocalModel() {
-
     //check if offline mode
-    if (!this.url && !this.token && this.key) {
+    if (!this.url && this.token) {
       let skip = false;
-        if (!finder.existsSync(this.pathToTransactions)) {
-          finder.mkdirSync(this.pathToTransactions, { recursive: true });
-          skip = true
-        }
+      if (!finder.existsSync(this.pathToTransactions)) {
+        finder.mkdirSync(this.pathToTransactions, { recursive: true });
+        skip = true;
+      }
 
-        if (finder.getContentOfFolder(this.pathToTransactions).length === 0) {
-          //create and save the initial transaction
-          await this.saveTransaction(new Transaction({ $collection: "users", $query: {
+      if (finder.getContentOfFolder(this.pathToTransactions).length === 0) {
+        //create and save the initial transaction
+        await this.saveTransaction(
+          new Transaction({
+            $collection: "users",
+            $query: {
               id: uuidv4(),
-            }, $set: {
+            },
+            $set: {
               username: "admin",
-              password: md5("admin"+this.keySalt),
+              password: md5("admin" + this.keySalt),
               roles: ["admin"],
               firstName: "Admin",
               lastName: "Admin",
               email: "admin@wranglebot.local",
-            }, $method: "updateOne" }));
-        }
-
+            },
+            $method: "updateOne",
+          })
+        );
+      }
     }
-
 
     if (finder.exists("transactions")) {
       let folderContents = finder.getContentOfFolder(this.pathToTransactions);
@@ -141,11 +143,11 @@ class DB extends EventEmitter {
    *
    * @return {Promise<DB>}
    */
-  async connect(key = this.key) {
+  async connect(token = this.token) {
     clearTimeout(this.connectTimeout);
 
-    if (!key) throw new Error("No license key provided. Aborting.");
-    this.key = key;
+    if (!token) throw new Error("No token provided. Aborting.");
+    this.token = token;
 
     try {
       if (!this.socket) await this.listen();
@@ -154,38 +156,11 @@ class DB extends EventEmitter {
     } catch (e) {
       LogBot.log(600, "Could not connect to database. Trying again in 5 seconds.");
       this.connectTimeout = setTimeout(() => {
-        this.connect(key);
+        this.connect(token);
       }, 5000);
     }
 
     return this;
-  }
-
-  /**
-   * Disconnects from MongoDB
-   *
-   * @return {Promise<boolean>}
-   */
-  async disconnect() {
-    try {
-      const result = await axios.post(
-        `${this.url}/disconnect/${this.key}`,
-        {},
-        {
-          headers: {
-            "Content-Type": "application/json;charset=UTF-8",
-            Authorization: "Bearer " + this.token,
-          },
-        }
-      );
-      if (result.status === 200) {
-        this.offline = true;
-        return true;
-      }
-    } catch (e) {
-      console.error(e);
-      return false;
-    }
   }
 
   private fetchTransactions() {
@@ -431,9 +406,6 @@ class DB extends EventEmitter {
         auth: {
           token: this.token,
         },
-        query: {
-          key: this.key,
-        },
       });
 
       let timer = setTimeout(() => {
@@ -528,7 +500,7 @@ class DB extends EventEmitter {
   saveTransaction(transaction: Transaction) {
     return new Promise((resolve, reject) => {
       finder
-        .saveAsync(`/transactions/${md5(this.key + this.keySalt)}/${transaction.uuid}`, JSON.stringify(transaction))
+        .saveAsync(`/transactions/${md5(this.token + this.keySalt)}/${transaction.uuid}`, JSON.stringify(transaction))
         .then(() => {
           LogBot.log(200, "Saved transaction " + transaction.uuid + " to disk");
           resolve(true);
@@ -546,7 +518,6 @@ const getDB = (options: DBOptions | undefined = undefined) => {
   else if (options) {
     db = new DB({
       url: options.url,
-      key: options.key,
       token: options.token,
     });
     return db;
