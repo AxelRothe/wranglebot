@@ -82,14 +82,13 @@ class WrangleBot extends EventEmitter {
                     db = DB({
                         url: options.database,
                         token: options.token,
-                        key: options.key,
                     });
                     yield DB().rebuildLocalModel();
                     yield db.connect(options.key);
                 }
                 else {
                     db = DB({
-                        key: options.key
+                        key: options.key,
                     });
                     yield DB().rebuildLocalModel();
                 }
@@ -189,7 +188,6 @@ class WrangleBot extends EventEmitter {
      */
     close() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield DB().disconnect();
             this.status = WrangleBot.CLOSED;
             clearInterval(this.ping);
             this.driveBot.watcher.close();
