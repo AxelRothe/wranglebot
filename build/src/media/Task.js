@@ -59,10 +59,6 @@ class Task {
             }
         });
     }
-    /**
-     * Returns all stats of the task
-     * @returns {{running: number, totalSize: number, pending: number, failed: number, totalRead: number, done: number}}
-     */
     get stats() {
         const stats = {
             pending: 0,
@@ -79,16 +75,12 @@ class Task {
         }
         return stats;
     }
-    /**
-     * to JSON
-     * @returns {{jobs: {result: {}, destination: *, id: *, source: *, status: *}[], id: string, label: string}}
-     */
-    toJSON({ db: boolean } = { db: false }) {
+    toJSON(options = { db: false }) {
         return {
             id: this.id,
             creationDate: this.creationDate.toISOString(),
             label: this.label,
-            jobs: this.jobs.map((job) => job.toJSON()),
+            jobs: this.jobs.map((job) => job.toJSON({ db: options.db })),
         };
     }
 }

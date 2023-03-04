@@ -58,11 +58,7 @@ export default class Task {
     }
   }
 
-  /**
-   * Returns all stats of the task
-   * @returns {{running: number, totalSize: number, pending: number, failed: number, totalRead: number, done: number}}
-   */
-  get stats() {
+  get stats(): { running: number; totalSize: number; pending: number; failed: number; totalRead: number; done: number } {
     const stats = {
       pending: 0,
       running: 0,
@@ -79,16 +75,17 @@ export default class Task {
     return stats;
   }
 
-  /**
-   * to JSON
-   * @returns {{jobs: {result: {}, destination: *, id: *, source: *, status: *}[], id: string, label: string}}
-   */
-  toJSON({ db: boolean } = { db: false }) {
+  toJSON(options: { db: boolean } = { db: false }): {
+    id: string;
+    creationDate: string;
+    label: string;
+    jobs: { result: {}; id: string; source: string; status: number }[];
+  } {
     return {
       id: this.id,
       creationDate: this.creationDate.toISOString(),
       label: this.label,
-      jobs: this.jobs.map((job) => job.toJSON()),
+      jobs: this.jobs.map((job) => job.toJSON({ db: options.db })),
     };
   }
 }

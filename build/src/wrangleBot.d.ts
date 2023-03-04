@@ -7,6 +7,7 @@ import { MetaFile } from "./library/MetaFile";
 import Task from "./media/Task";
 import { MetaCopy } from "./library/MetaCopy";
 import { TranscodeTask } from "./transcode/TranscodeTask";
+import createTaskOptions from "./library/createTaskOptions";
 declare const EventEmitter: any;
 interface ReturnObject {
     status: 200 | 400 | 500 | 404;
@@ -18,6 +19,7 @@ interface WrangleBotOptions {
     key: string;
     database?: string;
     port?: number;
+    mlserver?: string;
 }
 /**
  * WrangleBot Interface
@@ -279,9 +281,13 @@ declare class WrangleBot extends EventEmitter {
                                 }) => Promise<boolean>;
                             };
                             many: (filters?: {}) => {
-                                fetch: () => Promise<any[]>;
+                                fetch: () => Promise<MetaCopy[]>;
                             };
                         };
+                        analyse: (options: any) => Promise<{
+                            response: string;
+                            cost: number;
+                        } | undefined>;
                     };
                     many: (filters: any) => {
                         fetch: () => MetaFile[];
@@ -315,6 +321,7 @@ declare class WrangleBot extends EventEmitter {
                                 destinations?: string[];
                             }[];
                         }) => Promise<Task>;
+                        generate: (options: createTaskOptions) => Promise<Error | Task>;
                     };
                 };
                 transcodes: {

@@ -8,7 +8,8 @@ const { IndexItem } = require("./IndexItem");
  *                          video: number,
  *                          audio: number,
  *                          sidecar: number},
- *              items:IndexItem[]
+ *              items:IndexItem[],
+ *              duplicates?: boolean,
  *              }} Index
  */
 
@@ -25,11 +26,14 @@ class Indexer {
    *
    * @param sourcePath {String} the folders to archive
    * @param toCount {String["video"|"video-raw"|"audio"|"sidecar"|"photo"]} the type of files to count
+   * @param matchExpression {RegExp|null} the expression to match
    * @return {Promise<Index>}
    */
-  async index(sourcePath, toCount = ["video", "video-raw", "audio", "sidecar", "photo"]) {
+  async index(sourcePath, toCount = ["video", "video-raw", "audio", "sidecar", "photo"], matchExpression = null) {
     return new Promise(async (resolve, reject) => {
       let counter = {};
+      let filenames = new Map();
+      let duplicates = false;
       for (let type of toCount) {
         counter[type] = 0;
       }
@@ -42,6 +46,11 @@ class Indexer {
             files = files.filter((item) => !/(^|\/)\.[^\/\.]/g.test(item));
           }
 
+          //filter files that do not match the matchExpression
+          if (matchExpression !== null && matchExpression instanceof RegExp) {
+            files = files.filter((item) => matchExpression.test(item));
+          }
+
           let totalTaskSize = 0;
 
           let ListOfPathsToReturn = [];
@@ -51,6 +60,7 @@ class Indexer {
             let pathToFile = sourcePath + "/" + file;
             if (finder.existsSync(pathToFile)) {
               let indexItem = new IndexItem(pathToFile);
+
               if (!indexItem.isDirectory()) {
                 //await indexItem.resolveHash();
                 let isTypeToCount = false;
@@ -63,6 +73,12 @@ class Indexer {
 
                 if (isTypeToCount) {
                   ListOfPathsToReturn.push(indexItem);
+
+                  if (filenames.has(indexItem.basename)) {
+                    duplicates = true;
+                  } else {
+                    filenames.set(indexItem.basename, indexItem);
+                  }
 
                   totalTaskSize += indexItem.size;
 
@@ -89,6 +105,7 @@ class Indexer {
             items: ListOfPathsToReturn,
             size: totalTaskSize,
             counts: counter,
+            duplicates,
           });
         } catch (e) {
           console.log(e);

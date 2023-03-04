@@ -8,6 +8,7 @@ const tasks_delete_1 = __importDefault(require("./tasks-delete"));
 const tasks_get_one_1 = __importDefault(require("./tasks-get-one"));
 const tasks_get_metafiles_1 = __importDefault(require("./tasks-get-metafiles"));
 const tasks_post_1 = __importDefault(require("./tasks-post"));
+const tasks_post_generate_1 = __importDefault(require("./tasks-post-generate"));
 const tasks_post_run_1 = __importDefault(require("./tasks-post-run"));
 const tasks_post_stop_1 = __importDefault(require("./tasks-post-stop"));
 const library_delete_one_1 = __importDefault(require("./library-delete-one"));
@@ -28,6 +29,7 @@ const metafiles_export_1 = __importDefault(require("./metafiles-export"));
 const metafiles_get_many_1 = __importDefault(require("./metafiles-get-many"));
 const metafiles_get_one_1 = __importDefault(require("./metafiles-get-one"));
 const metafiles_put_1 = __importDefault(require("./metafiles-put"));
+const metafiles_analyse_1 = __importDefault(require("./metafiles-analyse"));
 const open_folder_1 = __importDefault(require("./open-folder"));
 const thumbnails_get_1 = __importDefault(require("./thumbnails-get"));
 const thumbnails_post_many_1 = __importDefault(require("./thumbnails-post-many"));
@@ -45,6 +47,7 @@ exports.default = [
     tasks_get_one_1.default,
     tasks_get_metafiles_1.default,
     tasks_post_1.default,
+    tasks_post_generate_1.default,
     tasks_post_run_1.default,
     tasks_post_stop_1.default,
     library_delete_one_1.default,
@@ -65,6 +68,7 @@ exports.default = [
     metafiles_get_many_1.default,
     metafiles_get_one_1.default,
     metafiles_put_1.default,
+    metafiles_analyse_1.default,
     open_folder_1.default,
     thumbnails_get_1.default,
     thumbnails_post_many_1.default,
@@ -75,6 +79,6 @@ exports.default = [
     transcode_post_one_1.default,
     transcode_post_run_1.default,
     transcode_post_stop_1.default,
-    transcode_status_1.default
+    transcode_status_1.default,
 ];
 //# sourceMappingURL=index.js.map

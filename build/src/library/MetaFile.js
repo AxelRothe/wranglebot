@@ -19,14 +19,19 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var _MetaFile_hash;
-const { v4: uuidv4 } = require("uuid");
-const { SearchLite } = require("searchlite");
-const { MetaCopy } = require("./MetaCopy");
-const { MetaData } = require("./MetaData");
-const { Thumbnail } = require("./Thumbnail");
-const { finder } = require("../system");
-const DB = require("../database/DB");
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MetaFile = void 0;
+const uuid_1 = require("uuid");
+const searchlite_1 = require("searchlite");
+const MetaData_1 = require("./MetaData");
+const Thumbnail_1 = require("./Thumbnail");
+const system_1 = require("../system");
+const DB_1 = __importDefault(require("../database/DB"));
+const MLInterface_1 = require("../analyse/MLInterface");
 class MetaFile {
     /**
      *
@@ -35,20 +40,17 @@ class MetaFile {
     constructor(options) {
         this.copies = [];
         _MetaFile_hash.set(this, void 0);
-        /**
-         * @type {Thumbnail[]}
-         */
         this.thumbnails = [];
         __classPrivateFieldSet(this, _MetaFile_hash, options.hash || "NaN", "f");
-        this.id = options.id || uuidv4();
+        this.id = options.id || (0, uuid_1.v4)();
         this.thumbnails = [];
         if (options.thumbnails) {
             for (let thumb of options.thumbnails) {
-                const thumbnail = new Thumbnail(thumb);
+                const thumbnail = new Thumbnail_1.Thumbnail(thumb);
                 this.thumbnails.push(thumbnail);
             }
         }
-        this.metaData = new MetaData(options.metaData) || new MetaData();
+        this.metaData = new MetaData_1.MetaData(options.metaData) || new MetaData_1.MetaData();
         this.basename = options.basename || "NaN";
         this.name = options.name || this.basename.split(".")[0];
         this.size = options.size || 0;
@@ -76,7 +78,7 @@ class MetaFile {
                         this.addThumbnail(thumb);
                     }
                     else {
-                        const thumbFromDB = DB().getOne("thumbnails", { id: thumb });
+                        const thumbFromDB = (0, DB_1.default)().getOne("thumbnails", { id: thumb });
                         if (thumbFromDB) {
                             this.addThumbnail(thumbFromDB);
                         }
@@ -99,9 +101,9 @@ class MetaFile {
         if (!thumbnail.id)
             throw new Error("Thumbnail id is missing");
         // if (!thumbnail.frame) throw new Error("Thumbnail frame number is missing");
-        const search = SearchLite.find(this.thumbnails, "id", thumbnail.id);
+        const search = searchlite_1.SearchLite.find(this.thumbnails, "id", thumbnail.id);
         if (search.wasFailure()) {
-            const newThumbnail = new Thumbnail({
+            const newThumbnail = new Thumbnail_1.Thumbnail({
                 id: thumbnail.id,
                 data: thumbnail.data,
                 metaFile: this,
@@ -126,7 +128,7 @@ class MetaFile {
     removeOneThumbnail(thumbnailId) {
         this.thumbnails = this.thumbnails.filter((thumbnail) => {
             if (thumbnail.id === thumbnailId) {
-                finder.rmSync(finder.join(finder.getPathToUserData("wranglebot"), "thumbnails", thumbnailId + ".jpg"));
+                system_1.finder.rmSync(system_1.finder.join(system_1.finder.getPathToUserData("wranglebot"), "thumbnails", thumbnailId + ".jpg"));
                 return false;
             }
             return true;
@@ -140,10 +142,7 @@ class MetaFile {
     updateMetaData(index, value) {
         //update MetaData here
     }
-    /**
-     * @return {any}
-     */
-    getMetaData(options = {}) {
+    getMetaData(options) {
         if (options.table) {
             let list = [];
             for (let [key, value] of Object.entries(this.metaData)) {
@@ -186,7 +185,7 @@ class MetaFile {
         if (type === "array") {
             let list = [];
             for (let copy of this.copies) {
-                list.push(copy.flatten());
+                list.push(copy.toJSON());
             }
             return list;
         }
@@ -200,7 +199,7 @@ class MetaFile {
     }
     getMetaCopy(metaCopyId) {
         if (metaCopyId) {
-            const search = SearchLite.find(this.copies, "id", metaCopyId);
+            const search = searchlite_1.SearchLite.find(this.copies, "id", metaCopyId);
             if (search.wasSuccess()) {
                 return search.result;
             }
@@ -219,7 +218,7 @@ class MetaFile {
     }
     getThumbnail(thumbnailId, by = "id") {
         if (thumbnailId) {
-            const search = SearchLite.find(this.thumbnails, by, thumbnailId);
+            const search = searchlite_1.SearchLite.find(this.thumbnails, by, thumbnailId);
             if (search.wasSuccess()) {
                 return search.result;
             }
@@ -234,6 +233,15 @@ class MetaFile {
             thumbnail.metaFile = this;
             return thumbnail;
         });
+    }
+    analyse(options) {
+        if (options && options.frames) {
+            return (0, MLInterface_1.MLInterface)().analyseFrames({
+                prompt: options.prompt,
+                frames: options.frames,
+                metafile: this,
+            });
+        }
     }
     toJSON(options = {}) {
         return {
@@ -251,6 +259,6 @@ class MetaFile {
         };
     }
 }
+exports.MetaFile = MetaFile;
 _MetaFile_hash = new WeakMap();
-module.exports.MetaFile = MetaFile;
 //# sourceMappingURL=MetaFile.js.map

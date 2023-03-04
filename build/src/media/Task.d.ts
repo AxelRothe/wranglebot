@@ -20,35 +20,25 @@ export default class Task {
      * @returns {Promise<Job|Error>}
      */
     runOneJob(job: Job, cb: any, cancelToken: any): Promise<unknown>;
-    /**
-     * Returns all stats of the task
-     * @returns {{running: number, totalSize: number, pending: number, failed: number, totalRead: number, done: number}}
-     */
     get stats(): {
-        pending: number;
         running: number;
-        done: number;
-        failed: number;
         totalSize: number;
+        pending: number;
+        failed: number;
         totalRead: number;
+        done: number;
     };
-    /**
-     * to JSON
-     * @returns {{jobs: {result: {}, destination: *, id: *, source: *, status: *}[], id: string, label: string}}
-     */
-    toJSON({ db }?: {
+    toJSON(options?: {
         db: boolean;
     }): {
-        id: any;
-        creationDate: any;
-        label: any;
+        id: string;
+        creationDate: string;
+        label: string;
         jobs: {
+            result: {};
             id: string;
             source: string;
-            destinations: string[];
             status: number;
-            result: any;
-            stats: any;
         }[];
     };
 }

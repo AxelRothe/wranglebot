@@ -120,7 +120,9 @@ class MetaLibrary {
                     folder.folders = overwriteOptions.folders;
                     this.createFoldersOnDiskFromTemplate();
                 }
-                this.save();
+                this.save({
+                    folders: this.folders,
+                });
                 return true;
             }
             catch (e) {
@@ -614,6 +616,51 @@ class MetaLibrary {
         });
     }
     /* TASKS */
+    generateOneTask(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.readOnly)
+                throw new Error("Library is read only");
+            const index = yield Indexer_1.Indexer.index(options.source, options.types, options.matchExpression ? new RegExp(options.matchExpression) : null);
+            const jobs = [];
+            if (index) {
+                for (let item of index.items) {
+                    let destinations = [];
+                    for (let folder of options.destinations) {
+                        if (options.settings) {
+                            if (!options.settings.preserveFolderStructure && index.duplicates) {
+                                throw new Error("Must preserve folder structure when there are duplicates");
+                            }
+                            if (options.settings.preserveFolderStructure) {
+                                let prefixToStrip = options.source;
+                                let prefix = item.pathToFile.replace(prefixToStrip, "");
+                                destinations.push(folder + (options.settings.createSubFolder ? "/" + options.label : "") + prefix);
+                            }
+                            else {
+                                destinations.push(folder + (options.settings.createSubFolder ? "/" + options.label : "") + "/" + item.basename);
+                            }
+                        }
+                        else {
+                            destinations.push(folder + "/" + item.basename);
+                        }
+                    }
+                    jobs.push({
+                        source: item.pathToFile,
+                        destinations: destinations,
+                    });
+                }
+                if (jobs.length > 0) {
+                    return yield this.addOneTask({
+                        label: options.label,
+                        jobs: jobs,
+                    });
+                }
+                else {
+                    return new Error("No files that matched the criteria were found");
+                }
+            }
+            throw new Error("Indexing failed");
+        });
+    }
     /**
      * Creates CopyTask and adds it to the library
      *

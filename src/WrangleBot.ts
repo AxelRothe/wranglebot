@@ -15,6 +15,8 @@ import utility from "./system/utility";
 import api from "./api";
 
 import AccountManager from "./accounts/AccountManager";
+import createTaskOptions from "./library/createTaskOptions";
+import { MLInterface } from "./analyse/MLInterface";
 
 const EventEmitter = require("events");
 const { finder } = require("./system");
@@ -39,6 +41,7 @@ interface WrangleBotOptions {
   key: string;
   database?: string;
   port?: number;
+  mlserver?: string;
 }
 
 /**
@@ -109,13 +112,23 @@ class WrangleBot extends EventEmitter {
     try {
       let db;
       if (options.database) {
+        //CLOUD SYNC DB
+
         db = DB({
           url: options.database,
           token: options.token,
         });
         await DB().rebuildLocalModel();
         await db.connect(options.key);
+        if (options.mlserver) {
+          MLInterface({
+            url: options.mlserver,
+            token: options.token,
+          });
+        }
       } else {
+        //LOCAL DB
+
         db = DB({
           key: options.key,
         });
@@ -258,6 +271,23 @@ class WrangleBot extends EventEmitter {
    */
   async addOneLibrary(options) {
     if (!options.name) throw new Error("No name provided");
+
+    const allowedPaths = [
+      //macos
+      "/volumes/",
+      "/users/",
+      //linux
+      "/media/",
+      "/home/",
+      //ubuntu
+      "/mnt/",
+      //archlinux
+      "/run/media/",
+    ];
+    const path = this.data.pathToLibrary.toLowerCase();
+
+    const allowed = allowedPaths.some((p) => path.startsWith(p));
+    if (!allowed) throw new Error("Path is not allowed");
 
     //check if lib exists in database
     if (this.index.libraries.find((l) => l.name === options.name)) {
@@ -944,6 +974,9 @@ class WrangleBot extends EventEmitter {
                       };
                     },
                   },
+                  analyse: async (options) => {
+                    return await metafile.analyse(options);
+                  },
                 };
               },
               many: (filters) => {
@@ -1017,6 +1050,9 @@ class WrangleBot extends EventEmitter {
                 one: async (options: { label: string; jobs: { source: string; destinations?: string[] }[] }) => {
                   if (!options.label) throw new Error("No data provided to create task.");
                   return await lib.addOneTask(options);
+                },
+                generate: async (options: createTaskOptions) => {
+                  return await lib.generateOneTask(options);
                 },
               },
             },

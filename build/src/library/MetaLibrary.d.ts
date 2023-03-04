@@ -2,8 +2,10 @@ import { WrangleBot } from "../WrangleBot";
 import MetaLibraryData from "./MetaLibraryData";
 import { MetaFile } from "./MetaFile";
 import Task from "../media/Task";
+import { MetaCopy } from "./MetaCopy";
 import { TranscodeTask } from "../transcode/TranscodeTask";
 import Job from "../media/Job";
+import createTaskOptions from "./createTaskOptions";
 interface Folders {
     name: string;
     watch: boolean;
@@ -71,7 +73,7 @@ export default class MetaLibrary {
     createFoldersOnDiskFromTemplate(folders?: Folders[], basePath?: string, jobs?: any[]): void;
     createCopyTaskForNewFiles(): Promise<false | Task>;
     scanLibraryForNewFiles(folders?: Folders[], basePath?: string, jobs?: any[]): Promise<Array<Job>>;
-    getMetaCopyByPath(path: any): any;
+    getMetaCopyByPath(path: any): false | MetaCopy;
     handleFileChange(event: any, path: any): Promise<void>;
     log(message: any, type: any): void;
     /**
@@ -112,12 +114,13 @@ export default class MetaLibrary {
     removeManyMetaFiles(metaFiles: any, save?: boolean): boolean;
     addOneMetaCopy(metaCopy: any, metaFile: any): Promise<any>;
     getOneMetaCopy(metaFileId: any, metaCopyId: any): any;
-    getManyMetaCopies(metaFileID: any): any[];
+    getManyMetaCopies(metaFileID: any): MetaCopy[];
     removeOneMetaCopy(metaCopy: any, options?: {
         deleteFile: boolean;
     }, save?: boolean): boolean;
     updateMetaDataOfFile(fileId: any, key: any, value: any): Promise<true | Error>;
     downloadOneThumbnail(thumb: any): Promise<void>;
+    generateOneTask(options: createTaskOptions): Promise<Error | Task>;
     /**
      * Creates CopyTask and adds it to the library
      *

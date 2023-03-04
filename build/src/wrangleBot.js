@@ -26,6 +26,7 @@ const TranscodeTask_1 = require("./transcode/TranscodeTask");
 const utility_1 = __importDefault(require("./system/utility"));
 const api_1 = __importDefault(require("./api"));
 const AccountManager_1 = __importDefault(require("./accounts/AccountManager"));
+const MLInterface_1 = require("./analyse/MLInterface");
 const EventEmitter = require("events");
 const { finder } = require("./system");
 const { SearchLite } = require("searchlite");
@@ -79,14 +80,22 @@ class WrangleBot extends EventEmitter {
             try {
                 let db;
                 if (options.database) {
+                    //CLOUD SYNC DB
                     db = DB({
                         url: options.database,
                         token: options.token,
                     });
                     yield DB().rebuildLocalModel();
                     yield db.connect(options.key);
+                    if (options.mlserver) {
+                        (0, MLInterface_1.MLInterface)({
+                            url: options.mlserver,
+                            token: options.token,
+                        });
+                    }
                 }
                 else {
+                    //LOCAL DB
                     db = DB({
                         key: options.key,
                     });
@@ -212,6 +221,22 @@ class WrangleBot extends EventEmitter {
         return __awaiter(this, void 0, void 0, function* () {
             if (!options.name)
                 throw new Error("No name provided");
+            const allowedPaths = [
+                //macos
+                "/volumes/",
+                "/users/",
+                //linux
+                "/media/",
+                "/home/",
+                //ubuntu
+                "/mnt/",
+                //archlinux
+                "/run/media/",
+            ];
+            const path = this.data.pathToLibrary.toLowerCase();
+            const allowed = allowedPaths.some((p) => path.startsWith(p));
+            if (!allowed)
+                throw new Error("Path is not allowed");
             //check if lib exists in database
             if (this.index.libraries.find((l) => l.name === options.name)) {
                 throw new Error("Library with that name already exists");
@@ -854,6 +879,9 @@ class WrangleBot extends EventEmitter {
                                             };
                                         },
                                     },
+                                    analyse: (options) => __awaiter(this, void 0, void 0, function* () {
+                                        return yield metafile.analyse(options);
+                                    }),
                                 };
                             },
                             many: (filters) => {
@@ -927,6 +955,9 @@ class WrangleBot extends EventEmitter {
                                     if (!options.label)
                                         throw new Error("No data provided to create task.");
                                     return yield lib.addOneTask(options);
+                                }),
+                                generate: (options) => __awaiter(this, void 0, void 0, function* () {
+                                    return yield lib.generateOneTask(options);
                                 }),
                             },
                         },

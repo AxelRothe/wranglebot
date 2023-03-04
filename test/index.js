@@ -17,6 +17,7 @@ if (process.env.DATABASE_TOKEN) {
     ...conf,
     token: process.env.CLOUD_SYNC_DATABASE_TOKEN,
     database: process.env.CLOUD_SYNC_DATABASE_URL,
+    mlserver: process.env.CLOUD_ML_URL,
   };
 }
 
@@ -26,6 +27,7 @@ console.log(conf);
 wb.open({
   token: conf.token,
   database: conf.database,
+  mlserver: conf.mlserver,
 });
 
 if (conf.debugNotifications) {

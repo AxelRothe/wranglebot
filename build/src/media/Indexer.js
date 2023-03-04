@@ -17,7 +17,8 @@ const { IndexItem } = require("./IndexItem");
  *                          video: number,
  *                          audio: number,
  *                          sidecar: number},
- *              items:IndexItem[]
+ *              items:IndexItem[],
+ *              duplicates?: boolean,
  *              }} Index
  */
 /**
@@ -32,12 +33,15 @@ class Indexer {
      *
      * @param sourcePath {String} the folders to archive
      * @param toCount {String["video"|"video-raw"|"audio"|"sidecar"|"photo"]} the type of files to count
+     * @param matchExpression {RegExp|null} the expression to match
      * @return {Promise<Index>}
      */
-    index(sourcePath, toCount = ["video", "video-raw", "audio", "sidecar", "photo"]) {
+    index(sourcePath, toCount = ["video", "video-raw", "audio", "sidecar", "photo"], matchExpression = null) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 let counter = {};
+                let filenames = new Map();
+                let duplicates = false;
                 for (let type of toCount) {
                     counter[type] = 0;
                 }
@@ -46,6 +50,10 @@ class Indexer {
                         let files = finder.readdirSync(sourcePath);
                         if (this.isLazy) {
                             files = files.filter((item) => !/(^|\/)\.[^\/\.]/g.test(item));
+                        }
+                        //filter files that do not match the matchExpression
+                        if (matchExpression !== null && matchExpression instanceof RegExp) {
+                            files = files.filter((item) => matchExpression.test(item));
                         }
                         let totalTaskSize = 0;
                         let ListOfPathsToReturn = [];
@@ -64,6 +72,12 @@ class Indexer {
                                     }
                                     if (isTypeToCount) {
                                         ListOfPathsToReturn.push(indexItem);
+                                        if (filenames.has(indexItem.basename)) {
+                                            duplicates = true;
+                                        }
+                                        else {
+                                            filenames.set(indexItem.basename, indexItem);
+                                        }
                                         totalTaskSize += indexItem.size;
                                         for (let type of toCount) {
                                             if (indexItem.is(type)) {
@@ -88,6 +102,7 @@ class Indexer {
                             items: ListOfPathsToReturn,
                             size: totalTaskSize,
                             counts: counter,
+                            duplicates,
                         });
                     }
                     catch (e) {

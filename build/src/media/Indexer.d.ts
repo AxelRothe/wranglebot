@@ -8,6 +8,7 @@ export type Index = {
         sidecar: number;
     };
     items: IndexItem[];
+    duplicates?: boolean;
 };
 /**
  * @typedef {{  path: string,
@@ -16,7 +17,8 @@ export type Index = {
  *                          video: number,
  *                          audio: number,
  *                          sidecar: number},
- *              items:IndexItem[]
+ *              items:IndexItem[],
+ *              duplicates?: boolean,
  *              }} Index
  */
 /**
@@ -30,9 +32,10 @@ declare class Indexer {
      *
      * @param sourcePath {String} the folders to archive
      * @param toCount {String["video"|"video-raw"|"audio"|"sidecar"|"photo"]} the type of files to count
+     * @param matchExpression {RegExp|null} the expression to match
      * @return {Promise<Index>}
      */
-    index(sourcePath: string, toCount?: any): Promise<Index>;
+    index(sourcePath: string, toCount?: any, matchExpression?: RegExp | null): Promise<Index>;
 }
 import { IndexItem } from "./IndexItem";
 export {};

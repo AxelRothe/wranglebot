@@ -91,7 +91,7 @@ export default class Job {
    * Returns the job as a json object
    * @returns {{result: {}, destination: string, id: string, source: string, status}}
    */
-  toJSON() {
+  toJSON(options: { db: boolean } = { db: false }) {
     return {
       id: this.id,
       source: this.source,

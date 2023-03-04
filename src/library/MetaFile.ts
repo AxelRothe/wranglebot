@@ -1,14 +1,23 @@
-const { v4: uuidv4 } = require("uuid");
-const { SearchLite } = require("searchlite");
-const { MetaCopy } = require("./MetaCopy");
-const { MetaData } = require("./MetaData");
-const { Thumbnail } = require("./Thumbnail");
-const { finder } = require("../system");
-const DB = require("../database/DB");
+import { v4 as uuidv4 } from "uuid";
+
+import { SearchLite } from "searchlite";
+
+import { MetaCopy } from "./MetaCopy";
+
+import { MetaData } from "./MetaData";
+
+import { Thumbnail } from "./Thumbnail";
+
+import { finder } from "../system";
+
+import DB from "../database/DB";
+
+import analyseMetaFileOptions from "./analyseMetaFileOptions";
+import { MLInterface } from "../analyse/MLInterface";
 
 class MetaFile {
   id;
-  copies = [];
+  copies: MetaCopy[] = [];
   #hash;
   metaData;
 
@@ -20,10 +29,9 @@ class MetaFile {
 
   query;
 
-  /**
-   * @type {Thumbnail[]}
-   */
-  thumbnails = [];
+  thumbnails: Thumbnail[] = [];
+  private _hash: any;
+  creationDate: Date;
 
   /**
    *
@@ -136,12 +144,9 @@ class MetaFile {
     //update MetaData here
   }
 
-  /**
-   * @return {any}
-   */
-  getMetaData(options = {}) {
+  getMetaData(options) {
     if (options.table) {
-      let list = [];
+      let list: any = [];
       for (let [key, value] of Object.entries(this.metaData)) {
         list.push(value);
       }
@@ -184,13 +189,13 @@ class MetaFile {
 
   getCopiesAs(type) {
     if (type === "array") {
-      let list = [];
+      let list: any = [];
       for (let copy of this.copies) {
-        list.push(copy.flatten());
+        list.push(copy.toJSON());
       }
       return list;
     } else if (type === "ids") {
-      let list = [];
+      let list: any = [];
       for (let copy of this.copies) {
         list.push(copy.id);
       }
@@ -235,6 +240,16 @@ class MetaFile {
     });
   }
 
+  analyse(options: analyseMetaFileOptions) {
+    if (options && options.frames) {
+      return MLInterface().analyseFrames({
+        prompt: options.prompt,
+        frames: options.frames,
+        metafile: this,
+      });
+    }
+  }
+
   toJSON(options = {}) {
     return {
       basename: this.basename,
@@ -251,4 +266,4 @@ class MetaFile {
     };
   }
 }
-module.exports.MetaFile = MetaFile;
+export { MetaFile };
