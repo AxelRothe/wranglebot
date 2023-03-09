@@ -24,7 +24,7 @@ exports.default = {
         }
         else {
             return new RouteResult_1.default(404, {
-                status: "failed",
+                status: "unchanged",
                 message: `No new files found in library ${libraryId}`,
             });
         }

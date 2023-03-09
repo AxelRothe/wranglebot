@@ -15,7 +15,7 @@ export default {
       return new RouteResult(200, result.toJSON());
     } else {
       return new RouteResult(404, {
-        status: "failed",
+        status: "unchanged",
         message: `No new files found in library ${libraryId}`,
       });
     }
