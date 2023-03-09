@@ -64,16 +64,17 @@ class Task {
             pending: 0,
             running: 0,
             done: 0,
-            failed: 0,
-            totalSize: 0,
-            totalRead: 0,
+            failed: 0
         };
+        let totalSize = 0;
+        let totalRead = 0;
         for (let job of this.jobs) {
-            stats[job.status]++;
-            stats.totalSize += job.result.size || 0;
-            stats.totalRead += job.status === Status_1.default.DONE ? job.result.size : 0;
+            stats[job.status - 1]++;
+            totalSize += job.result.size || 0;
+            totalRead += job.status === Status_1.default.DONE ? job.result.size : 0;
         }
-        return stats;
+        return Object.assign(Object.assign({}, stats), { totalSize,
+            totalRead });
     }
     toJSON(options = { db: false }) {
         return {

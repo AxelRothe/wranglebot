@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import Job from "./Job";
 import Status from "./Status";
+import TaskStatusReturn from "./TaskStatusReturn";
 
 export default class Task {
   id;
@@ -58,28 +59,32 @@ export default class Task {
     }
   }
 
-  get stats(): { running: number; totalSize: number; pending: number; failed: number; totalRead: number; done: number } {
+  get stats(): TaskStatusReturn {
     const stats = {
       pending: 0,
       running: 0,
       done: 0,
-      failed: 0,
-      totalSize: 0,
-      totalRead: 0,
+      failed: 0
     };
+    let totalSize = 0;
+    let totalRead = 0;
     for (let job of this.jobs) {
-      stats[job.status]++;
-      stats.totalSize += job.result.size || 0;
-      stats.totalRead += job.status === Status.DONE ? job.result.size : 0;
+      stats[job.status-1]++;
+      totalSize += job.result.size || 0;
+      totalRead += job.status === Status.DONE ? job.result.size : 0;
     }
-    return stats;
+    return {
+      ...stats,
+      totalSize,
+      totalRead
+    };
   }
 
   toJSON(options: { db: boolean } = { db: false }): {
     id: string;
     creationDate: string;
     label: string;
-    jobs: { result: {}; id: string; source: string; status: number }[];
+    jobs: { result: Object; id: string; source: string; status: number }[];
   } {
     return {
       id: this.id,

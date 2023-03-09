@@ -1,4 +1,5 @@
 import Job from "./Job";
+import TaskStatusReturn from "./TaskStatusReturn";
 export default class Task {
     id: any;
     label: any;
@@ -20,14 +21,7 @@ export default class Task {
      * @returns {Promise<Job|Error>}
      */
     runOneJob(job: Job, cb: any, cancelToken: any): Promise<unknown>;
-    get stats(): {
-        running: number;
-        totalSize: number;
-        pending: number;
-        failed: number;
-        totalRead: number;
-        done: number;
-    };
+    get stats(): TaskStatusReturn;
     toJSON(options?: {
         db: boolean;
     }): {
@@ -35,7 +29,7 @@ export default class Task {
         creationDate: string;
         label: string;
         jobs: {
-            result: {};
+            result: Object;
             id: string;
             source: string;
             status: number;
