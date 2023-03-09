@@ -54,7 +54,7 @@ class MLInterfaceSingleton {
                             data: options.prompt,
                         },
                     ],
-                    max_tokens: 250,
+                    max_tokens: 100,
                     stop_sequences: ["\n", "."],
                 }, {
                     headers: {
