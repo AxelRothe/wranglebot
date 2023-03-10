@@ -98,6 +98,7 @@ class MetaLibrary {
     updateFolder(folderPath, overwriteOptions) {
         return __awaiter(this, void 0, void 0, function* () {
             let folder = this.getFolderByPath(folderPath);
+            console.log("folder", overwriteOptions);
             try {
                 if (!folder) {
                     throw new Error(`Folder ${folderPath} not found`);
@@ -288,7 +289,7 @@ class MetaLibrary {
         return __awaiter(this, void 0, void 0, function* () {
             const jobs = yield this.scanLibraryForNewFiles();
             if (jobs.length > 0) {
-                console.log(`Found ${jobs.length} new files to add to the library`);
+                logbotjs_1.default.log(100, `Found ${jobs.length} new files to add to the library`);
                 const r = yield this.addOneTask({
                     label: "Delta Detection " + new Date().toLocaleString(),
                     jobs,
@@ -328,7 +329,7 @@ class MetaLibrary {
     getMetaCopyByPath(path) {
         for (let file of this.metaFiles) {
             for (let copy of file.copies) {
-                if (copy.pathToBucket.file === path || copy.pathToSource === path) {
+                if (copy.pathToBucket.file.toLowerCase() === path.toLowerCase() || copy.pathToSource.toLowerCase() === path.toLowerCase()) {
                     return copy;
                 }
             }
@@ -357,7 +358,6 @@ class MetaLibrary {
                 //check if new or moved file
                 const cup = new Espresso_1.default();
                 const result = yield cup.pour(path).analyse({ cancel: false }, (progress) => {
-                    console.log(progress);
                 });
                 const mf = this.findMetaFileByHash(result.hash);
                 if (mf) {
@@ -620,11 +620,23 @@ class MetaLibrary {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.readOnly)
                 throw new Error("Library is read only");
+            if (!options.settings)
+                throw new Error("No options provided");
+            //remove trailing slashes from source and destinations
+            options.source = options.source.replace(/\/+$/, "");
+            options.destinations = options.destinations.map((d) => d.replace(/\/+$/, ""));
             const index = yield Indexer_1.Indexer.index(options.source, options.types, options.matchExpression ? new RegExp(options.matchExpression) : null);
             const jobs = [];
             if (index) {
                 for (let item of index.items) {
                     let destinations = [];
+                    //if this index items path is a duplicate of metacopy, skip it if the user doesn't want duplicates
+                    if (options.settings.ignoreDuplicates) {
+                        let metacopy = this.getMetaCopyByPath(item.pathToFile);
+                        if (metacopy) {
+                            continue;
+                        }
+                    }
                     for (let folder of options.destinations) {
                         if (options.settings) {
                             if (!options.settings.preserveFolderStructure && index.duplicates) {
@@ -655,7 +667,7 @@ class MetaLibrary {
                     });
                 }
                 else {
-                    return new Error("No files that matched the criteria were found");
+                    throw new Error("No files that matched the criteria were found");
                 }
             }
             throw new Error("Indexing failed");
@@ -679,7 +691,7 @@ class MetaLibrary {
             }
             //check if destination is within the pathToLibrary
             for (let job of options.jobs) {
-                if (job.destinations.length === 0 && !job.source.startsWith(this.pathToLibrary)) {
+                if ((!job.destinations || job.destinations.length === 0) && !job.source.startsWith(this.pathToLibrary)) {
                     throw new Error("Ingest in Place ERROR '" +
                         job.source +
                         "' is outside of the library! Move the file and try again or add a destination starting with '" +

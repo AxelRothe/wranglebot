@@ -17,11 +17,11 @@ exports.default = {
     method: "post",
     url: "/library/",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
-        const { name, folders, pathToLibrary } = req.body;
+        const { name, folders, pathToLibrary, drops } = req.body;
         if (!name || !folders || !pathToLibrary) {
             throw new Error("Missing required parameters");
         }
-        yield bot.query.library.post.one({ name, pathToLibrary, folders });
+        yield bot.query.library.post.one({ name, pathToLibrary, folders, drops });
         return new RouteResult_1.default(200, { status: "success", message: `Library ${name} created` });
     }),
 };

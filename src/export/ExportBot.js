@@ -159,16 +159,10 @@ class ExportBot {
                 text: prettyBytes(metaFiles.reduce((a, b) => a + b.size, 0)) + " over " + metaFiles.length + " Files",
               },
               {
-                text: [
-                  `Clip Report #`,
-                  uuidv4(), //add random id to prevent caching
-                ],
+                text: `Exported on ${new Date().toLocaleString()}`,
               },
               {
-                text: `Generated on ${new Date().toLocaleString()}`,
-              },
-              {
-                text: `All Rights Reserved ${options.credits.owner}`,
+                text: `${options.credits.owner ? "All Rights Reserved " + options.credits.owner : ""}`,
               },
             ],
             [
@@ -180,7 +174,14 @@ class ExportBot {
                 style: "logo",
               },
               {
-                text: "All files are securely tracked by WRANGLEBOT®",
+                text: [
+                  `Unique ID: ${uuidv4()}`, //add random id to prevent caching
+                ],
+                bold: true,
+                alignment: "right",
+              },
+              {
+                text: "Learn more at https://wranglebot.io",
                 bold: true,
                 link: "https://wranglebot.io",
                 margin: [0, 20, 0, 8],
@@ -208,7 +209,7 @@ class ExportBot {
           columns: [
             [
               {
-                text: "Summary (☞ Post Production Supervisor)",
+                text: "Summary",
                 style: "head",
               },
               {
@@ -223,15 +224,17 @@ class ExportBot {
                     ["Duration", prettyMilliseconds(durationOfAudioFiles * 1000), prettyMilliseconds(durationOfVideoFiles * 1000)],
                   ],
                 },
+                layout: "lightHorizontalLines",
               },
             ],
             [
               {
-                text: "Shooting Ratio (Continuity & Production)",
+                text: "Scene Breakdown",
                 style: "head",
               },
               {
                 style: "tableSummary",
+                layout: "lightHorizontalLines",
                 table: {
                   headerRows: 1,
                   widths: ["auto", "auto", "auto", "auto", "auto", "auto"],

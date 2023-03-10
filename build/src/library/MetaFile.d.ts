@@ -47,7 +47,9 @@ declare class MetaFile {
      * @param {String} value
      */
     updateMetaData(index: any, value: any): void;
-    getMetaData(options: any): any;
+    getMetaData(options?: {
+        table: boolean;
+    }): any;
     /**
      *
      * @param {MetaCopy} metaCopy

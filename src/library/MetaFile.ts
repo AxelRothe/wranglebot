@@ -144,7 +144,7 @@ class MetaFile {
     //update MetaData here
   }
 
-  getMetaData(options) {
+  getMetaData(options = { table: false }) {
     if (options.table) {
       let list: any = [];
       for (let [key, value] of Object.entries(this.metaData)) {

@@ -524,12 +524,18 @@ class Finder {
    * @param {String} pathToFolder Absolute Path to Folder
    * @param options
    */
-  getContentOfFolder(pathToFolder, options = { lazy: true }) {
+  getContentOfFolder(pathToFolder, options = { showHidden: false, filters: 'both', recursive: false, depth: 10 }) {
     try {
-      const list = fs.readdirSync(pathToFolder);
-      if (options.lazy) {
+      let list = fs.readdirSync(pathToFolder);
+      if (!options.showHidden) {
         //remove all files that start with a dot
-        return list.filter((item) => !item.startsWith("."));
+        list = list.filter((item) => !item.startsWith("."));
+      }
+      if (options.filters === "files") {
+        list = list.filter((item) => !this.isDir(pathToFolder, item));
+      }
+      if (options.filters === "folders") {
+        list = list.filter((item) => this.isDir(pathToFolder, item));
       }
       return list;
     } catch (e) {
@@ -543,17 +549,24 @@ class Finder {
    * @returns {false|*}
    */
   isDirectory(path) {
-    return this.existsSync(path) && fs.lstatSync(path).isDirectory();
+    return this.isDir(path);
   }
 
   /**
-   * Same as isDirectory but allows path elements to be joined together instead of supplying a full path
+   * Checks if the path is a directory
    * @param elements
    * @returns {false|*}
    */
   isDir(...elements) {
     const path = this.join(...elements);
-    return this.existsSync(path) && fs.lstatSync(path).isDirectory();
+    try {
+      //check if the path exists
+      fs.accessSync(path, fs.constants.F_OK);
+      //check if the path is a directory
+      return fs.lstatSync(path).isDirectory();
+    } catch (e) {
+      return false;
+    }
   }
 
   /**

@@ -21,9 +21,6 @@ if (process.env.DATABASE_TOKEN) {
   };
 }
 
-console.log("LOADING CONFIG");
-console.log(conf);
-
 wb.open({
   token: conf.token,
   database: conf.database,

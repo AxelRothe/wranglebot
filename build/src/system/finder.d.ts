@@ -178,7 +178,10 @@ declare class Finder {
      * @param options
      */
     getContentOfFolder(pathToFolder: string, options?: {
-        lazy: boolean;
+        showHidden: boolean;
+        filters: string;
+        recursive: boolean;
+        depth: number;
     }): string[];
     /**
      * Returns true if the given path is a folder
@@ -187,7 +190,7 @@ declare class Finder {
      */
     isDirectory(path: any): false | any;
     /**
-     * Same as isDirectory but allows path elements to be joined together instead of supplying a full path
+     * Checks if the path is a directory
      * @param elements
      * @returns {false|*}
      */

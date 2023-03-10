@@ -9,8 +9,10 @@ export default {
     const libraryName = req.params.libraryName;
     const { files, path, reportName, format, template, credits } = req.body;
 
-    const result = await bot.query.library
-      .one(libraryName)
+    const lib = await bot.query.library
+      .one(libraryName).fetch();
+
+    const result = lib.query
       .metafiles.many({
         $ids: [...files],
       })
@@ -21,7 +23,7 @@ export default {
         format: format,
         template: template,
         credits: {
-          owner: credits.owner || "",
+          owner: credits.owner || lib.drops.getCols()['owner'] || "Unknown",
           title: credits.title || "Clip Report",
         },
       });

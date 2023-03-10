@@ -120,7 +120,7 @@ export default class MetaLibrary {
     }, save?: boolean): boolean;
     updateMetaDataOfFile(fileId: any, key: any, value: any): Promise<true | Error>;
     downloadOneThumbnail(thumb: any): Promise<void>;
-    generateOneTask(options: createTaskOptions): Promise<Error | Task>;
+    generateOneTask(options: createTaskOptions): Promise<Task>;
     /**
      * Creates CopyTask and adds it to the library
      *

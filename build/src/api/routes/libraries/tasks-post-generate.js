@@ -20,9 +20,6 @@ exports.default = {
         const libraryId = req.params.id;
         const lib = bot.query.library.one(libraryId).fetch();
         let { label, types, source, destinations, settings } = req.body;
-        //remove trailing slashes from source and destinations
-        source = source.replace(/\/+$/, "");
-        destinations = destinations.map((d) => d.replace(/\/+$/, ""));
         const task = yield lib.query.tasks.post.generate({
             label,
             types,

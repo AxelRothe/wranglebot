@@ -6,13 +6,13 @@ export default {
   method: "post",
   url: "/library/",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
-    const { name, folders, pathToLibrary } = req.body;
+    const { name, folders, pathToLibrary, drops } = req.body;
 
     if (!name || !folders || !pathToLibrary) {
       throw new Error("Missing required parameters");
     }
 
-    await bot.query.library.post.one({ name, pathToLibrary, folders });
+    await bot.query.library.post.one({ name, pathToLibrary, folders, drops });
 
     return new RouteResult(200, { status: "success", message: `Library ${name} created` });
   },

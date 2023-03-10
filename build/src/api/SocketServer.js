@@ -359,7 +359,7 @@ class SocketServer {
     broadcast(event, betweeny) {
         this.clients.forEach((client) => {
             client.socket.emit(event, betweeny.toJSON());
-            console.log("Broadcasting to " + client.username);
+            logbotjs_1.default.log(100, "Broadcasting to " + client.username);
         });
     }
     /**

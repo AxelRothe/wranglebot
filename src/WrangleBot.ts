@@ -284,17 +284,17 @@ class WrangleBot extends EventEmitter {
       //archlinux
       "/run/media/",
     ];
-    const path = this.data.pathToLibrary.toLowerCase();
+    const path = options.pathToLibrary.toLowerCase();
 
     const allowed = allowedPaths.some((p) => path.startsWith(p));
     if (!allowed) throw new Error("Path is not allowed");
 
     //check if lib exists in database
-    if (this.index.libraries.find((l) => l.name === options.name)) {
+    if (this.index.libraries.find((l) => l.name.toLowerCase() === options.name.toLowerCase())) {
       throw new Error("Library with that name already exists");
     }
 
-    if (this.index.libraries.find((l) => options.pathToLibrary.startsWith(l.pathToLibrary))) {
+    if (this.index.libraries.find((l) => path.startsWith(l.pathToLibrary.toLowerCase()))) {
       throw new Error("Library in path already exists");
     }
 
@@ -1184,14 +1184,15 @@ class WrangleBot extends EventEmitter {
       index: async (pathToFolder, types) => {
         return await Indexer.index(pathToFolder, types);
       },
-      list: (pathToFolder, options) => {
+      list: (pathToFolder, options : {showHidden: boolean, filters: 'both' | 'files' | 'folders', recursive: boolean, depth: Number}) => {
         if (!pathToFolder) throw new Error("No path provided.");
         if (pathToFolder === "/") throw new Error("Cannot list root directory.");
         if (!options) {
           options = {
+            showHidden: false,
+            filters: "folders",
             recursive: false,
-            includeFolders: true,
-            lazy: true,
+            depth: 0,
           };
         }
         return finder.getContentOfFolder(pathToFolder, options);
@@ -1234,7 +1235,7 @@ class WrangleBot extends EventEmitter {
   }
 
   async applyTransactionUpdateOne(transaction) {
-    console.log("applying transaction", transaction.$collection);
+    LogBot.log(100, "applying transaction: " + transaction.id);
 
     //LIBRARY ADDED/UPDATED
     if (transaction.$collection === "libraries") {

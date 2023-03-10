@@ -38,6 +38,8 @@ class Indexer {
         counter[type] = 0;
       }
 
+      sourcePath = sourcePath.replace(/\/$/, "");
+
       if (finder.isDirectory(sourcePath)) {
         try {
           let files = finder.readdirSync(sourcePath);

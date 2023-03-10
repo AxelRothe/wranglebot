@@ -7,6 +7,7 @@ export default interface createTaskOptions {
     settings?: {
         preserveFolderStructure?: boolean;
         createSubFolder?: boolean;
+        ignoreDuplicates?: boolean;
     };
 }
 //# sourceMappingURL=createTaskOptions.d.ts.map
