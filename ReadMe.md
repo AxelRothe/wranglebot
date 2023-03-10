@@ -11,6 +11,7 @@
 _Live Server Status_
 
 ![Website](https://img.shields.io/website?label=Cloud%20Sync&url=https%3A%2F%2Fdb2.wranglebot.io%2Fversion)
+![Website](https://img.shields.io/website?label=AI%20Services&url=https%3A%2F%2Fai.wranglebot.io%2Fversion)
 
 ---
 
@@ -36,9 +37,39 @@ We are committed to addressing these limitations and implementing new features a
 
 ---
 
+## 🧰 Features
+
+WrangleBot offers a variety of features to make asset management easier and more efficient:
+
+- Ingest: Copy & Verify
+  - ingest entire volumes or individual folders to your media libraries
+  - auto scan, extract meta data, generate unique hash using xxHash algorithms
+  - extract thumbnails from video footage for cloud preview
+- Manage Metadata
+  - edit and view metadata in advanced meta data editor
+  - extract and scrub through thumbnails
+- Library Management
+  - create bins to manage media into categories and tags
+  - import new files from "watched" bins
+  - app automatically relocates and connects to storage devices
+- Export and Transcode
+  - transcode media to ProRes, H264 and DNxHD up to 4K
+  - export with LUTs
+- Live Syncing
+  - app syncs itself between devices in realtime
+  - offload on one device and tag it at another studio
+- Open Source
+  - web-app and engine open source
+  - written in NodeJS with Typescript
+  - Javascript API, that uses chained commands and is easy to use without knowledge of the underlying code
+  - fully controllable via REST API
+  - currently supports both Intel x64 and  AMD64 Silicon M1+ MacOS
+
+--- 
+
 ## 👋 Getting Started
 
-To build WrangleBot, you will need to have [Node.js](https://nodejs.org/en/) installed on your computer. 
+To build WrangleBot, you will need to have [Node.js](https://nodejs.org/en/) installed on your computer.
 
 ### 📦 Install
 
@@ -48,62 +79,37 @@ Alternatively you can use npm to install wranglebot using `npm install wranglebo
 
 ### 🛠 Build
 
-```
+```bash
 npm run build
 ```
 
 ### 🚀 Start WrangleBot in test environment
 
-```
+```bash
 npm run test
 ```
 
 ⚠️ You will require a `.env` to run the test environment:
 
-```
-CLOUD_SYNC_DATABASE_KEY="xxxx-xxxx-xxxx-xxxx" //get at wranglebot.io
-CLOUD_SYNC_TOKEN="xxxx-xxxx-xxxx-xxxx" //please contact for developer token
+```dotenv
+CLOUD_SYNC_DATABASE_KEY="xxxx-xxxx-xxxx-xxxx" #get at wranglebot.io
+CLOUD_SYNC_TOKEN="xxxx-xxxx-xxxx-xxxx" #please contact for developer token
 CLOUD_SYNC_DATABASE_URL="https://db2.wranglebot.io"
-DEBUG_NOTIFICATIONS="false" //show notifications in console
+CLOUD_ML_URL="https://ai.wranglebot.io" #you will need credits, which you can get at wranglebot.io
+DEBUG_NOTIFICATIONS="false" #show notifications in console
 ```
 
 ## 🪨 Offline Mode
 
 If you are not using Cloud Sync, then you can use the offline mode. This mode will allow you to use WrangleBot without an internet connection. To use the offline mode, you will need to create a `.env` file in the root directory of the project. The `.env` file should contain the following:
 
-```
+> Note: You will not be able to use AI Services in offline mode, as they are tied to your Cloud Sync account. If you need to migrate an offline database to Cloud Sync please write us an email at [a.rothe@vanrothe.com](mailto:a.rothe@vanrothe.com)
+
+```dotenv
 DATABASE_KEY="xxxx-xxxx-xxxx-xxxx"
 ```
 
 The key can be any string of characters.
-
-## 🧰 Features
-
-WrangleBot offers a variety of features to make asset management easier and more efficient:
-
-- Ingest: Copy & Verify
-    - ingest entire volumes or individual folders to your media libraries
-    - auto scan, extract meta data, generate unique hash using xxHash algorithms
-    - extract thumbnails from video footage for cloud preview
-- Manage Metadata
-    - edit and view metadata in advanced meta data editor
-    - extract and scrub through thumbnails
-- Library Management
-    - create bins to manage media into categories and tags
-    - import new files from "watched" bins
-    - app automatically relocates and connects to storage devices
-- Export and Transcode
-    - transcode media to ProRes, H264 and DNxHD up to 4K
-    - export with LUTs
-- Live Syncing
-    - app syncs itself between devices in realtime
-    - offload on one device and tag it at another studio
-- Open Source
-    - web-app and engine open source
-    - written in NodeJS with Typescript
-    - Javascript API, that uses chained commands and is easy to use without knowledge of the underlying code
-    - fully controllable via REST API
-    - currently supports both Intel x64 and  AMD64 Silicon M1+ MacOS
 
 ## 📑 Documentation
 
