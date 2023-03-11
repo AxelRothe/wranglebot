@@ -240,8 +240,11 @@ class MetaFile {
                 prompt: options.prompt,
                 frames: options.frames,
                 metafile: this,
+                temperature: options.temperature,
+                max_tokens: options.max_tokens,
             });
         }
+        throw new Error("No frames provided");
     }
     toJSON(options = {}) {
         return {

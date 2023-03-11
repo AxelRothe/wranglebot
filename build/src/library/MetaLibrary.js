@@ -98,7 +98,6 @@ class MetaLibrary {
     updateFolder(folderPath, overwriteOptions) {
         return __awaiter(this, void 0, void 0, function* () {
             let folder = this.getFolderByPath(folderPath);
-            console.log("folder", overwriteOptions);
             try {
                 if (!folder) {
                     throw new Error(`Folder ${folderPath} not found`);
@@ -106,7 +105,7 @@ class MetaLibrary {
                 if (Object.keys(overwriteOptions).length === 0) {
                     throw new Error(`No options to update folder ${folderPath}`);
                 }
-                if (overwriteOptions.name) {
+                if (overwriteOptions.name && overwriteOptions.name !== folder.name) {
                     //check if folder is empty
                     if (system_1.finder.readdirSync(system_1.finder.join(this.pathToLibrary, folderPath)).length > 0) {
                         throw new Error(`Folder ${folderPath} is not empty, can not rename`);

@@ -5,8 +5,8 @@ import RouteResult from "../../RouteResult";
 export default {
   method: "post",
   requiredParams: ["libraryId", "metafileId"],
-  requiredBody: ["frames"],
-  url: "/library/:libraryId/metafiles/:metafileId/analyse",
+  requiredBody: ["frames", "prompt"],
+  url: "/library/:libraryId/metafiles/:metafileId/thumbnails/analyse",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const libraryId = req.params.libraryId;
     const metafileId = req.params.metafileId;
@@ -16,6 +16,8 @@ export default {
     const result = await bot.query.library.one(libraryId).metafiles.one(metafileId).analyse({
       frames: analyseOptions.frames,
       prompt: analyseOptions.prompt,
+      temperature: Number(analyseOptions.temperature),
+      max_tokens: Number(analyseOptions.max_tokens),
     });
 
     if (result) {

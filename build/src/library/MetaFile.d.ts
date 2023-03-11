@@ -64,7 +64,7 @@ declare class MetaFile {
     analyse(options: analyseMetaFileOptions): Promise<{
         response: string;
         cost: number;
-    }> | undefined;
+    }>;
     toJSON(options?: {}): {
         basename: any;
         id: any;

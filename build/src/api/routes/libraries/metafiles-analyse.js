@@ -16,8 +16,8 @@ const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "post",
     requiredParams: ["libraryId", "metafileId"],
-    requiredBody: ["frames"],
-    url: "/library/:libraryId/metafiles/:metafileId/analyse",
+    requiredBody: ["frames", "prompt"],
+    url: "/library/:libraryId/metafiles/:metafileId/thumbnails/analyse",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const libraryId = req.params.libraryId;
         const metafileId = req.params.metafileId;
@@ -25,6 +25,8 @@ exports.default = {
         const result = yield bot.query.library.one(libraryId).metafiles.one(metafileId).analyse({
             frames: analyseOptions.frames,
             prompt: analyseOptions.prompt,
+            temperature: Number(analyseOptions.temperature),
+            max_tokens: Number(analyseOptions.max_tokens),
         });
         if (result) {
             return new RouteResult_1.default(200, result);

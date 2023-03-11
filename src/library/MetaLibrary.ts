@@ -122,8 +122,6 @@ export default class MetaLibrary {
   async updateFolder(folderPath, overwriteOptions) {
     let folder = this.getFolderByPath(folderPath);
 
-    console.log("folder", overwriteOptions);
-
     try {
       if (!folder) {
         throw new Error(`Folder ${folderPath} not found`);
@@ -133,7 +131,7 @@ export default class MetaLibrary {
         throw new Error(`No options to update folder ${folderPath}`);
       }
 
-      if (overwriteOptions.name) {
+      if (overwriteOptions.name && overwriteOptions.name !== folder.name) {
         //check if folder is empty
         if (finder.readdirSync(finder.join(this.pathToLibrary, folderPath)).length > 0) {
           throw new Error(`Folder ${folderPath} is not empty, can not rename`);

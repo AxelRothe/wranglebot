@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MLInterface = void 0;
 const axios_1 = __importDefault(require("axios"));
+const jimp_compact_1 = __importDefault(require("jimp-compact"));
 class MLInterfaceSingleton {
     constructor(options) {
         this.token = options.token;
@@ -41,21 +42,40 @@ class MLInterfaceSingleton {
             });
             const responses = [];
             let cost = 0;
+            console.log("Sending " + thumbnails.length + " requests to " + this.url
+                + " with prompt " + options.prompt
+                + " and token " + this.token
+                + " and model luminous-extended");
+            console.log("Thumbnails: " + thumbnails.map(t => t.id).join(","));
             for (let thumbnail of thumbnails) {
+                const image = jimp_compact_1.default.read(Buffer.from(thumbnail.data, "base64"));
+                const waitForResizedImage = () => {
+                    return new Promise((resolve) => {
+                        image.then((image) => {
+                            image.background(0x000000).resize(512, 512).getBase64(jimp_compact_1.default.MIME_JPEG, (err, data) => {
+                                resolve(data);
+                            });
+                        });
+                    });
+                };
+                const resizedImage = yield waitForResizedImage();
+                //remove data:image/jpeg;base64,
+                const resizedImageWithoutHeader = resizedImage.substring(resizedImage.indexOf(",") + 1);
                 const result = yield axios_1.default.post(this.url + "/api/prompt/aleph-alpha", {
-                    model: "luminous-base",
+                    model: "luminous-extended",
                     prompt: [
                         {
                             type: "image",
-                            data: thumbnail.data,
+                            data: resizedImageWithoutHeader,
                         },
                         {
                             type: "text",
                             data: options.prompt,
                         },
                     ],
-                    max_tokens: 100,
-                    stop_sequences: ["\n", "."],
+                    max_tokens: options.max_tokens || 64,
+                    stop_sequences: ["\n"],
+                    temperature: options.temperature || 0.5,
                 }, {
                     headers: {
                         Authorization: `Bearer ${this.token}`,
@@ -73,14 +93,14 @@ class MLInterfaceSingleton {
 }
 let MLInterfaceInstance;
 const MLInterface = function (options = undefined) {
+    if (MLInterfaceInstance) {
+        return MLInterfaceInstance;
+    }
     if (!MLInterfaceInstance && options) {
         MLInterfaceInstance = new MLInterfaceSingleton(options);
         return MLInterfaceInstance;
     }
-    else if (MLInterfaceInstance) {
-        return MLInterfaceInstance;
-    }
-    throw new Error("No options provided");
+    throw new Error("Can not create MLInterface. No options provided");
 };
 exports.MLInterface = MLInterface;
 //# sourceMappingURL=MLInterface.js.map

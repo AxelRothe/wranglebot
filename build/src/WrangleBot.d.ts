@@ -287,7 +287,7 @@ declare class WrangleBot extends EventEmitter {
                         analyse: (options: any) => Promise<{
                             response: string;
                             cost: number;
-                        } | undefined>;
+                        }>;
                     };
                     many: (filters: any) => {
                         fetch: () => MetaFile[];

@@ -10,7 +10,7 @@ const writeFileAtomicSync = require("write-file-atomic").sync;
 class Config {
     constructor() {
         this.appName = require("../../package.json").appName;
-        this.versionNumber = "6";
+        this.versionNumber = "7";
         this.cryptr = new Cryptr("c9b7fd52-e1c7-4c23-9e7f-75639b91f276");
         /**
          * Build
@@ -48,10 +48,11 @@ class Config {
         if (fs.existsSync(this.pathToConfigFile)) {
             this.config = JSON.parse(fs.readFileSync(this.pathToConfigFile).toString());
             if (!this.config["wb-version"] || this.config["wb-version"] !== this.versionNumber) {
-                //is version 1 upgrade to version 3
                 LogBot.log(409, "Upgrading config from " + this.config.version + " to version " + this.versionNumber);
                 this.set("wb-version", this.versionNumber);
                 this.set("appName", this.appName);
+                this.set("auth_server", "https://wranglebot.io");
+                this.set("ml_server", "https://ai.wranglebot.io");
                 this.set("database", "https://db2.wranglebot.io");
                 this.set("luts", pathToLUTs);
                 this.set("jwt-secret", this.cryptr.encrypt(ezyrnd.randomString(128)));
@@ -63,6 +64,8 @@ class Config {
                 "jwt-secret": this.cryptr.encrypt(ezyrnd.randomString(128)),
                 appName: this.appName,
                 "wb-version": this.versionNumber,
+                auth_server: "https://wranglebot.io",
+                ml_server: "https://ai.wranglebot.io",
                 database: "https://db2.wranglebot.io",
                 luts: pathToLUTs,
             };

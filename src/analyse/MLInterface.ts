@@ -1,6 +1,7 @@
 import MLInterfaceOptions from "./MLInterfaceOptions";
 import analyseOneMetaFileOptions from "./analyseOneMetaFileOptions";
 import axios from "axios";
+import Jimp from "jimp-compact";
 
 class MLInterfaceSingleton {
   private readonly token: string;
@@ -37,23 +38,49 @@ class MLInterfaceSingleton {
     const responses: string[] = [];
     let cost: number = 0;
 
+    console.log("Sending " + thumbnails.length + " requests to " + this.url
+    + " with prompt " + options.prompt
+    + " and token " + this.token
+    + " and model luminous-extended");
+
+    console.log("Thumbnails: " + thumbnails.map(t => t.id).join(","));
+
+
     for (let thumbnail of thumbnails) {
+
+      const image = Jimp.read(Buffer.from(thumbnail.data, "base64"));
+
+      const waitForResizedImage = () : Promise<String> => {
+        return new Promise((resolve) => {
+          image.then((image) => {
+            image.background(0x000000).resize(512, 512).getBase64(Jimp.MIME_JPEG, (err, data) => {
+              resolve(data);
+            });
+          });
+        });
+      }
+
+      const resizedImage = await waitForResizedImage();
+      //remove data:image/jpeg;base64,
+      const resizedImageWithoutHeader = resizedImage.substring(resizedImage.indexOf(",") + 1);
+
       const result = await axios.post(
         this.url + "/api/prompt/aleph-alpha",
         {
-          model: "luminous-base",
+          model: "luminous-extended",
           prompt: [
             {
               type: "image",
-              data: thumbnail.data,
+              data: resizedImageWithoutHeader,
             },
             {
               type: "text",
               data: options.prompt,
             },
           ],
-          max_tokens: 100,
-          stop_sequences: ["\n", "."],
+          max_tokens: options.max_tokens || 64,
+          stop_sequences: ["\n"],
+          temperature: options.temperature || 0.5,
         },
         {
           headers: {
@@ -74,12 +101,14 @@ class MLInterfaceSingleton {
 let MLInterfaceInstance: MLInterfaceSingleton;
 
 const MLInterface = function (options: MLInterfaceOptions | undefined = undefined) {
+  if (MLInterfaceInstance) {
+    return MLInterfaceInstance;
+  }
+
   if (!MLInterfaceInstance && options) {
     MLInterfaceInstance = new MLInterfaceSingleton(options);
     return MLInterfaceInstance;
-  } else if (MLInterfaceInstance) {
-    return MLInterfaceInstance;
   }
-  throw new Error("No options provided");
+  throw new Error("Can not create MLInterface. No options provided");
 };
 export { MLInterface };

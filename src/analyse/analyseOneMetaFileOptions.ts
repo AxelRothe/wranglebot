@@ -4,4 +4,7 @@ export default interface analyseOneMetaFileOptions {
   frames: string[];
   metafile: MetaFile;
   prompt: string;
+
+  temperature?: number;
+  max_tokens?: number;
 }
