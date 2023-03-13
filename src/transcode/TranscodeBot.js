@@ -148,7 +148,7 @@ class ThumbnailFactory {
       }
 
       this.command
-        .outputOptions("-q:v", "3", "-pix_fmt", "yuv420p", "-vf", `fps=${fps},scale=480:-1.77`)
+        .outputOptions("-q:v", "3", "-pix_fmt", "yuv420p", "-vf", `fps=${fps},scale=512:-1.77`)
         .output(finder.join(thumbnailFolder, thumbId + "-%03d." + type));
 
       this.command.on("error", (err, stdout, stderr) => {
