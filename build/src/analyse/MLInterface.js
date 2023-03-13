@@ -61,28 +61,33 @@ class MLInterfaceSingleton {
                 const resizedImage = yield waitForResizedImage();
                 //remove data:image/jpeg;base64,
                 const resizedImageWithoutHeader = resizedImage.substring(resizedImage.indexOf(",") + 1);
-                const result = yield axios_1.default.post(this.url + "/api/prompt/aleph-alpha", {
-                    model: "luminous-extended",
-                    prompt: [
-                        {
-                            type: "image",
-                            data: resizedImageWithoutHeader,
+                try {
+                    const result = yield axios_1.default.post(this.url + "/api/prompt/aleph-alpha", {
+                        model: "luminous-extended",
+                        prompt: [
+                            {
+                                type: "image",
+                                data: resizedImageWithoutHeader,
+                            },
+                            {
+                                type: "text",
+                                data: options.prompt,
+                            },
+                        ],
+                        max_tokens: options.max_tokens || 64,
+                        stop_sequences: ["\n"],
+                        temperature: options.temperature || 0.5,
+                    }, {
+                        headers: {
+                            Authorization: `Bearer ${this.token}`,
                         },
-                        {
-                            type: "text",
-                            data: options.prompt,
-                        },
-                    ],
-                    max_tokens: options.max_tokens || 64,
-                    stop_sequences: ["\n"],
-                    temperature: options.temperature || 0.5,
-                }, {
-                    headers: {
-                        Authorization: `Bearer ${this.token}`,
-                    },
-                });
-                responses.push(result.data.response.trim());
-                cost += result.data.usage.cost;
+                    });
+                    responses.push(result.data.response.trim());
+                    cost += result.data.usage.cost;
+                }
+                catch (e) {
+                    throw new Error(e.response.data.message || e.message);
+                }
             }
             return {
                 response: responses.join(","),
