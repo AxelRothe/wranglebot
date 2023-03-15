@@ -106,7 +106,7 @@ class WrangleBot extends EventEmitter {
   }
 
   async open(options: WrangleBotOptions) {
-    LogBot.log(100, "Opening WrangleBot instance ... " + JSON.stringify(options));
+    LogBot.log(100, "Opening WrangleBot instance ... ");
     this.emit("notification", {
       title: "Opening WrangleBot",
       message: "WrangleBot is starting up",
