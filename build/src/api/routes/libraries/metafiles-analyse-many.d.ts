@@ -9,4 +9,4 @@ declare const _default: {
     handler: (req: any, res: any, bot: WrangleBot, server: SocketServer) => Promise<RouteResult>;
 };
 export default _default;
-//# sourceMappingURL=metafiles-analyse.d.ts.map
+//# sourceMappingURL=metafiles-analyse-many.d.ts.map

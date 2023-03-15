@@ -29,7 +29,8 @@ const metafiles_export_1 = __importDefault(require("./metafiles-export"));
 const metafiles_get_many_1 = __importDefault(require("./metafiles-get-many"));
 const metafiles_get_one_1 = __importDefault(require("./metafiles-get-one"));
 const metafiles_put_1 = __importDefault(require("./metafiles-put"));
-const metafiles_analyse_1 = __importDefault(require("./metafiles-analyse"));
+const metafiles_analyse_one_1 = __importDefault(require("./metafiles-analyse-one"));
+const metafiles_analyse_many_1 = __importDefault(require("./metafiles-analyse-many"));
 const open_folder_1 = __importDefault(require("./open-folder"));
 const thumbnails_get_1 = __importDefault(require("./thumbnails-get"));
 const thumbnails_post_many_1 = __importDefault(require("./thumbnails-post-many"));
@@ -68,7 +69,8 @@ exports.default = [
     metafiles_get_many_1.default,
     metafiles_get_one_1.default,
     metafiles_put_1.default,
-    metafiles_analyse_1.default,
+    metafiles_analyse_one_1.default,
+    metafiles_analyse_many_1.default,
     open_folder_1.default,
     thumbnails_get_1.default,
     thumbnails_post_many_1.default,

@@ -24,7 +24,8 @@ import metafilesExport from "./metafiles-export";
 import metafilesGetMany from "./metafiles-get-many";
 import metafilesGetOne from "./metafiles-get-one";
 import metafilesPut from "./metafiles-put";
-import metafilesAnalyse from "./metafiles-analyse";
+import metafilesAnalyseOne from "./metafiles-analyse-one";
+import metafilesAnalyseMany from "./metafiles-analyse-many";
 import openFolder from "./open-folder";
 import thumbnailsGet from "./thumbnails-get";
 import thumbnailsPostMany from "./thumbnails-post-many";
@@ -64,7 +65,8 @@ export default [
   metafilesGetMany,
   metafilesGetOne,
   metafilesPut,
-  metafilesAnalyse,
+  metafilesAnalyseOne,
+  metafilesAnalyseMany,
   openFolder,
   thumbnailsGet,
   thumbnailsPostMany,
