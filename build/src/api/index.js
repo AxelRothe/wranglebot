@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
-const body_parser_1 = __importDefault(require("body-parser"));
 const logbotjs_1 = __importDefault(require("logbotjs"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const cors_1 = __importDefault(require("cors"));
@@ -36,8 +35,8 @@ exports.default = {
             });
             if (port) {
                 app.use((0, cors_1.default)({ origin: "*", methods: "GET,HEAD,PUT,PATCH,POST,DELETE,NOTIFY", allowedHeaders: ["Content-Type", "Authorization"] }));
-                app.use(body_parser_1.default.json({ limit: "100mb" }));
-                app.use(body_parser_1.default.urlencoded({ limit: "100mb", extended: true }));
+                app.use(express_1.default.json({ limit: "100mb" }));
+                app.use(express_1.default.urlencoded({ limit: "100mb", extended: true }));
                 const httpServer = http_1.default.createServer(app);
                 const socketServer = (0, SocketServer_1.default)(httpServer, app, bot, transporter, key).then((socketServer) => {
                     httpServer.listen(port, () => {

@@ -22,9 +22,16 @@ if (process.env.DATABASE_TOKEN) {
 }
 
 wb.open({
-  token: conf.token,
-  database: conf.database,
-  mlserver: conf.mlserver,
+  client: {
+    database: {
+      cloud: {
+        token: conf.token,
+        databaseURL: conf.database,
+        machineLearningURL: conf.mlserver,
+      },
+    },
+    port: 3000,
+  },
 });
 
 if (conf.debugNotifications) {
@@ -33,10 +40,10 @@ if (conf.debugNotifications) {
   });
 }
 
-wb.on("connectedToCloud", async (bot) => {
+wb.on("ready", async (bot) => {
   LogBot.endSpinner("load", "success", "Loaded " + wb.index.libraries.length + " libraries");
 });
 
-wb.on("failedToConnectToCloud", async (bot) => {
+wb.on("error", async (bot) => {
   LogBot.endSpinner("load", "failure", "Failed to start wranglebot.");
 });

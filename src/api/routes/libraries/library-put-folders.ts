@@ -14,9 +14,6 @@ export default {
 
     const lib = bot.query.library.one(libraryId).fetch();
     const result = await lib.query.folders.put(pathToFolder, overwrite);
-    if (!result) {
-      throw new Error("Failed to update folders");
-    }
 
     return new RouteResult(200, {
       status: "success",

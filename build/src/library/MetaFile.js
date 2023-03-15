@@ -237,6 +237,7 @@ class MetaFile {
     analyse(options) {
         if (options && options.frames) {
             return (0, MLInterface_1.MLInterface)().analyseFrames({
+                engine: options.engine,
                 prompt: options.prompt,
                 frames: options.frames,
                 metafile: this,

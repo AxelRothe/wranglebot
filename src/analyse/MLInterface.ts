@@ -37,63 +37,80 @@ class MLInterfaceSingleton {
 
     const responses: string[] = [];
     let cost: number = 0;
-
-    console.log("Sending " + thumbnails.length + " requests to " + this.url
-    + " with prompt " + options.prompt
-    + " and token " + this.token
-    + " and model luminous-extended");
-
-    console.log("Thumbnails: " + thumbnails.map(t => t.id).join(","));
-
+    const renderedFrames: string[] = [];
 
     for (let thumbnail of thumbnails) {
-
       const image = Jimp.read(Buffer.from(thumbnail.data, "base64"));
 
-      const waitForResizedImage = () : Promise<String> => {
+      const waitForResizedImage = (): Promise<String> => {
         return new Promise((resolve) => {
           image.then((image) => {
-            image.background(0x000000).resize(512, 512).getBase64(Jimp.MIME_JPEG, (err, data) => {
-              resolve(data);
-            });
+            image
+              .background(0x000000)
+              .resize(512, 512)
+              .getBase64(Jimp.MIME_JPEG, (err, data) => {
+                resolve(data);
+              });
           });
         });
-      }
+      };
 
       const resizedImage = await waitForResizedImage();
       //remove data:image/jpeg;base64,
       const resizedImageWithoutHeader = resizedImage.substring(resizedImage.indexOf(",") + 1);
 
-      try {
-        const result = await axios.post(
-          this.url + "/api/prompt/aleph-alpha",
-          {
-            model: "luminous-extended",
-            prompt: [
-              {
-                type: "image",
-                data: resizedImageWithoutHeader,
-              },
-              {
-                type: "text",
-                data: options.prompt,
-              },
-            ],
-            max_tokens: options.max_tokens || 64,
-            stop_sequences: ["\n"],
-            temperature: options.temperature || 0.5,
-          },
-          {
+      renderedFrames.push(resizedImageWithoutHeader);
+    }
+
+    if (options.engine === "aleph-alpha") {
+      for (let imageData of renderedFrames) {
+        const requestData = {
+          model: "luminous-extended",
+          prompt: [
+            {
+              type: "image",
+              data: imageData,
+            },
+            {
+              type: "text",
+              data: options.prompt,
+            },
+          ],
+          max_tokens: options.max_tokens || 64,
+          stop_sequences: options.stop_sequences || ["\n"],
+          temperature: options.temperature || 0.5,
+        };
+
+        try {
+          const result = await axios.post(this.url + "/api/prompt/aleph-alpha", requestData, {
             headers: {
               Authorization: `Bearer ${this.token}`,
             },
-          }
-        );
-        responses.push(result.data.response.trim());
+          });
+          responses.push(result.data.response.trim());
+          cost += result.data.usage.cost;
+        } catch (e: any) {
+          throw new Error(e.response.data.message || e.message);
+        }
+      }
+    } else if (options.engine === "deepva") {
+      const requestData = {
+        frames: renderedFrames,
+      };
+
+      try {
+        const result = await axios.post(this.url + "/api/prompt/deepva", requestData, {
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+          },
+        });
+        responses.push(...result.data.response);
         cost += result.data.usage.cost;
       } catch (e: any) {
         throw new Error(e.response.data.message || e.message);
       }
+    } else {
+      throw new Error("Engine not supported");
     }
     return {
       response: responses.join(","),

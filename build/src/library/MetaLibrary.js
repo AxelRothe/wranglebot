@@ -126,8 +126,7 @@ class MetaLibrary {
                 return true;
             }
             catch (e) {
-                logbotjs_1.default.log(400, e);
-                return false;
+                throw e;
             }
         });
     }
@@ -356,8 +355,7 @@ class MetaLibrary {
                 }
                 //check if new or moved file
                 const cup = new Espresso_1.default();
-                const result = yield cup.pour(path).analyse({ cancel: false }, (progress) => {
-                });
+                const result = yield cup.pour(path).analyse({ cancel: false }, (progress) => { });
                 const mf = this.findMetaFileByHash(result.hash);
                 if (mf) {
                     //found new copy of existing metafile
@@ -588,17 +586,16 @@ class MetaLibrary {
         __classPrivateFieldGet(this, _MetaLibrary_instances, "m", _MetaLibrary_removeFromRunTime).call(this, "metaCopies", metaCopy);
         return true;
     }
-    updateMetaDataOfFile(fileId, key, value) {
+    updateMetaDataOfFile(metafile, key, value) {
         return __awaiter(this, void 0, void 0, function* () {
-            const file = this.getOneMetaFile(fileId);
-            if (file) {
-                file.metaData.updateEntry(key, value);
+            if (metafile) {
+                metafile.metaData.updateEntry(key, value);
                 const set = { metaData: {} };
                 set.metaData[key] = value;
-                const result = yield (0, DB_1.default)().updateOne("metafiles", { id: file.id, library: this.name }, set);
+                const result = yield (0, DB_1.default)().updateOne("metafiles", { id: metafile.id, library: this.name }, set);
                 return true;
             }
-            return new Error("File not found");
+            throw new Error("File not found");
         });
     }
     /* THUMBNAILS */

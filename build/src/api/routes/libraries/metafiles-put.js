@@ -19,11 +19,10 @@ exports.default = {
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const { id, file, key } = req.params;
         const { value } = req.body;
-        const library = yield bot.query.library.one(id).fetch();
-        if (!library) {
-            throw new Error(`Library ${id} not found`);
-        }
-        yield library.updateMetaDataOfFile(file, key, value);
+        yield bot.query.library.one(id).metafiles.one(file).metadata.put({
+            key,
+            value,
+        });
         return new RouteResult_1.default(200, {
             message: `Metadata ${key} updated`,
         });

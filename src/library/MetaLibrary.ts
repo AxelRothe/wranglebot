@@ -152,8 +152,7 @@ export default class MetaLibrary {
       });
       return true;
     } catch (e) {
-      LogBot.log(400, e);
-      return false;
+      throw e;
     }
   }
 
@@ -403,9 +402,7 @@ export default class MetaLibrary {
 
       //check if new or moved file
       const cup = new Espresso();
-      const result = await cup.pour(path).analyse({ cancel: false }, (progress) => {
-
-      });
+      const result = await cup.pour(path).analyse({ cancel: false }, (progress) => {});
 
       const mf = this.findMetaFileByHash(result.hash);
       if (mf) {
@@ -711,18 +708,17 @@ export default class MetaLibrary {
     return true;
   }
 
-  async updateMetaDataOfFile(fileId, key, value) {
-    const file = this.getOneMetaFile(fileId);
-    if (file) {
-      file.metaData.updateEntry(key, value);
+  async updateMetaDataOfFile(metafile, key, value) {
+    if (metafile) {
+      metafile.metaData.updateEntry(key, value);
 
       const set = { metaData: {} };
       set.metaData[key] = value;
 
-      const result = await DB().updateOne("metafiles", { id: file.id, library: this.name }, set);
+      const result = await DB().updateOne("metafiles", { id: metafile.id, library: this.name }, set);
       return true;
     }
-    return new Error("File not found");
+    throw new Error("File not found");
   }
 
   /* THUMBNAILS */

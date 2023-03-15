@@ -17,6 +17,7 @@ import api from "./api";
 import AccountManager from "./accounts/AccountManager";
 import createTaskOptions from "./library/createTaskOptions";
 import { MLInterface } from "./analyse/MLInterface";
+import analyseMetaFileOptions from "./library/analyseMetaFileOptions";
 
 const EventEmitter = require("events");
 const { finder } = require("./system");
@@ -37,11 +38,19 @@ interface ReturnObject {
 }
 
 interface WrangleBotOptions {
-  token: string;
-  key: string;
-  database?: string;
-  port?: number;
-  mlserver?: string;
+  client: {
+    database: {
+      cloud?: {
+        token: string;
+        databaseURL: string;
+        machineLearningURL: string;
+      };
+      local?: {
+        key: string;
+      };
+    };
+    port: number;
+  };
 }
 
 /**
@@ -97,7 +106,7 @@ class WrangleBot extends EventEmitter {
   }
 
   async open(options: WrangleBotOptions) {
-    LogBot.log(100, "Opening WrangleBot");
+    LogBot.log(100, "Opening WrangleBot instance ... " + JSON.stringify(options));
     this.emit("notification", {
       title: "Opening WrangleBot",
       message: "WrangleBot is starting up",
@@ -105,33 +114,45 @@ class WrangleBot extends EventEmitter {
 
     if (!config) throw new Error("Config failed to load. Aborting. Delete the config file and restart the bot.");
 
-    if (!options.port) options.port = config.get("port");
+    if (!options.client.port) options.client.port = config.get("port");
 
     this.pingInterval = this.config.get("pingInterval") || 5000;
 
     try {
       let db;
-      if (options.database) {
+      if (options.client.database.cloud) {
         //CLOUD SYNC DB
+        LogBot.log(100, "User supplied cloud database credentials. Attempting to connect to cloud database.");
 
+        if (!options.client.database.cloud.databaseURL) throw new Error("No databaseURL provided");
+        if (!options.client.database.cloud.token) throw new Error("No token provided");
+
+        //init db interface
         db = DB({
-          url: options.database,
-          token: options.token,
+          url: options.client.database.cloud.databaseURL,
+          token: options.client.database.cloud.token,
         });
+        //rebuild local model
         await DB().rebuildLocalModel();
-        await db.connect(options.key);
-        if (options.mlserver) {
+        //connect to db websocket
+        await db.connect(options.client.database.cloud.token);
+
+        if (options.client.database.cloud.machineLearningURL) {
+          //init machine learning interface
           MLInterface({
-            url: options.mlserver,
-            token: options.token,
+            url: options.client.database.cloud.machineLearningURL,
+            token: options.client.database.cloud.token,
           });
         }
-      } else {
+      } else if (options.client.database.local) {
         //LOCAL DB
+        LogBot.log(100, "User supplied local database credentials. Attempting to connect to local database.");
 
+        //init db interface for local use
         db = DB({
-          key: options.key,
+          token: options.client.database.local.key,
         });
+        //rebuild local model
         await DB().rebuildLocalModel();
       }
 
@@ -149,8 +170,8 @@ class WrangleBot extends EventEmitter {
 
         //start Socket and REST API
         await this.startServer({
-          port: options.port || this.config.get("port"),
-          key: options.key,
+          port: options.client.port || this.config.get("port"),
+          key: this.config.get("jwt-secret"),
         });
 
         await this.driveBot.updateDrives();
@@ -208,7 +229,7 @@ class WrangleBot extends EventEmitter {
           message: "WrangleBot is ready to rumble.",
         });
 
-        this.emit("connectedToCloud", this);
+        this.emit("ready", this);
 
         return this;
       } else {
@@ -219,13 +240,13 @@ class WrangleBot extends EventEmitter {
           message: "WrangleBot could not connect to the database. Please check your internet connection and try again.",
         });
 
-        this.emit("failedToConnectToCloud", new Error("Could not connect to database"));
+        this.emit("error", new Error("Could not connect to database"));
         return null;
       }
     } catch (e: any) {
       LogBot.log(500, e.message);
       this.status = WrangleBot.CLOSED;
-      this.emit("failedToConnectToCloud", e);
+      this.emit("error", e);
 
       this.emit("notification", {
         title: "Could not connect to database",
@@ -974,7 +995,12 @@ class WrangleBot extends EventEmitter {
                       };
                     },
                   },
-                  analyse: async (options) => {
+                  metadata: {
+                    put: async (options) => {
+                      return await lib.updateMetaDataOfFile(metafile, options.key, options.value);
+                    },
+                  },
+                  analyse: async (options: analyseMetaFileOptions) => {
                     return await metafile.analyse(options);
                   },
                 };
@@ -1184,7 +1210,7 @@ class WrangleBot extends EventEmitter {
       index: async (pathToFolder, types) => {
         return await Indexer.index(pathToFolder, types);
       },
-      list: (pathToFolder, options : {showHidden: boolean, filters: 'both' | 'files' | 'folders', recursive: boolean, depth: Number}) => {
+      list: (pathToFolder, options: { showHidden: boolean; filters: "both" | "files" | "folders"; recursive: boolean; depth: Number }) => {
         if (!pathToFolder) throw new Error("No path provided.");
         if (pathToFolder === "/") throw new Error("Cannot list root directory.");
         if (!options) {

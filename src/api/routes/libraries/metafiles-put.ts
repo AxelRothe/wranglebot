@@ -9,13 +9,10 @@ export default {
     const { id, file, key } = req.params;
     const { value } = req.body;
 
-    const library = await bot.query.library.one(id).fetch();
-
-    if (!library) {
-      throw new Error(`Library ${id} not found`);
-    }
-
-    await library.updateMetaDataOfFile(file, key, value);
+    await bot.query.library.one(id).metafiles.one(file).metadata.put({
+      key,
+      value,
+    });
 
     return new RouteResult(200, {
       message: `Metadata ${key} updated`,

@@ -25,9 +25,6 @@ exports.default = {
             throw new Error("Overwrite Options are required");
         const lib = bot.query.library.one(libraryId).fetch();
         const result = yield lib.query.folders.put(pathToFolder, overwrite);
-        if (!result) {
-            throw new Error("Failed to update folders");
-        }
         return new RouteResult_1.default(200, {
             status: "success",
             message: `Updated folder ${pathToFolder} for library ${libraryId}`,

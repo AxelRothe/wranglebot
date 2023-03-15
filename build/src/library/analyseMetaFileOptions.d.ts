@@ -1,4 +1,5 @@
 export default interface analyseMetaFileOptions {
+    engine: string;
     frames: string[];
     prompt: string;
     temperature?: number;

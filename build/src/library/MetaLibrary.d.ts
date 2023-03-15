@@ -118,7 +118,7 @@ export default class MetaLibrary {
     removeOneMetaCopy(metaCopy: any, options?: {
         deleteFile: boolean;
     }, save?: boolean): boolean;
-    updateMetaDataOfFile(fileId: any, key: any, value: any): Promise<true | Error>;
+    updateMetaDataOfFile(metafile: any, key: any, value: any): Promise<boolean>;
     downloadOneThumbnail(thumb: any): Promise<void>;
     generateOneTask(options: createTaskOptions): Promise<Task>;
     /**

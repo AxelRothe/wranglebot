@@ -31,7 +31,7 @@
     "url": "https://github.com/AxelRothe/wranglebot.git"
   },
   "scripts": {
-    "build": "rm -r build && npx tsc",
+    "build": "bash rm-dir build && npx tsc",
     "test": "npm run build && node test/index.js"
   },
   "dependencies": {

@@ -8,6 +8,7 @@ import Task from "./media/Task";
 import { MetaCopy } from "./library/MetaCopy";
 import { TranscodeTask } from "./transcode/TranscodeTask";
 import createTaskOptions from "./library/createTaskOptions";
+import analyseMetaFileOptions from "./library/analyseMetaFileOptions";
 declare const EventEmitter: any;
 interface ReturnObject {
     status: 200 | 400 | 500 | 404;
@@ -15,11 +16,19 @@ interface ReturnObject {
     result?: any;
 }
 interface WrangleBotOptions {
-    token: string;
-    key: string;
-    database?: string;
-    port?: number;
-    mlserver?: string;
+    client: {
+        database: {
+            cloud?: {
+                token: string;
+                databaseURL: string;
+                machineLearningURL: string;
+            };
+            local?: {
+                key: string;
+            };
+        };
+        port: number;
+    };
 }
 /**
  * WrangleBot Interface
@@ -284,7 +293,10 @@ declare class WrangleBot extends EventEmitter {
                                 fetch: () => Promise<MetaCopy[]>;
                             };
                         };
-                        analyse: (options: any) => Promise<{
+                        metadata: {
+                            put: (options: any) => Promise<boolean>;
+                        };
+                        analyse: (options: analyseMetaFileOptions) => Promise<{
                             response: string;
                             cost: number;
                         }>;
@@ -391,7 +403,7 @@ declare class WrangleBot extends EventEmitter {
         index: (pathToFolder: any, types: any) => Promise<import("./media/Indexer").Index>;
         list: (pathToFolder: any, options: {
             showHidden: boolean;
-            filters: 'both' | 'files' | 'folders';
+            filters: "both" | "files" | "folders";
             recursive: boolean;
             depth: Number;
         }) => any;
