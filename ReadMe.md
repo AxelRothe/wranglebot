@@ -54,7 +54,7 @@ WrangleBot offers a variety of features to make asset management easier and more
   - app syncs itself between devices in realtime
   - offload on one device and tag it at another studio
 - Open Source
-  - web-app and engine open source
+  - open NodeJS engine and browser client
   - written in NodeJS with Typescript
   - Javascript API, that uses chained commands and is easy to use without knowledge of the underlying code
   - fully controllable via REST API
