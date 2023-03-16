@@ -21,9 +21,9 @@ export default {
           if (extended) {
             t = thumbnails.map((thumbnail) => thumbnail.toJSON());
             await Promise.all(t);
+          } else {
+            t = thumbnails.map((t) => t.id);
           }
-
-          t = thumbnails.map((t) => t.id);
 
           if (pagination) {
             if (!paginationStart || !paginationEnd) throw new Error("Missing pagination parameters");
