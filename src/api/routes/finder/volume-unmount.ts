@@ -5,7 +5,7 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "post",
-  requiredRole: ["admin", "editor"],
+  requiredRole: ["admin", "maintainer"],
   url: "/volumes/:volumeId/eject",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const { volumeId } = req.params;

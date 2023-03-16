@@ -7,7 +7,7 @@ export default class User {
   firstName;
   lastName;
   email;
-  roles: string[] = [];
+  roles: string[] = []; // ["admin", "maintainer", "contributor", "curator"]
   libraries = []; //@deprecated
 
   query: any;

@@ -16,11 +16,11 @@ const logbotjs_1 = __importDefault(require("logbotjs"));
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "put",
-    requiredParams: ['username'],
+    requiredParams: ["username"],
     url: "/users/:username",
     handler: (req, res, wrangleBot, socketServer) => __awaiter(void 0, void 0, void 0, function* () {
         const { username } = req.params;
-        if (!socketServer.isUser(req, res, username) && !socketServer.checkRequestAuthorization(req, res, "admin"))
+        if (!socketServer.isUser(req, res, username) && !socketServer.checkRequestAuthorization(req, res, ["admin", "maintainer"]))
             return;
         const user = yield wrangleBot.query.users.one({ id: username }).fetch();
         if (!user) {
@@ -39,11 +39,9 @@ exports.default = {
             yield wrangleBot.accountManager.changeEmail(user, req.body.email);
         }
         if (req.body.roles) {
-            for (let role of req.body.roles) {
-                wrangleBot.accountManager.addRole(user, role);
-            }
+            wrangleBot.accountManager.setRoles(user, req.body.roles);
         }
         return new RouteResult_1.default(200, user.toJSON({ security: true }));
-    })
+    }),
 };
 //# sourceMappingURL=put-users.js.map

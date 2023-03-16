@@ -4,7 +4,7 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "put",
-  requiredRole: ["admin", "editor"],
+  requiredRole: ["admin", "maintainer"],
   url: "/library/:id/metafiles/:file/metadata/:key",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const { id, file, key } = req.params;

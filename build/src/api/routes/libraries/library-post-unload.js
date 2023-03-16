@@ -17,7 +17,7 @@ const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "post",
     url: "/library/:id/unload",
-    requiredRole: ["admin"],
+    requiredRole: ["admin", "maintainer"],
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const libraryId = req.params.id;
         LogBot.log(200, `[API] POST /library/${libraryId}/unload by IP ${req.ip}`);

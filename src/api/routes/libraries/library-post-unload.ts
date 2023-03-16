@@ -8,7 +8,7 @@ import RouteResult from "../../RouteResult";
 export default {
   method: "post",
   url: "/library/:id/unload",
-  requiredRole: ["admin"],
+  requiredRole: ["admin", "maintainer"],
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const libraryId = req.params.id;
 

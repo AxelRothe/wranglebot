@@ -4,7 +4,7 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "post",
-  requiredRole: ["admin", "editor"],
+  requiredRole: ["admin", "maintainer", "contributor"],
   url: "/library/:library/transcode/:transcodeId/cancel",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const { library, transcodeId } = req.params;

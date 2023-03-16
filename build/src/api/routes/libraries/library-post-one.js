@@ -16,7 +16,7 @@ const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "post",
     url: "/library/",
-    requiredRole: ["admin"],
+    requiredRole: ["admin", "maintainer"],
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const { name, folders, pathToLibrary, drops } = req.body;
         if (!name || !folders || !pathToLibrary) {

@@ -16,7 +16,7 @@ const RouteResult_1 = __importDefault(require("../../RouteResult"));
 const LogBot = require("logbotjs");
 exports.default = {
     method: "post",
-    requiredRole: ["admin"],
+    requiredRole: ["admin", "maintainer"],
     url: "/library/:id/load",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const libraryId = req.params.id;

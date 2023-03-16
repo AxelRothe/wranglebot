@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "get",
-    requiredRole: ["admin", "editor"],
+    requiredRole: ["admin", "maintainer", "contributor"],
     url: "/utility/luts",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         return new RouteResult_1.default(200, bot.utility.luts());

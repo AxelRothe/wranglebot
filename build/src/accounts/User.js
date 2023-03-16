@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const uuid_1 = require("uuid");
 class User {
     constructor(options) {
-        this.roles = [];
+        this.roles = []; // ["admin", "maintainer", "contributor", "curator"]
         this.libraries = []; //@deprecated
         this.token = "";
         if (!options.username)

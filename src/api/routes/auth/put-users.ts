@@ -3,11 +3,11 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "put",
-  requiredParams: ['username'],
+  requiredParams: ["username"],
   url: "/users/:username",
   handler: async (req, res, wrangleBot, socketServer) => {
     const { username } = req.params;
-    if (!socketServer.isUser(req, res, username) && !socketServer.checkRequestAuthorization(req, res, "admin")) return;
+    if (!socketServer.isUser(req, res, username) && !socketServer.checkRequestAuthorization(req, res, ["admin", "maintainer"])) return;
 
     const user = await wrangleBot.query.users.one({ id: username }).fetch();
     if (!user) {
@@ -27,11 +27,9 @@ export default {
     }
 
     if (req.body.roles) {
-      for (let role of req.body.roles) {
-        wrangleBot.accountManager.addRole(user, role);
-      }
+      wrangleBot.accountManager.setRoles(user, req.body.roles);
     }
 
     return new RouteResult(200, user.toJSON({ security: true }));
-  }
-}
+  },
+};

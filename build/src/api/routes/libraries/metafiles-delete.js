@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "delete",
-    requiredRole: ["admin"],
+    requiredRole: ["admin", "maintainer"],
     url: "/library/:libraryName/metafiles/:fileId",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const { libraryName, fileId } = req.params;

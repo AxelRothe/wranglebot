@@ -8,6 +8,7 @@ declare class AccountManager {
     getAllUsers(filters?: {}): User[];
     getOneUser(username: any): User | undefined;
     addRole(user: any, role: any): boolean;
+    setRoles(user: any, roles: any): boolean;
     removeRole(user: any, role: any): boolean;
     /**
      * compares the user's roles to the roles passed in

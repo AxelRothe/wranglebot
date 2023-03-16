@@ -3,7 +3,7 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "delete",
-  requiredRole: ["admin"],
+  requiredRole: ["admin", "maintainer"],
   url: "/users/:username",
   handler: async (req, res, bot, socketServer) => {
     const { username } = req.params;

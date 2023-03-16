@@ -16,7 +16,7 @@ const logbotjs_1 = __importDefault(require("logbotjs"));
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "delete",
-    requiredRole: ["admin"],
+    requiredRole: ["admin", "maintainer"],
     url: "/users/:username",
     handler: (req, res, bot, socketServer) => __awaiter(void 0, void 0, void 0, function* () {
         const { username } = req.params;

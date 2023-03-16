@@ -138,6 +138,13 @@ class AccountManager {
         }
         return false;
     }
+    setRoles(user, roles) {
+        user.roles = roles;
+        const res = (0, DB_1.default)().updateOne("users", { id: user.id }, {
+            roles: user.roles,
+        });
+        return !!res;
+    }
     removeRole(user, role) {
         if (user.roles.indexOf(role) > -1) {
             user.roles.splice(user.roles.indexOf(role), 1);

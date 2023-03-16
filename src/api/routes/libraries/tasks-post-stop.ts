@@ -3,7 +3,7 @@ import { SocketServer } from "../../SocketServer";
 import RouteResult from "../../RouteResult";
 export default {
   method: "post",
-  requiredRole: ["admin", "editor"],
+  requiredRole: ["admin", "maintainer", "contributor"],
   url: "/library/:id/tasks/:taskid/stop",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const libraryId = req.params.id;
