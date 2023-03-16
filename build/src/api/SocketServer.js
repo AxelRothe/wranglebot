@@ -47,10 +47,10 @@ class SocketServer {
          * Checks if the token is valid
          * @param req the request
          * @param res the response
-         * @param {string} role
+         * @param {string[]} roles
          * @returns {boolean} true if the token is valid
          */
-        this.checkRequestAuthorization = (req, res, role = "") => {
+        this.checkRequestAuthorization = (req, res, roles = []) => {
             const auth = req.get("authorization");
             if (!auth || !auth.startsWith("Bearer ")) {
                 res.status(401).send({ error: `Invalid Authorization Format or Token. Should be: Bearer <token>.` });
@@ -58,10 +58,10 @@ class SocketServer {
             }
             const token = auth.split(" ")[1];
             const user = __classPrivateFieldGet(this, _SocketServer_instances, "m", _SocketServer_jwtValid).call(this, token);
-            if (!user || (role.length > 0 && !this.bot.accountManager.hasRole(user, role))) {
+            if (!user || (user && roles.length > 0 && !this.bot.accountManager.hasRole(user, roles))) {
                 res.status(401).send({
                     status: "error",
-                    message: `Invalid Token or no permission to access this resource. Role required: ${role}, you are ${user ? user.roles.concat(", ") : "not logged in"}`,
+                    message: `Invalid Token or no permission to access this resource. Clearance: ${roles}, ${user ? "roles assigned to your user: " + user.roles.join(",") : "you are not logged in"}`,
                 });
                 return false;
             }
@@ -168,7 +168,7 @@ class SocketServer {
         }
         //scan the plugins folder in the wranglebot directory
         //and load the routes from the plugins
-        const pathToPlugins = system_1.finder.getPathToUserData("wranglebot/plugins/");
+        const pathToPlugins = system_1.finder.getPathToUserData("wranglebot/custom/endpoints/");
         const plugins = system_1.finder.getContentOfFolder(pathToPlugins);
         for (let plugin of plugins) {
             const pluginRoute = require(pathToPlugins + plugin);

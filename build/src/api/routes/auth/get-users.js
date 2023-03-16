@@ -17,7 +17,7 @@ const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "get",
     url: "/users",
-    requiredRole: "admin",
+    requiredRole: ["admin"],
     handler: (req, res, bot, socketServer) => __awaiter(void 0, void 0, void 0, function* () {
         logbotjs_1.default.log(200, `GET /users/`);
         const users = bot.query.users.many().fetch();

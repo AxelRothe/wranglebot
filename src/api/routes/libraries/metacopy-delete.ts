@@ -5,6 +5,7 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "delete",
+  requiredRole: ["admin"],
   url: "/library/:libraryName/metafiles/:metaFileId/metacopies/:metaCopyId",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const { libraryName, metaFileId, metaCopyId } = req.params;

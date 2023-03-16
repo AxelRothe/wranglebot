@@ -10,7 +10,7 @@ declare const _default: {
         getOneUser(username: any): User | undefined;
         addRole(user: any, role: any): boolean;
         removeRole(user: any, role: any): boolean;
-        hasRole(user: any, role: any): any;
+        hasRole(user: any, roles: any): boolean;
         changePassword(user: any, password: any): any;
         changeEmail(user: any, email: any): any;
         changeFirstName(user: any, firstName: any): any;

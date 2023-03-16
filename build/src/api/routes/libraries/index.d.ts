@@ -4,6 +4,7 @@ declare const _default: ({
     handler: (req: any, res: any, bot: import("../../../WrangleBot").WrangleBot, server: import("../../SocketServer").SocketServer) => Promise<import("../../RouteResult").default>;
 } | {
     method: string;
+    requiredRole: string[];
     url: string;
     handler: (req: any, res: any, bot: import("../../../WrangleBot").WrangleBot, server: import("../../SocketServer").SocketServer) => Promise<void>;
 })[];

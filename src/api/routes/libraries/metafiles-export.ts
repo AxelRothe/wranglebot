@@ -4,16 +4,16 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "post",
+  requiredRole: ["admin", "editor"],
   url: "/library/:libraryName/metafiles/export",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const libraryName = req.params.libraryName;
     const { files, path, reportName, format, template, credits } = req.body;
 
-    const lib = await bot.query.library
-      .one(libraryName).fetch();
+    const lib = await bot.query.library.one(libraryName).fetch();
 
-    const result = lib.query
-      .metafiles.many({
+    const result = lib.query.metafiles
+      .many({
         $ids: [...files],
       })
       .export.report({
@@ -23,7 +23,7 @@ export default {
         format: format,
         template: template,
         credits: {
-          owner: credits.owner || lib.drops.getCols()['owner'] || "Unknown",
+          owner: credits.owner || lib.drops.getCols()["owner"] || "Unknown",
           title: credits.title || "Clip Report",
         },
       });

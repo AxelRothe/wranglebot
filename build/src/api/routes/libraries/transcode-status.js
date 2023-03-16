@@ -16,6 +16,7 @@ const TranscodeTemplates_1 = __importDefault(require("../../../transcode/Transco
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "get",
+    requiredRole: ["admin", "editor"],
     url: "/status/transcode",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const availableTranscodeTemplates = TranscodeTemplates_1.default.getAvailableTemplates();

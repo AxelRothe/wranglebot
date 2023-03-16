@@ -16,6 +16,7 @@ const logbotjs_1 = __importDefault(require("logbotjs"));
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "delete",
+    requiredRole: ["admin"],
     url: "/users/:username",
     handler: (req, res, bot, socketServer) => __awaiter(void 0, void 0, void 0, function* () {
         const { username } = req.params;
@@ -29,11 +30,11 @@ exports.default = {
         const r = bot.accountManager.removeOneUser(user);
         if (r) {
             logbotjs_1.default.log(200, `DELETE /users/${username}`);
-            return new RouteResult_1.default(200, 'user deleted');
+            return new RouteResult_1.default(200, "user deleted");
         }
         else {
             throw new Error("User could not be deleted");
         }
-    })
+    }),
 };
 //# sourceMappingURL=delete-users.js.map

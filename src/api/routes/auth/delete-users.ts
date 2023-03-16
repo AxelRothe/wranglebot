@@ -3,6 +3,7 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "delete",
+  requiredRole: ["admin"],
   url: "/users/:username",
   handler: async (req, res, bot, socketServer) => {
     const { username } = req.params;
@@ -19,9 +20,9 @@ export default {
 
     if (r) {
       LogBot.log(200, `DELETE /users/${username}`);
-      return new RouteResult(200, 'user deleted')
+      return new RouteResult(200, "user deleted");
     } else {
       throw new Error("User could not be deleted");
     }
-  }
-}
+  },
+};

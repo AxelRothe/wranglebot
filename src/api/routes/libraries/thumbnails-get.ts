@@ -7,6 +7,7 @@ export default {
   url: "/library/:id/metafiles/:file/thumbnails/:grab",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const { id, file, grab } = req.params;
+    const { pagination, paginationStart, paginationEnd, extended } = req.query;
 
     const metaFile = await bot.query.library.one(id).metafiles.one(file).fetch();
 
@@ -14,8 +15,22 @@ export default {
       switch (grab) {
         case "all":
           const thumbnails = await metaFile.query.thumbnails.all.fetch();
-          const t = thumbnails.map((thumbnail) => thumbnail.toJSON());
-          return new RouteResult(200, await Promise.all(t));
+
+          let t = [];
+
+          if (extended) {
+            t = thumbnails.map((thumbnail) => thumbnail.toJSON());
+            await Promise.all(t);
+          }
+
+          t = thumbnails.map((t) => t.id);
+
+          if (pagination) {
+            if (!paginationStart || !paginationEnd) throw new Error("Missing pagination parameters");
+            t = t.slice(paginationStart, paginationEnd);
+          }
+
+          return new RouteResult(200, t);
         case "first":
           const tFirst = await metaFile.query.thumbnails.first.fetch();
           return new RouteResult(200, await tFirst.toJSON());

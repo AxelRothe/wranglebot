@@ -5,6 +5,7 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "get",
+  requiredRole: ["admin", "editor"],
   url: "/utility/luts",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     return new RouteResult(200, bot.utility.luts());

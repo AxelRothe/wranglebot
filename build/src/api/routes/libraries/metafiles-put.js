@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "put",
+    requiredRole: ["admin", "editor"],
     url: "/library/:id/metafiles/:file/metadata/:key",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const { id, file, key } = req.params;

@@ -3,6 +3,7 @@ import { WrangleBot } from "../../../WrangleBot";
 import RouteResult from "../../RouteResult";
 declare const _default: {
     method: string;
+    requiredRole: string[];
     requiredParams: string[];
     requiredBody: string[];
     url: string;

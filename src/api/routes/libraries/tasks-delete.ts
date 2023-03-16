@@ -4,6 +4,7 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "delete",
+  requiredRole: ["admin"],
   url: "/library/:id/tasks/:taskid",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const libraryId = req.params.id;

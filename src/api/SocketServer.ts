@@ -156,7 +156,7 @@ class SocketServer {
 
     //scan the plugins folder in the wranglebot directory
     //and load the routes from the plugins
-    const pathToPlugins = finder.getPathToUserData("wranglebot/plugins/");
+    const pathToPlugins = finder.getPathToUserData("wranglebot/custom/endpoints/");
     const plugins = finder.getContentOfFolder(pathToPlugins);
 
     for (let plugin of plugins) {
@@ -286,10 +286,10 @@ class SocketServer {
    * Checks if the token is valid
    * @param req the request
    * @param res the response
-   * @param {string} role
+   * @param {string[]} roles
    * @returns {boolean} true if the token is valid
    */
-  checkRequestAuthorization = (req, res, role = "") => {
+  checkRequestAuthorization = (req, res, roles: string[] = []) => {
     const auth = req.get("authorization");
     if (!auth || !auth.startsWith("Bearer ")) {
       res.status(401).send({ error: `Invalid Authorization Format or Token. Should be: Bearer <token>.` });
@@ -300,11 +300,11 @@ class SocketServer {
 
     const user = this.#jwtValid(token);
 
-    if (!user || (role.length > 0 && !this.bot.accountManager.hasRole(user, role))) {
+    if (!user || (user && roles.length > 0 && !this.bot.accountManager.hasRole(user, roles))) {
       res.status(401).send({
         status: "error",
-        message: `Invalid Token or no permission to access this resource. Role required: ${role}, you are ${
-          user ? user.roles.concat(", ") : "not logged in"
+        message: `Invalid Token or no permission to access this resource. Clearance: ${roles}, ${
+          user ? "roles assigned to your user: " + user.roles.join(",") : "you are not logged in"
         }`,
       });
       return false;

@@ -7,6 +7,7 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "post",
+  requiredRole: ["admin", "editor"],
   url: "/library/:libraryName/transcode/",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const { libraryName } = req.params;

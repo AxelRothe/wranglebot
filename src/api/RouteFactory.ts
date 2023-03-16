@@ -6,7 +6,7 @@ const LogBot = require("logbotjs");
 interface RouteOptions {
   method: string; //"get" | "post" | "put" | "delete"
   url: string;
-  requiredRole?: string;
+  requiredRole?: string[];
   requiredParams?: string[] | undefined;
   requiredBody?: string[] | undefined;
   public?: boolean;

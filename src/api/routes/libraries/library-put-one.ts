@@ -4,6 +4,7 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "put",
+  requiredRole: ["admin"],
   url: "/library/:id",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const libraryId = req.params.id;

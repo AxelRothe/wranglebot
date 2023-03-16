@@ -6,7 +6,7 @@ import RouteResult from "../../RouteResult";
 export default {
   method: "get",
   url: "/users",
-  requiredRole: "admin",
+  requiredRole: ["admin"],
   handler: async (req, res, bot: WrangleBot, socketServer: SocketServer) => {
     LogBot.log(200, `GET /users/`);
 

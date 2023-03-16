@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "post",
+    requiredRole: ["admin", "editor"],
     requiredParams: ["libraryId", "metafileId"],
     requiredBody: ["engine", "metafiles", ""],
     url: "/library/:libraryId/metafiles/analyse",

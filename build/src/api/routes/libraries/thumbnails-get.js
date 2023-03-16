@@ -18,13 +18,24 @@ exports.default = {
     url: "/library/:id/metafiles/:file/thumbnails/:grab",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const { id, file, grab } = req.params;
+        const { pagination, paginationStart, paginationEnd, extended } = req.query;
         const metaFile = yield bot.query.library.one(id).metafiles.one(file).fetch();
         try {
             switch (grab) {
                 case "all":
                     const thumbnails = yield metaFile.query.thumbnails.all.fetch();
-                    const t = thumbnails.map((thumbnail) => thumbnail.toJSON());
-                    return new RouteResult_1.default(200, yield Promise.all(t));
+                    let t = [];
+                    if (extended) {
+                        t = thumbnails.map((thumbnail) => thumbnail.toJSON());
+                        yield Promise.all(t);
+                    }
+                    t = thumbnails.map((t) => t.id);
+                    if (pagination) {
+                        if (!paginationStart || !paginationEnd)
+                            throw new Error("Missing pagination parameters");
+                        t = t.slice(paginationStart, paginationEnd);
+                    }
+                    return new RouteResult_1.default(200, t);
                 case "first":
                     const tFirst = yield metaFile.query.thumbnails.first.fetch();
                     return new RouteResult_1.default(200, yield tFirst.toJSON());

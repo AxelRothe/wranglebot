@@ -16,6 +16,7 @@ const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "post",
     requiredParams: ["path"],
+    requiredRole: ["admin", "editor"],
     url: "/utility/list",
     handler: (req, res, bot, socketServer) => __awaiter(void 0, void 0, void 0, function* () {
         let { path, options } = req.body;

@@ -6,6 +6,7 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "get",
+  requiredRole: ["admin", "editor"],
   url: "/volumes",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const drives = await bot.query.volumes.many().fetch();

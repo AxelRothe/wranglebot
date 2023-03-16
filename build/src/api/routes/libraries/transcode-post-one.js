@@ -16,6 +16,7 @@ const TranscodeTemplates_1 = __importDefault(require("../../../transcode/Transco
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "post",
+    requiredRole: ["admin", "editor"],
     url: "/library/:libraryName/transcode/",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const { libraryName } = req.params;

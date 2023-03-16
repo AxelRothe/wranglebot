@@ -45,15 +45,15 @@ declare class SocketServer {
      * @returns {User}
      */
     checkAuth(username?: null, password?: null, token?: null): User | null;
-    hasRole(userOrJWT: any, role: any): any;
+    hasRole(userOrJWT: any, role: any): boolean;
     /**
      * Checks if the token is valid
      * @param req the request
      * @param res the response
-     * @param {string} role
+     * @param {string[]} roles
      * @returns {boolean} true if the token is valid
      */
-    checkRequestAuthorization: (req: any, res: any, role?: string) => boolean;
+    checkRequestAuthorization: (req: any, res: any, roles?: string[]) => boolean;
     isUser(req: any, res: any, username: any): boolean;
     /**
      *

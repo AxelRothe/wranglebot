@@ -17,7 +17,7 @@ exports.default = {
     method: "post",
     url: "/users",
     requiredBody: ["username", "password", "roles", "libraries"],
-    requiredRole: "admin",
+    requiredRole: ["admin"],
     handler: (req, res, bot, socketServer) => __awaiter(void 0, void 0, void 0, function* () {
         const { username, password, roles, libraries, firstName, lastName, email } = req.body;
         const user = yield bot.query.users.post({

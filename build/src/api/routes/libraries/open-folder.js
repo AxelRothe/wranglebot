@@ -16,6 +16,7 @@ const logbotjs_1 = __importDefault(require("logbotjs"));
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "post",
+    requiredRole: ["admin", "editor"],
     url: "/library/:library/metafiles/:metafile/metacopies/:metaCopy/show",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const { library, metafile, metaCopy } = req.params;

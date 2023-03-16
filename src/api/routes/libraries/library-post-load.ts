@@ -7,6 +7,7 @@ import { SocketServer } from "../../SocketServer";
 
 export default {
   method: "post",
+  requiredRole: ["admin"],
   url: "/library/:id/load",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const libraryId = req.params.id;

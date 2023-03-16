@@ -142,8 +142,19 @@ class AccountManager {
     return false;
   }
 
-  hasRole(user, role) {
-    return user.roles.includes(role);
+  /**
+   * compares the user's roles to the roles passed in
+   * if the user has any of the roles, it returns true
+   * if the user has none of the roles, it returns false
+   *
+   * @param user
+   * @param roles
+   */
+  hasRole(user, roles) {
+    for (const role of roles) {
+      if (user.roles.includes(role)) return true;
+    }
+    return false;
   }
 
   changePassword(user, password) {

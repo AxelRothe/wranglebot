@@ -9,7 +9,15 @@ declare class AccountManager {
     getOneUser(username: any): User | undefined;
     addRole(user: any, role: any): boolean;
     removeRole(user: any, role: any): boolean;
-    hasRole(user: any, role: any): any;
+    /**
+     * compares the user's roles to the roles passed in
+     * if the user has any of the roles, it returns true
+     * if the user has none of the roles, it returns false
+     *
+     * @param user
+     * @param roles
+     */
+    hasRole(user: any, roles: any): boolean;
     changePassword(user: any, password: any): any;
     changeEmail(user: any, email: any): any;
     changeFirstName(user: any, firstName: any): any;

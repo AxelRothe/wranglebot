@@ -15,14 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "post",
+    requiredRole: ["admin", "editor"],
     url: "/library/:libraryName/metafiles/export",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const libraryName = req.params.libraryName;
         const { files, path, reportName, format, template, credits } = req.body;
-        const lib = yield bot.query.library
-            .one(libraryName).fetch();
-        const result = lib.query
-            .metafiles.many({
+        const lib = yield bot.query.library.one(libraryName).fetch();
+        const result = lib.query.metafiles
+            .many({
             $ids: [...files],
         })
             .export.report({
@@ -32,7 +32,7 @@ exports.default = {
             format: format,
             template: template,
             credits: {
-                owner: credits.owner || lib.drops.getCols()['owner'] || "Unknown",
+                owner: credits.owner || lib.drops.getCols()["owner"] || "Unknown",
                 title: credits.title || "Clip Report",
             },
         });

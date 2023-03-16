@@ -30,7 +30,7 @@ wb.open({
         machineLearningURL: conf.mlserver,
       },
     },
-    port: 3000,
+    port: 3200,
   },
 });
 

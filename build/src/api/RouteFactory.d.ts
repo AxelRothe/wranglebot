@@ -4,7 +4,7 @@ import { SocketServer } from "./SocketServer";
 interface RouteOptions {
     method: string;
     url: string;
-    requiredRole?: string;
+    requiredRole?: string[];
     requiredParams?: string[] | undefined;
     requiredBody?: string[] | undefined;
     public?: boolean;

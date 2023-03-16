@@ -5,6 +5,7 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "delete",
+  requiredRole: ["admin", "editor"],
   url: "/library/:libraryName/transcode/:transcodeId",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const { libraryName, transcodeId } = req.params;

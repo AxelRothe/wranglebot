@@ -5,7 +5,7 @@ declare const _default: {
     method: string;
     url: string;
     requiredBody: string[];
-    requiredRole: string;
+    requiredRole: string[];
     handler: (req: any, res: any, bot: WrangleBot, socketServer: SocketServer) => Promise<RouteResult>;
 };
 export default _default;

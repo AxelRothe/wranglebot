@@ -1,10 +1,6 @@
 import { WrangleBot } from "../../../WrangleBot";
 import { SocketServer } from "../../SocketServer";
-import express from "express";
 import RouteResult from "../../RouteResult";
-
-const bodyParser = require("body-parser");
-const LogBot = require("logbotjs");
 
 export default {
   method: "get",
