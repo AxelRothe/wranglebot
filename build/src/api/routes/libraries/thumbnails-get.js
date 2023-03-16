@@ -27,7 +27,6 @@ exports.default = {
                     let t = [];
                     if (extended) {
                         t = thumbnails.map((thumbnail) => thumbnail.toJSON());
-                        yield Promise.all(t);
                     }
                     else {
                         t = thumbnails.map((t) => t.id);
@@ -40,16 +39,16 @@ exports.default = {
                     return new RouteResult_1.default(200, t);
                 case "first":
                     const tFirst = yield metaFile.query.thumbnails.first.fetch();
-                    return new RouteResult_1.default(200, yield tFirst.toJSON());
+                    return new RouteResult_1.default(200, tFirst.toJSON());
                 case "last":
                     const tLast = yield metaFile.query.thumbnails.last.fetch();
-                    return new RouteResult_1.default(200, yield tLast.toJSON());
+                    return new RouteResult_1.default(200, tLast.toJSON());
                 case "center":
                     const tCenter = yield metaFile.query.thumbnails.center.fetch();
-                    return new RouteResult_1.default(200, yield tCenter.toJSON());
+                    return new RouteResult_1.default(200, tCenter.toJSON());
                 default:
                     const thumbnail = yield metaFile.query.thumbnails.one(grab).fetch();
-                    return new RouteResult_1.default(200, yield thumbnail.toJSON());
+                    return new RouteResult_1.default(200, thumbnail.toJSON());
             }
         }
         catch (e) {

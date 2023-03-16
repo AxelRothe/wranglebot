@@ -8,11 +8,11 @@ declare class Thumbnail {
      *
      * @returns {Promise<{data: string, id: string}>}
      */
-    toJSON(): Promise<{
+    toJSON(): {
         data: string;
         id: string;
         metaFile?: string;
-    }>;
+    };
 }
 export { Thumbnail };
 //# sourceMappingURL=Thumbnail.d.ts.map

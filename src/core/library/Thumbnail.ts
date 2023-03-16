@@ -19,7 +19,7 @@ class Thumbnail {
    *
    * @returns {Promise<{data: string, id: string}>}
    */
-  async toJSON(): Promise<{ data: string; id: string; metaFile?: string }> {
+  toJSON(): { data: string; id: string; metaFile?: string } {
     return {
       data: this.data,
       id: this.id,
