@@ -6,12 +6,7 @@
 ![Platforms](https://img.shields.io/badge/platforms-macos%20(x64%2C%20arm64)-blue)
 ![Discord](https://img.shields.io/discord/1070819210265104434?logo=discord&logoColor=blue)
 
-### Status
-
-_Live Server Status_
-
-![Website](https://img.shields.io/website?label=Cloud%20Sync&url=https%3A%2F%2Fdb2.wranglebot.io%2Fversion)
-![Website](https://img.shields.io/website?label=AI%20Services&url=https%3A%2F%2Fai.wranglebot.io%2Fversion)
+_Server Status_ ![Website](https://img.shields.io/website?label=Cloud%20Sync&url=https%3A%2F%2Fdb2.wranglebot.io%2Fversion) ![Website](https://img.shields.io/website?label=AI%20Services&url=https%3A%2F%2Fai.wranglebot.io%2Fversion)
 
 ---
 
@@ -92,10 +87,9 @@ npm run test
 ⚠️ You will require a `.env` to run the test environment:
 
 ```dotenv
-CLOUD_SYNC_DATABASE_KEY="xxxx-xxxx-xxxx-xxxx" #get at wranglebot.io
-CLOUD_SYNC_TOKEN="xxxx-xxxx-xxxx-xxxx" #please contact for developer token
+CLOUD_SYNC_DATABASE_TOKEN="xxxx-xxxx-xxxx-xxxx" #please contact for developer token
 CLOUD_SYNC_DATABASE_URL="https://db2.wranglebot.io"
-CLOUD_ML_URL="https://ai.wranglebot.io" #you will need credits, which you can get at wranglebot.io
+CLOUD_ML_URL="https://ai.wranglebot.io" # you will need a positive credits balance, you can charge your wallet at wranglebot.io
 DEBUG_NOTIFICATIONS="false" #show notifications in console
 ```
 
@@ -113,7 +107,7 @@ The key can be any string of characters.
 
 ## 📑 Documentation
 
-For more information, please refer to the `api.yaml` YAML File on how to use the API. We are writing a full documentation for the API and the WrangleBot Engine.
+Review our extensive Endpoint Documentation: [(Postman) REST API with Examples](https://documenter.getpostman.com/view/26212996/2s93JtQPKd)
 
 ## 💬 Discord
 
