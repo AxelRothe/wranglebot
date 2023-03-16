@@ -1,5 +1,5 @@
 import { SocketServer } from "../../SocketServer";
-import { WrangleBot } from "../../../WrangleBot";
+import { WrangleBot } from "../../../core/WrangleBot";
 import RouteResult from "../../RouteResult";
 
 export default {

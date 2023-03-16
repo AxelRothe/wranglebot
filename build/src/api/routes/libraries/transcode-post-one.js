@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const TranscodeTemplates_1 = __importDefault(require("../../../transcode/TranscodeTemplates"));
+const TranscodeTemplates_1 = __importDefault(require("../../../core/transcode/TranscodeTemplates"));
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "post",

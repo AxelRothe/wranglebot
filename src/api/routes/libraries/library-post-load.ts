@@ -2,7 +2,7 @@ import express from "express";
 import RouteResult from "../../RouteResult";
 
 const LogBot = require("logbotjs");
-import { WrangleBot } from "../../../WrangleBot";
+import { WrangleBot } from "../../../core/WrangleBot";
 import { SocketServer } from "../../SocketServer";
 
 export default {

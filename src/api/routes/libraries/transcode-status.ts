@@ -1,6 +1,6 @@
-import { WrangleBot } from "../../../WrangleBot";
+import { WrangleBot } from "../../../core/WrangleBot";
 import { SocketServer } from "../../SocketServer";
-import TranscodeTemplates from "../../../transcode/TranscodeTemplates";
+import TranscodeTemplates from "../../../core/transcode/TranscodeTemplates";
 import RouteResult from "../../RouteResult";
 
 export default {

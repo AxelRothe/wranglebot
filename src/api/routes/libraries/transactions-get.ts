@@ -1,5 +1,5 @@
-import Transaction from "../../../database/Transaction";
-import { WrangleBot } from "../../../WrangleBot";
+import Transaction from "../../../core/database/Transaction";
+import { WrangleBot } from "../../../core/WrangleBot";
 import { SocketServer } from "../../SocketServer";
 import RouteResult from "../../RouteResult";
 

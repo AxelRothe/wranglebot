@@ -1,6 +1,6 @@
 import express from "express";
 import LogBot from "logbotjs";
-import { WrangleBot } from "../../../WrangleBot";
+import { WrangleBot } from "../../../core/WrangleBot";
 import { SocketServer } from "../../SocketServer";
 import RouteResult from "../../RouteResult";
 

@@ -1,5 +1,5 @@
 import { SocketServer } from "../../SocketServer";
-import { WrangleBot } from "../../../WrangleBot";
+import { WrangleBot } from "../../../core/WrangleBot";
 import RouteResult from "../../RouteResult";
 declare const _default: {
     method: string;

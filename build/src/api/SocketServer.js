@@ -27,8 +27,8 @@ const EmailTemplate_1 = require("./EmailTemplate");
 const socket_io_1 = require("socket.io");
 const logbotjs_1 = __importDefault(require("logbotjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const User_1 = __importDefault(require("../accounts/User"));
-const system_1 = require("../system");
+const User_1 = __importDefault(require("../core/accounts/User"));
+const system_1 = require("../core/system");
 /* IMPORT ROUTES */
 const routes_1 = __importDefault(require("./routes"));
 const RouteFactory_1 = __importDefault(require("./RouteFactory"));
@@ -168,11 +168,18 @@ class SocketServer {
         }
         //scan the plugins folder in the wranglebot directory
         //and load the routes from the plugins
-        const pathToPlugins = system_1.finder.getPathToUserData("wranglebot/custom/endpoints/");
+        const pathToPlugins = system_1.finder.getPathToUserData("wranglebot/custom/");
         const plugins = system_1.finder.getContentOfFolder(pathToPlugins);
         for (let plugin of plugins) {
-            const pluginRoute = require(pathToPlugins + plugin);
-            routeFactory.build(pluginRoute);
+            const pluginFolders = system_1.finder.getContentOfFolder(pathToPlugins + plugin);
+            for (let pluginFolder of pluginFolders) {
+                if (pluginFolder === "endpoints") {
+                    const pluginRoutes = system_1.finder.getContentOfFolder(pathToPlugins + plugin + "/endpoints");
+                    for (let r of pluginRoutes) {
+                        routeFactory.build(require(pathToPlugins + plugin + "/endpoints/" + r));
+                    }
+                }
+            }
         }
         /*
         SUBSCRIPTIONS

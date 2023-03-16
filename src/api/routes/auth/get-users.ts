@@ -1,5 +1,5 @@
 import LogBot from "logbotjs";
-import type { WrangleBot } from "../../../WrangleBot.js";
+import type { WrangleBot } from "../../../core/WrangleBot.js";
 import { SocketServer } from "../../SocketServer";
 import RouteResult from "../../RouteResult";
 

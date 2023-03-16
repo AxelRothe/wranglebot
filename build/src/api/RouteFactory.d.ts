@@ -1,5 +1,5 @@
 import express from "express";
-import { WrangleBot } from "../WrangleBot";
+import { WrangleBot } from "../core/WrangleBot";
 import { SocketServer } from "./SocketServer";
 interface RouteOptions {
     method: string;

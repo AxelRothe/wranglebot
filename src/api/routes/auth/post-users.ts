@@ -1,6 +1,6 @@
 import LogBot from "logbotjs";
-import User from "../../../accounts/User";
-import { WrangleBot } from "../../../WrangleBot";
+import User from "../../../core/accounts/User";
+import { WrangleBot } from "../../../core/WrangleBot";
 import { SocketServer } from "../../SocketServer";
 import RouteResult from "../../RouteResult";
 

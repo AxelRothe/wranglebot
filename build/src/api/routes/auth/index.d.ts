@@ -7,7 +7,7 @@ declare const _default: ({
     method: string;
     url: string;
     requiredRole: string[];
-    handler: (req: any, res: any, bot: import("../../../WrangleBot").WrangleBot, socketServer: import("../../SocketServer").SocketServer) => Promise<import("../../RouteResult").default>;
+    handler: (req: any, res: any, bot: import("../../../core/WrangleBot").WrangleBot, socketServer: import("../../SocketServer").SocketServer) => Promise<import("../../RouteResult").default>;
 } | {
     method: string;
     requiredParams: string[];

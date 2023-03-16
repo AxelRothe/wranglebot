@@ -1,5 +1,5 @@
 import Client from "./Client";
-import { WrangleBot } from "../WrangleBot";
+import { WrangleBot } from "../core/WrangleBot";
 import express from "express";
 import Betweeny from "./Betweeny";
 import { EmailTemplate, EmailTemplateOptions } from "./EmailTemplate";
@@ -7,8 +7,8 @@ import { EmailTemplate, EmailTemplateOptions } from "./EmailTemplate";
 import { Server, Socket } from "socket.io";
 import LogBot from "logbotjs";
 import jwt from "jsonwebtoken";
-import User from "../accounts/User";
-import { config, finder } from "../system";
+import User from "../core/accounts/User";
+import { config, finder } from "../core/system";
 
 /* IMPORT ROUTES */
 
@@ -156,12 +156,19 @@ class SocketServer {
 
     //scan the plugins folder in the wranglebot directory
     //and load the routes from the plugins
-    const pathToPlugins = finder.getPathToUserData("wranglebot/custom/endpoints/");
+    const pathToPlugins = finder.getPathToUserData("wranglebot/custom/");
     const plugins = finder.getContentOfFolder(pathToPlugins);
 
     for (let plugin of plugins) {
-      const pluginRoute = require(pathToPlugins + plugin);
-      routeFactory.build(pluginRoute);
+      const pluginFolders = finder.getContentOfFolder(pathToPlugins + plugin);
+      for (let pluginFolder of pluginFolders) {
+        if (pluginFolder === "endpoints") {
+          const pluginRoutes = finder.getContentOfFolder(pathToPlugins + plugin + "/endpoints");
+          for (let r of pluginRoutes) {
+            routeFactory.build(require(pathToPlugins + plugin + "/endpoints/" + r));
+          }
+        }
+      }
     }
 
     /*

@@ -1,4 +1,4 @@
-import User from "../accounts/User";
+import User from "../core/accounts/User";
 interface EmailTemplateOptions {
     from: User;
     to: User;

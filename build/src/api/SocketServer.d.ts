@@ -1,10 +1,10 @@
 import Client from "./Client";
-import { WrangleBot } from "../WrangleBot";
+import { WrangleBot } from "../core/WrangleBot";
 import express from "express";
 import Betweeny from "./Betweeny";
 import { EmailTemplate, EmailTemplateOptions } from "./EmailTemplate";
 import { Server, Socket } from "socket.io";
-import User from "../accounts/User";
+import User from "../core/accounts/User";
 interface SocketHook {
     event: string;
     callback: (data: any) => void;

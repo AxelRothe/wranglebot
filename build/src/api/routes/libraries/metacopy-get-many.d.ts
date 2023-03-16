@@ -1,4 +1,4 @@
-import { WrangleBot } from "../../../WrangleBot";
+import { WrangleBot } from "../../../core/WrangleBot";
 import { SocketServer } from "../../SocketServer";
 import RouteResult from "../../RouteResult";
 declare const _default: {

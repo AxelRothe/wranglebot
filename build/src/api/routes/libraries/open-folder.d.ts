@@ -1,4 +1,4 @@
-import { WrangleBot } from "../../../WrangleBot";
+import { WrangleBot } from "../../../core/WrangleBot";
 import { SocketServer } from "../../SocketServer";
 declare const _default: {
     method: string;
