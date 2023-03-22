@@ -18,7 +18,7 @@ const { MetaDataColumns } = require("../library/Scraper");
 const { v4: uuidv4 } = require("uuid");
 class ExportBot {
     constructor() {
-        this.pathToAssets = finder.join(__dirname, "../../../assets/");
+        this.pathToAssets = finder.join(__dirname, "../../../../assets/");
         this.assets = {
             fonts: {
                 body: {
