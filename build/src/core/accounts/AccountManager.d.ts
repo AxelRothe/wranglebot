@@ -1,15 +1,16 @@
 import User from "./User";
+import createUserOptions from "./createUserOptions";
 declare class AccountManager {
     users: Set<User>;
     salt: string;
     init(): Promise<void>;
-    addOneUser(options: any): User;
+    addOneUser(options: createUserOptions): User;
     removeOneUser(user: any): boolean;
     getAllUsers(filters?: {}): User[];
     getOneUser(username: any): User | undefined;
-    addRole(user: any, role: any): boolean;
-    setRoles(user: any, roles: any): boolean;
-    removeRole(user: any, role: any): boolean;
+    addRole(user: User, role: any): boolean;
+    setRoles(user: User, roles: any): boolean;
+    removeRole(user: User, role: any): boolean;
     /**
      * compares the user's roles to the roles passed in
      * if the user has any of the roles, it returns true
@@ -18,13 +19,15 @@ declare class AccountManager {
      * @param user
      * @param roles
      */
-    hasRole(user: any, roles: any): boolean;
-    changePassword(user: any, password: any): any;
-    changeEmail(user: any, email: any): any;
-    changeFirstName(user: any, firstName: any): any;
-    changeLastName(user: any, lastName: any): any;
+    hasRole(user: User, roles: any): boolean;
+    changePassword(user: User, password: any): any;
+    changeEmail(user: User, email: any): any;
+    changeFirstName(user: User, firstName: any): any;
+    changeLastName(user: User, lastName: any): any;
+    updateUser(user: User, options: any): any;
     allowAccess(user: any, library: any): boolean;
     revokeAccess(user: any, library: any): boolean;
+    resetPassword(user: User): any;
     checkAuth(username: any, password: any): boolean;
 }
 declare const _default: AccountManager;

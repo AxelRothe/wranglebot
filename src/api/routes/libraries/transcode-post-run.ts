@@ -22,12 +22,12 @@ export default {
     }
     cancelTokens[transcodeId] = cancelToken;
 
-    const transcodeJob = lib.query.transcodes.one(transcodeId);
+    const transcodeJob = lib.query.transcodes.one(transcodeId).fetch();
 
-    transcodeJob
+    transcodeJob.query
       .run(cb, cancelToken)
       .then(() => {
-        server.inform("transcode", transcodeId, { task: transcodeJob.fetch().toJSON() });
+        server.inform("transcode", transcodeId, { task: transcodeJob.toJSON() });
       })
       .catch((e) => {
         console.error(e);
@@ -36,8 +36,7 @@ export default {
 
     return new RouteResult(200, {
       status: "success",
-      message: `Started transcode job ${await transcodeJob.fetch()
-        .label}. Subscribe to Channel: 'transcode' with ${transcodeId} for progress updates.`,
+      message: `Started transcode job ${await transcodeJob.label}. Subscribe to Channel: 'transcode' with ${transcodeId} for progress updates.`,
     });
   },
 };

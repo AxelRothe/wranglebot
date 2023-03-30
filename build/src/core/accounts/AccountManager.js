@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const User_1 = __importDefault(require("./User"));
 const DB_1 = __importDefault(require("../database/DB"));
 const md5_1 = __importDefault(require("md5"));
+const uuid_1 = require("uuid");
 class AccountManager {
     constructor() {
         this.users = new Set();
@@ -197,6 +198,31 @@ class AccountManager {
             lastName: user.lastName,
         });
     }
+    updateUser(user, options) {
+        if (options.password) {
+            if (options.password.length < 8)
+                throw new Error("Password must be at least 8 characters long");
+            //must contain at least one number, one lowercase letter, one uppercase letter, and one special character
+            if (options.password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/) === null)
+                throw new Error("Password must contain at least one number, one lowercase letter, one uppercase letter, and one special character");
+        }
+        let email = options.email;
+        let roles = options.roles;
+        let password = options.password ? (0, md5_1.default)(options.password + this.salt) : undefined;
+        let libraries = options.libraries;
+        let firstName = options.firstName;
+        let lastName = options.lastName;
+        const updatedOptions = {
+            email,
+            roles,
+            password,
+            libraries,
+            firstName,
+            lastName,
+        };
+        user.update(updatedOptions);
+        return (0, DB_1.default)().updateOne("users", { id: user.id }, updatedOptions);
+    }
     allowAccess(user, library) {
         if (!user.libraries.includes(library)) {
             user.libraries.push(library);
@@ -222,6 +248,13 @@ class AccountManager {
             user.libraries.push(library); //put it back, if it failed
             return false;
         }
+        return false;
+    }
+    resetPassword(user) {
+        const password = (0, uuid_1.v4)();
+        const res = this.changePassword(user, password);
+        if (res)
+            return password;
         return false;
     }
     checkAuth(username, password) {

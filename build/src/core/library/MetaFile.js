@@ -228,11 +228,15 @@ class MetaFile {
             throw new Error("No thumbnail id provided");
         }
     }
-    getThumbnails() {
-        return this.thumbnails.map((thumbnail) => {
+    getThumbnails(filters = {}) {
+        const thumbs = this.thumbnails.map((thumbnail) => {
             thumbnail.metaFile = this;
             return thumbnail;
         });
+        if (filters.$ids) {
+            return thumbs.filter((thumbnail) => filters.$ids.includes(thumbnail.id));
+        }
+        return thumbs;
     }
     analyse(options) {
         if (options && options.frames) {

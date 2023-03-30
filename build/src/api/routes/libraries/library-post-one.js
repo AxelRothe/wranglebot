@@ -22,7 +22,7 @@ exports.default = {
         if (!name || !folders || !pathToLibrary) {
             throw new Error("Missing required parameters");
         }
-        yield bot.query.library.post.one({ name, pathToLibrary, folders, drops });
+        yield bot.query.library.post({ name, pathToLibrary, folders, drops });
         return new RouteResult_1.default(200, { status: "success", message: `Library ${name} created` });
     }),
 };

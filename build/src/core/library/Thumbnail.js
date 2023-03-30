@@ -11,10 +11,6 @@ class Thumbnail {
         this.data = thumb.data;
         this.metaFile = thumb.metaFile;
     }
-    /**
-     *
-     * @returns {Promise<{data: string, id: string}>}
-     */
     toJSON() {
         return {
             data: this.data,

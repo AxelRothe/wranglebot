@@ -7,6 +7,7 @@ export class Volume {
     removable: boolean;
     status: string;
     volumeId: string;
+    query: any;
     host: any;
     fs: any;
     size: any;

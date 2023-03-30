@@ -6,17 +6,10 @@ import { MetaCopy } from "./MetaCopy";
 import { TranscodeTask } from "../transcode/TranscodeTask";
 import Job from "../media/Job";
 import createTaskOptions from "./createTaskOptions";
-interface Folders {
-    name: string;
-    watch: boolean;
-    folders: Folders[];
-}
-interface MetaLibraryOptions {
-    name: string;
-    pathToLibrary: string;
-    drops: object;
-    folders: Folders[];
-}
+import Folders from "./Folders";
+import MetaLibraryOptions from "./MetaLibraryOptions";
+import MetaLibraryUpdateOptions from "./MetaLibraryUpdateOptions";
+import CancelToken from "./CancelToken";
 interface ReportOptions {
     format: "html" | "json" | "text" | "pdf" | "csv";
     template: object;
@@ -52,9 +45,9 @@ export default class MetaLibrary {
      * Updates and saves the library
      * @param options {{pathToLibrary?:string, drops?:Map<name,value>, folders?:Folders}}
      * @param save
-     * @returns {Promise<boolean>|boolean}
+     * @returns {boolean}
      */
-    update(options: any, save?: boolean): Promise<any>;
+    update(options: MetaLibraryUpdateOptions, save?: boolean): any;
     updateFolder(folderPath: any, overwriteOptions: any): Promise<boolean>;
     getFolderByPath(folderPath: any): Folders | null;
     save(options?: {}): any;
@@ -118,7 +111,7 @@ export default class MetaLibrary {
     removeOneMetaCopy(metaCopy: any, options?: {
         deleteFile: boolean;
     }, save?: boolean): boolean;
-    updateMetaDataOfFile(metafile: any, key: any, value: any): Promise<boolean>;
+    updateMetaDataOfFile(metafile: any, key: any, value: any): boolean;
     downloadOneThumbnail(thumb: any): Promise<void>;
     generateOneTask(options: createTaskOptions): Promise<Task>;
     /**
@@ -141,9 +134,7 @@ export default class MetaLibrary {
      * @param {Function} cb the callback to get progress and speed
      * @param {{cancel:boolean}} cancelToken cancel the operation
      */
-    runOneTask(id: any, cb: any, cancelToken?: {
-        cancel: boolean;
-    }): Promise<Task>;
+    runOneTask(id: any, cb: any, cancelToken: CancelToken): Promise<Task>;
     /**
      * Returns all tasks of the library
      * @returns {Task[]}
@@ -174,12 +165,12 @@ export default class MetaLibrary {
     removeManyTasks(filters: any): Promise<unknown>;
     getOneTranscodeTask(id: any): TranscodeTask;
     getManyTranscodeTasks(filters?: {}): TranscodeTask[];
-    addOneTranscodeTask(files: any, options: {
+    addOneTranscodeTask(files: MetaFile[], options: {
         pathToExport: string;
     }): Promise<TranscodeTask>;
-    removeOneTranscodeTask(id: any, save?: boolean): void;
-    runOneTranscodeTask(id: any, cb: any, cancelToken: any): Promise<void>;
-    generateOneReport(metaFiles: MetaFile[], options: ReportOptions): Promise<boolean | undefined>;
+    removeOneTranscodeTask(id: any, save?: boolean): boolean;
+    runOneTranscodeTask(id: any, cb: any, cancelToken: any): Promise<true | undefined>;
+    generateOneReport(metaFiles: MetaFile[], options: ReportOptions): Promise<Boolean>;
     /**
      * Returns the flattened version of the library with statistics
      *

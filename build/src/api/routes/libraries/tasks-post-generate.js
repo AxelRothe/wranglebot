@@ -21,7 +21,7 @@ exports.default = {
         const libraryId = req.params.id;
         const lib = bot.query.library.one(libraryId).fetch();
         let { label, types, source, destinations, settings } = req.body;
-        const task = yield lib.query.tasks.post.generate({
+        const task = yield lib.query.tasks.generate({
             label,
             types,
             source,

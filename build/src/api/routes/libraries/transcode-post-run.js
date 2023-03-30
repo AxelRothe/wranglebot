@@ -29,11 +29,11 @@ exports.default = {
             cancelTokens = server.addToCache("cancelTokens", {});
         }
         cancelTokens[transcodeId] = cancelToken;
-        const transcodeJob = lib.query.transcodes.one(transcodeId);
-        transcodeJob
+        const transcodeJob = lib.query.transcodes.one(transcodeId).fetch();
+        transcodeJob.query
             .run(cb, cancelToken)
             .then(() => {
-            server.inform("transcode", transcodeId, { task: transcodeJob.fetch().toJSON() });
+            server.inform("transcode", transcodeId, { task: transcodeJob.toJSON() });
         })
             .catch((e) => {
             console.error(e);
@@ -41,8 +41,7 @@ exports.default = {
         });
         return new RouteResult_1.default(200, {
             status: "success",
-            message: `Started transcode job ${yield transcodeJob.fetch()
-                .label}. Subscribe to Channel: 'transcode' with ${transcodeId} for progress updates.`,
+            message: `Started transcode job ${yield transcodeJob.label}. Subscribe to Channel: 'transcode' with ${transcodeId} for progress updates.`,
         });
     }),
 };

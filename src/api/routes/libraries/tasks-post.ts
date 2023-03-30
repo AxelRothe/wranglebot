@@ -23,7 +23,7 @@ export default {
 
     const lib = await bot.query.library.one(libraryId).fetch();
 
-    const task = await lib.query.tasks.post.one({
+    const task = await lib.query.tasks.post({
       label,
       jobs,
     });

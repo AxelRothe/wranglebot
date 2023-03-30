@@ -14,7 +14,7 @@ export default {
     try {
       switch (grab) {
         case "all":
-          const thumbnails = await metaFile.query.thumbnails.all.fetch();
+          const thumbnails = await metaFile.query.thumbnails.many().fetch();
 
           let t = [];
 

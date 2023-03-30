@@ -321,6 +321,7 @@ class ExportBot {
                     return false;
                 }
             }
+            throw new Error("No path to export to");
         });
     }
 }

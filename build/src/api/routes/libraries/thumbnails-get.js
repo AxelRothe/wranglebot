@@ -23,7 +23,7 @@ exports.default = {
         try {
             switch (grab) {
                 case "all":
-                    const thumbnails = yield metaFile.query.thumbnails.all.fetch();
+                    const thumbnails = yield metaFile.query.thumbnails.many().fetch();
                     let t = [];
                     if (extended) {
                         t = thumbnails.map((thumbnail) => thumbnail.toJSON());

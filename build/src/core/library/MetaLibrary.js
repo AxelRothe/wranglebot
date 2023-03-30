@@ -72,28 +72,26 @@ class MetaLibrary {
      * Updates and saves the library
      * @param options {{pathToLibrary?:string, drops?:Map<name,value>, folders?:Folders}}
      * @param save
-     * @returns {Promise<boolean>|boolean}
+     * @returns {boolean}
      */
     update(options, save = true) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (options.pathToLibrary) {
-                if (!system_1.finder.isReachable(options.pathToLibrary) && save && !this.readOnly) {
-                    throw new Error(options.pathToLibrary + " is not reachable and can not be updated.");
-                }
-                this.pathToLibrary = options.pathToLibrary;
+        if (options.pathToLibrary) {
+            if (!system_1.finder.isReachable(options.pathToLibrary) && save && !this.readOnly) {
+                throw new Error(options.pathToLibrary + " is not reachable and can not be updated.");
             }
-            if (options.folders)
-                this.folders = options.folders;
-            if (options.drops)
-                this.drops = new MetaLibraryData_1.default(options.drops);
-            if (system_1.finder.existsSync(this.pathToLibrary)) {
-                this.readOnly = false;
-                this.createFoldersOnDiskFromTemplate();
-            }
-            if (save)
-                return this.save(options);
-            return true;
-        });
+            this.pathToLibrary = options.pathToLibrary;
+        }
+        if (options.folders)
+            this.folders = options.folders;
+        if (options.drops)
+            this.drops = new MetaLibraryData_1.default(options.drops);
+        if (system_1.finder.existsSync(this.pathToLibrary)) {
+            this.readOnly = false;
+            this.createFoldersOnDiskFromTemplate();
+        }
+        if (save)
+            return this.save(options);
+        return true;
     }
     updateFolder(folderPath, overwriteOptions) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -587,16 +585,14 @@ class MetaLibrary {
         return true;
     }
     updateMetaDataOfFile(metafile, key, value) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (metafile) {
-                metafile.metaData.updateEntry(key, value);
-                const set = { metaData: {} };
-                set.metaData[key] = value;
-                const result = yield (0, DB_1.default)().updateOne("metafiles", { id: metafile.id, library: this.name }, set);
-                return true;
-            }
-            throw new Error("File not found");
-        });
+        if (metafile) {
+            metafile.metaData.updateEntry(key, value);
+            const set = { metaData: {} };
+            set.metaData[key] = value;
+            (0, DB_1.default)().updateOne("metafiles", { id: metafile.id, library: this.name }, set);
+            return true;
+        }
+        throw new Error("File not found");
     }
     /* THUMBNAILS */
     downloadOneThumbnail(thumb) {
@@ -739,7 +735,7 @@ class MetaLibrary {
      * @param {Function} cb the callback to get progress and speed
      * @param {{cancel:boolean}} cancelToken cancel the operation
      */
-    runOneTask(id, cb, cancelToken = { cancel: false }) {
+    runOneTask(id, cb, cancelToken) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.readOnly)
                 throw new Error("Library is read only");
@@ -919,10 +915,9 @@ class MetaLibrary {
             if (save)
                 (0, DB_1.default)().removeOne("transcodes", { id: task.id, library: this.name });
             this.wb.removeFromRuntime("transcodes", task);
+            return true;
         }
-        else {
-            throw Error("Job does not exist or is still running.");
-        }
+        throw Error("Job does not exist or is still running.");
     }
     runOneTranscodeTask(id, cb, cancelToken) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -933,6 +928,7 @@ class MetaLibrary {
                         (0, DB_1.default)().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
                     });
                     (0, DB_1.default)().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+                    return true;
                 }
                 catch (e) {
                     throw e;
@@ -946,8 +942,9 @@ class MetaLibrary {
                 throw new Error("No files to generate report for.");
             if (options.format === "html") {
                 // return await ExportBot.generateHTML(metaFiles, options);
+                throw new Error("HTML reports are not supported yet.");
             }
-            else if (options.format === "pdf") {
+            if (options.format === "pdf") {
                 return yield export_1.default.exportPDF(metaFiles, {
                     paths: [options.pathToExport || this.pathToLibrary + "/_reports"],
                     fileName: options.reportName,
@@ -957,6 +954,7 @@ class MetaLibrary {
                     template: options.template,
                 });
             }
+            return false;
         });
     }
     /* SAVING */

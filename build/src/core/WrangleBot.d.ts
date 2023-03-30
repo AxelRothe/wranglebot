@@ -9,6 +9,11 @@ import { MetaCopy } from "./library/MetaCopy";
 import { TranscodeTask } from "./transcode/TranscodeTask";
 import createTaskOptions from "./library/createTaskOptions";
 import analyseMetaFileOptions from "./library/analyseMetaFileOptions";
+import MetaLibraryOptions from "./library/MetaLibraryOptions";
+import MetaLibraryUpdateOptions from "./library/MetaLibraryUpdateOptions";
+import FolderOptions from "./library/FolderOptions";
+import Transaction from "./database/Transaction";
+import CancelToken from "./library/CancelToken";
 declare const EventEmitter: any;
 interface ReturnObject {
     status: 200 | 400 | 500 | 404;
@@ -47,20 +52,22 @@ declare class WrangleBot extends EventEmitter {
         users: Set<User>;
         salt: string;
         init(): Promise<void>;
-        addOneUser(options: any): User;
+        addOneUser(options: import("./accounts/createUserOptions").default): User;
         removeOneUser(user: any): boolean;
         getAllUsers(filters?: {}): User[];
         getOneUser(username: any): User | undefined;
-        addRole(user: any, role: any): boolean;
-        setRoles(user: any, roles: any): boolean;
-        removeRole(user: any, role: any): boolean;
-        hasRole(user: any, roles: any): boolean;
-        changePassword(user: any, password: any): any;
-        changeEmail(user: any, email: any): any;
-        changeFirstName(user: any, firstName: any): any;
-        changeLastName(user: any, lastName: any): any;
+        addRole(user: User, role: any): boolean;
+        setRoles(user: User, roles: any): boolean;
+        removeRole(user: User, role: any): boolean;
+        hasRole(user: User, roles: any): boolean;
+        changePassword(user: User, password: any): any;
+        changeEmail(user: User, email: any): any;
+        changeFirstName(user: User, firstName: any): any;
+        changeLastName(user: User, lastName: any): any;
+        updateUser(user: User, options: any): any;
         allowAccess(user: any, library: any): boolean;
         revokeAccess(user: any, library: any): boolean;
+        resetPassword(user: User): any;
         checkAuth(username: any, password: any): boolean;
     };
     finder: any;
@@ -92,90 +99,23 @@ declare class WrangleBot extends EventEmitter {
     };
     private thirdPartyExtensions;
     constructor();
+    open(options: WrangleBotOptions): Promise<this | null>;
+    close(): Promise<string>;
+    private startServer;
+    /**
+     * UTILITY FUNCTIONS
+     */
     private emit;
     private runCustomScript;
-    open(options: WrangleBotOptions): Promise<this | null>;
-    loadExtensions(): Promise<void>;
-    startServer(options: {
-        port: number;
-        key: string;
-    }): Promise<void>;
-    /**
-     * Shuts down the WrangleBot.
-     *
-     * @return {Promise<string>}
-     */
-    close(): Promise<string>;
-    /**
-     * Returns all available libraries from the database
-     * @return {Promise<MetaLibrary[]>}
-     */
+    private loadExtensions;
     getAvailableLibraries(): any;
-    /**
-     * Creates a library repository
-     * @param options {{name:string, pathToLibrary?:string, drops?:string[], folders?:{name:string, watch: boolean, folders:Object[]}[]}}
-     * @return {Promise<MetaLibrary>}
-     */
-    addOneLibrary(options: any): Promise<MetaLibrary>;
-    /**
-     * Removes a library from the database
-     * @param name
-     * @param save
-     * @returns {Promise<boolean|undefined|{error: string, status: number}>}
-     */
-    removeOneLibrary(name: any, save?: boolean): any;
-    /**
-     * Retrieves a library from the local database or from the cloud
-     * @param name
-     * @returns {Promise<MetaLibrary|Object>}
-     */
+    private addOneLibrary;
+    private removeOneLibrary;
     private getOneLibrary;
-    /**
-     * Loads a Library from a file and returns a library
-     * @param {String} name
-     * @return {Promise<ReturnObject>}
-     */
     private loadOneLibrary;
-    /**
-     * Unloads a library from the runtime
-     * @param name
-     * @private
-     */
     private unloadOneLibrary;
     handleVolumeMount(volume: any): void;
     handleVolumeUnmount(volume: any): void;
-    /**
-     * @example
-     * getOneLinkedDrive("id", "1234567890")
-     *
-     * @param by {string} - the property to search by
-     * @param value {string} - the value to search for
-     * @returns {CopyDrive>}
-     * @throws {Error} if no drive was found
-     */
-    getOneLinkedDrive(by: string, value: string): CopyDrive;
-    /**
-     *
-     * @param asType
-     * @param onlyMounted
-     * @return {CopyDrive[]}
-     */
-    getManyLinkedDrives(asType?: string, onlyMounted?: boolean): any;
-    /**
-     * Registers a drive to the library
-     *
-     * @param {Volume} volume
-     * @param {'source'|'endpoint'|'generic'} wbType
-     * @returns {Promise<Error|CopyDrive|*>}
-     */
-    linkOneDrive(volume: any, wbType: any): Promise<Error | CopyDrive>;
-    /**
-     * Unlink a drive from the library
-     *
-     * @param {CopyDrive | string} driveOrId copydrive or the id
-     * @returns {Promise<Error|true>}
-     */
-    unlinkOneDrive(driveOrId: any): Promise<boolean>;
     /**
      * Generates Thumbnails from a list of MetaFiles
      *
@@ -185,7 +125,7 @@ declare class WrangleBot extends EventEmitter {
      * @param finishCallback?
      * @returns {Promise<boolean>} resolve to false if there is no need to generate thumbnails or if there are no copies reachable
      */
-    generateThumbnails(library: any, metaFiles: any, callback?: (progress: any) => void, finishCallback?: (success: any) => void): Promise<false | undefined>;
+    generateThumbnails(library: any, metaFiles: any, callback?: (progress: any) => void, finishCallback?: (success: any) => void): Promise<boolean>;
     /**
      * Generates a Thumbnail from a MetaFile if it is a video or photo
      *
@@ -195,7 +135,7 @@ declare class WrangleBot extends EventEmitter {
      * @param {Function} callback   - callback function to update the progress
      * @returns {Promise<boolean>}  rejects if there is no way to generate thumbnails or if there are no copies reachable
      */
-    generateThumbnail(library: any, metaFile: any, metaCopy: any, callback: Function): Promise<boolean>;
+    private generateThumbnail;
     private getManyTransactions;
     /**
      * Removes an Object from the runtime
@@ -215,186 +155,141 @@ declare class WrangleBot extends EventEmitter {
      * @return {0|1|-1} 0 if the item was overwritten, 1 if it was added, -1 if the list does not exist
      */
     addToRuntime(list: any, item: any): 1 | 0 | -1;
-    success(message: any): any;
     error(message: any): any;
     notify(title: any, message: any): void;
     get query(): {
-        /**
-         * sets cursor to users
-         */
-        users: {
-            /**
-             * selects one user
-             */
-            one: (options: {
-                id: string;
-            }) => {
-                fetch(): any;
-                put: (options: any) => any;
-            };
-            /**
-             * selects multiple users
-             */
-            many: (filters?: {}) => {
-                fetch: Function;
-            };
-            post: (options: any) => Promise<User>;
-        };
         library: {
             many: (filters?: {}) => {
-                /**
-                 * Returns the grabbed libraries
-                 * @returns {Promise<MetaLibrary[]>}
-                 */
                 fetch: () => Promise<MetaLibrary[]>;
             };
-            one: (libraryId: any) => {
-                /**
-                 * Returns the grabbed library
-                 * @returns {MetaLibrary}
-                 */
+            one: (libraryId: string) => {
                 fetch(): MetaLibrary;
-                put: (options: any) => Promise<any>;
-                delete: () => Promise<any>;
-                scan: () => Promise<false | Task>;
+                put: (options: MetaLibraryUpdateOptions) => Boolean;
+                delete: () => Boolean;
+                scan: () => Promise<Task | false>;
                 transactions: {
-                    one: (id: any) => void;
-                    many: (filter: any) => {
-                        fetch: () => Promise<any>;
+                    one: (id: string) => {
+                        fetch: () => Transaction;
+                    };
+                    many: (filter?: {}) => {
+                        fetch: () => Transaction[];
                     };
                 };
                 metafiles: {
-                    one: (metaFileId: any) => {
+                    one: (metaFileId: string) => {
                         fetch(): MetaFile;
-                        delete: () => Promise<boolean>;
+                        delete: () => Boolean;
                         thumbnails: {
-                            one: (id: any) => {
-                                fetch: () => Promise<Thumbnail>;
+                            one: (id: string) => {
+                                fetch: () => Thumbnail;
                             };
-                            all: {
-                                fetch: () => Promise<Thumbnail[]>;
+                            many: (filters: any) => {
+                                fetch: () => Thumbnail[];
+                                analyse: (options: any) => Promise<{
+                                    response: string;
+                                    cost: number;
+                                }>;
                             };
                             first: {
-                                fetch: () => Promise<Thumbnail>;
+                                fetch: () => Thumbnail;
                             };
                             center: {
-                                fetch: () => Promise<Thumbnail>;
+                                fetch: () => Thumbnail;
                             };
                             last: {
-                                fetch: () => Promise<Thumbnail>;
+                                fetch: () => Thumbnail;
                             };
-                            post: {};
-                            put: {};
-                            delete: {};
+                            generate: () => Promise<Boolean>;
                         };
                         metacopies: {
                             one: (metaCopyId: any) => {
-                                fetch(): any;
+                                fetch(): MetaCopy;
                                 delete: (options?: {
                                     deleteFile: boolean;
-                                }) => Promise<boolean>;
+                                }) => boolean;
                             };
                             many: (filters?: {}) => {
-                                fetch: () => Promise<MetaCopy[]>;
+                                fetch: () => MetaCopy[];
                             };
                         };
                         metadata: {
-                            put: (options: any) => Promise<boolean>;
+                            put: (options: any) => Boolean;
                         };
                         analyse: (options: analyseMetaFileOptions) => Promise<{
-                            response: string;
-                            cost: number;
+                            response: Object;
                         }>;
                     };
                     many: (filters: any) => {
                         fetch: () => MetaFile[];
                         export: {
-                            report: (options: any) => Promise<boolean | undefined>;
-                            transcode: {
-                                post: (options: any) => Promise<TranscodeTask>;
-                                run: (jobId: any, callback: any, cancelToken: any) => Promise<void>;
-                                delete: (jobId: any) => Promise<void>;
-                            };
+                            report: (options: any) => Promise<Boolean>;
                         };
                     };
                 };
                 tasks: {
                     one: (id: any) => {
                         fetch(): Task;
-                        run: (cb: any, cancelToken: any) => Promise<Task>;
+                        run: (callback: Function, cancelToken: CancelToken) => Promise<Task>;
                         put: (options: any) => Promise<true | Error>;
                         delete: () => Promise<void>;
                     };
                     many: (filters?: {}) => {
                         fetch(): Task[];
-                        put: () => Promise<void>;
                         delete: () => Promise<unknown>;
                     };
-                    post: {
-                        one: (options: {
-                            label: string;
-                            jobs: {
-                                source: string;
-                                destinations?: string[];
-                            }[];
-                        }) => Promise<Task>;
-                        generate: (options: createTaskOptions) => Promise<Task>;
-                    };
+                    post: (options: {
+                        label: string;
+                        jobs: {
+                            source: string;
+                            destinations?: string[];
+                        }[];
+                    }) => Promise<Task>;
+                    generate: (options: createTaskOptions) => Promise<Task>;
                 };
                 transcodes: {
                     one: (id: any) => {
                         fetch(): TranscodeTask;
-                        run: (cb: any, cancelToken: any) => Promise<void>;
-                        put: (options: any) => Promise<void>;
-                        delete: () => Promise<void>;
+                        run: (callback: Function, cancelToken: CancelToken) => Promise<void>;
+                        delete: () => Boolean;
                     };
-                    many: (filters?: {}) => {
+                    many: () => {
                         fetch(): TranscodeTask[];
                     };
+                    post: (files: MetaFile[], options: any) => Promise<TranscodeTask>;
                 };
                 folders: {
-                    put: (folderPath: any, overwriteOptions: any) => Promise<boolean>;
+                    put: (options: FolderOptions) => Promise<Boolean>;
                 };
             };
-            post: {
-                /**
-                 * Adds a new library
-                 * @param options
-                 * @returns {Promise<MetaLibrary>}
-                 */
-                one: (options: any) => Promise<MetaLibrary>;
-            };
+            post: (options: MetaLibraryOptions) => Promise<MetaLibrary>;
             load: (name: string) => Promise<ReturnObject>;
-            unload: (name: string) => Promise<{
+            unload: (name: string) => {
                 status: number;
                 message: string;
-            }>;
+            };
+        };
+        users: {
+            one: (options: {
+                id: string;
+            }) => {
+                fetch(): User;
+                put: (options: any) => any;
+                allow: (libraryName: string) => boolean;
+                revoke: (libraryName: string) => boolean;
+                reset: () => any;
+            };
+            many: (filters?: {}) => {
+                fetch: Function;
+            };
+            post: (options: any) => Promise<User>;
         };
         volumes: {
             one: (id: any) => {
-                fetch(): any;
+                fetch(): Volume;
                 eject: () => Promise<any>;
             };
             many: () => {
                 fetch(): Promise<Volume[]>;
-            };
-        };
-        drives: {
-            one: (id: any) => {
-                fetch(): CopyDrive;
-                put: (options: any) => Promise<any>;
-                delete: () => Promise<Error | boolean>;
-            };
-            many: (filters?: {
-                wbType: "source" | "endpoint" | "generic" | "all";
-            }) => {
-                fetch: () => Promise<CopyDrive[]>;
-            };
-            post: {
-                one: (options: {
-                    volume: Volume;
-                    type: "source" | "endpoint" | "generic";
-                }) => Promise<Error | CopyDrive>;
             };
         };
         transactions: {
@@ -415,13 +310,10 @@ declare class WrangleBot extends EventEmitter {
         uuid(): any;
         luts(): any;
     };
-    get drops(): {
-        [k: string]: string;
-    };
-    applyTransaction(transaction: any): Promise<void>;
-    applyTransactionUpdateOne(transaction: any): Promise<void>;
-    applyTransactionInsertMany(transaction: any): Promise<void>;
-    applyTransactionRemoveOne(transaction: any): Promise<void>;
+    private applyTransaction;
+    private applyTransactionUpdateOne;
+    private applyTransactionInsertMany;
+    private applyTransactionRemoveOne;
 }
 declare const wb: WrangleBot;
 export default wb;

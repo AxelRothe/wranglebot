@@ -21,7 +21,11 @@ import analyseMetaFileOptions from "./library/analyseMetaFileOptions";
 
 import extensions from "../extensions";
 import Extension from "./Extension";
-
+import MetaLibraryOptions from "./library/MetaLibraryOptions";
+import MetaLibraryUpdateOptions from "./library/MetaLibraryUpdateOptions";
+import FolderOptions from "./library/FolderOptions";
+import Transaction from "./database/Transaction";
+import CancelToken from "./library/CancelToken";
 const EventEmitter = require("events");
 const { finder } = require("./system");
 const { SearchLite } = require("searchlite");
@@ -108,29 +112,6 @@ class WrangleBot extends EventEmitter {
 
   constructor() {
     super();
-  }
-
-  private emit(event: string, ...args: any[]) {
-    this.runCustomScript(event, ...args)
-      .then(() => {
-        return super.emit(event, ...args);
-      })
-      .catch((err) => {
-        LogBot.log(500, err);
-      });
-  }
-
-  private async runCustomScript(event: string, ...args: any[]) {
-    for (let extension of extensions) {
-      if (extension.events.includes(event)) {
-        await extension.handler(event, args, this);
-      }
-    }
-    for (let extension of this.thirdPartyExtensions) {
-      if (extension.events.includes(event)) {
-        await extension.handler(event, args, this);
-      }
-    }
   }
 
   async open(options: WrangleBotOptions) {
@@ -287,7 +268,49 @@ class WrangleBot extends EventEmitter {
     }
   }
 
-  async loadExtensions() {
+  async close() {
+    this.status = WrangleBot.CLOSED;
+    clearInterval(this.ping);
+    this.driveBot.watcher.close();
+
+    this.servers.httpServer.close();
+    this.servers.socketServer.close();
+
+    return WrangleBot.CLOSED;
+  }
+
+  private async startServer(options: { port: number; key: string }) {
+    this.servers = await api.init(this, options.port, options.key);
+  }
+
+  /**
+   * UTILITY FUNCTIONS
+   */
+
+  private emit(event: string, ...args: any[]) {
+    this.runCustomScript(event, ...args)
+      .then(() => {
+        return super.emit(event, ...args);
+      })
+      .catch((err) => {
+        LogBot.log(500, err);
+      });
+  }
+
+  private async runCustomScript(event: string, ...args: any[]) {
+    for (let extension of extensions) {
+      if (extension.events.includes(event)) {
+        await extension.handler(event, args, this);
+      }
+    }
+    for (let extension of this.thirdPartyExtensions) {
+      if (extension.events.includes(event)) {
+        await extension.handler(event, args, this);
+      }
+    }
+  }
+
+  private async loadExtensions() {
     try {
       LogBot.log(100, "Loading extensions ... ");
       //scan the plugins folder in the wranglebot directory
@@ -343,40 +366,11 @@ class WrangleBot extends EventEmitter {
     }
   }
 
-  async startServer(options: { port: number; key: string }) {
-    this.servers = await api.init(this, options.port, options.key);
-  }
-
-  /**
-   * Shuts down the WrangleBot.
-   *
-   * @return {Promise<string>}
-   */
-  async close() {
-    this.status = WrangleBot.CLOSED;
-    clearInterval(this.ping);
-    this.driveBot.watcher.close();
-
-    this.servers.httpServer.close();
-    this.servers.socketServer.close();
-
-    return WrangleBot.CLOSED;
-  }
-
-  /**
-   * Returns all available libraries from the database
-   * @return {Promise<MetaLibrary[]>}
-   */
   getAvailableLibraries() {
     return DB().getMany("libraries", {});
   }
 
-  /**
-   * Creates a library repository
-   * @param options {{name:string, pathToLibrary?:string, drops?:string[], folders?:{name:string, watch: boolean, folders:Object[]}[]}}
-   * @return {Promise<MetaLibrary>}
-   */
-  async addOneLibrary(options) {
+  private async addOneLibrary(options: MetaLibraryOptions) {
     if (!options.name) throw new Error("No name provided");
 
     const allowedPaths = [
@@ -424,13 +418,7 @@ class WrangleBot extends EventEmitter {
     return metaLibrary;
   }
 
-  /**
-   * Removes a library from the database
-   * @param name
-   * @param save
-   * @returns {Promise<boolean|undefined|{error: string, status: number}>}
-   */
-  removeOneLibrary(name, save = true) {
+  private removeOneLibrary(name, save = true) {
     if (!this.index.libraries.find((l) => l.name === name)) {
       return {
         status: 404,
@@ -444,22 +432,12 @@ class WrangleBot extends EventEmitter {
     return true;
   }
 
-  /**
-   * Retrieves a library from the local database or from the cloud
-   * @param name
-   * @returns {Promise<MetaLibrary|Object>}
-   */
   private getOneLibrary(name) {
     const lib = this.index.libraries.find((l) => l.name === name);
     if (lib) return lib;
     return DB().getOne("libraries", { name });
   }
 
-  /**
-   * Loads a Library from a file and returns a library
-   * @param {String} name
-   * @return {Promise<ReturnObject>}
-   */
   private loadOneLibrary(name: string): Promise<ReturnObject> {
     return new Promise<ReturnObject>((resolve, reject) => {
       if (this.index.libraries.find((l) => l.name === name)) {
@@ -505,11 +483,6 @@ class WrangleBot extends EventEmitter {
     });
   }
 
-  /**
-   * Unloads a library from the runtime
-   * @param name
-   * @private
-   */
   private unloadOneLibrary(name) {
     const search = SearchLite.find(this.index.libraries, "name", name);
     if (search.wasSuccess()) {
@@ -530,8 +503,6 @@ class WrangleBot extends EventEmitter {
     }
   }
 
-  /* Mount Library on Mount Change */
-
   handleVolumeMount(volume) {
     for (let lib of this.index.libraries) {
       if (lib.pathToLibrary.startsWith(volume.mountpoint)) {
@@ -545,97 +516,6 @@ class WrangleBot extends EventEmitter {
       if (lib.pathToLibrary.startsWith(volume.mountpoint)) {
         lib.readOnly = true;
       }
-    }
-  }
-
-  /* DRIVES */
-
-  /**
-   * @example
-   * getOneLinkedDrive("id", "1234567890")
-   *
-   * @param by {string} - the property to search by
-   * @param value {string} - the value to search for
-   * @returns {CopyDrive>}
-   * @throws {Error} if no drive was found
-   */
-  getOneLinkedDrive(by: string, value: string): CopyDrive {
-    const devices = this.getManyLinkedDrives("all", false);
-    for (let d of devices) {
-      if (d[by] === value) {
-        return d;
-      }
-    }
-    throw new Error("Could not find drive with " + by + " : " + value);
-  }
-
-  /**
-   *
-   * @param asType
-   * @param onlyMounted
-   * @return {CopyDrive[]}
-   */
-  getManyLinkedDrives(asType = "all", onlyMounted = false) {
-    let list: any = [];
-    let listOfDrives: CopyDrive[] = Object.values(this.index.drives);
-    for (let d of listOfDrives) {
-      if (d.wbType === asType || asType === "all") {
-        if (d.isMounted() && onlyMounted) {
-          list.push(d);
-        } else if (!onlyMounted) {
-          list.push(d);
-        }
-      }
-    }
-    return list;
-  }
-
-  /**
-   * Registers a drive to the library
-   *
-   * @param {Volume} volume
-   * @param {'source'|'endpoint'|'generic'} wbType
-   * @returns {Promise<Error|CopyDrive|*>}
-   */
-  async linkOneDrive(volume, wbType) {
-    const drives = await this.getManyLinkedDrives();
-    const search = drives.find((d) => {
-      return (d.volume instanceof Volume && d.volume.label === volume.label) || d.volume === volume;
-    });
-
-    if (!search) {
-      const newCopyDrive = new CopyDrive(volume, { wbType: wbType });
-
-      const result = await DB().updateOne("drives", { id: newCopyDrive.id, library: this.name }, newCopyDrive.toJSON({ db: true })); //post to database
-
-      if (result.acknowledged && result.upsertedCount > 0) {
-        //if success
-        this.addToRuntime("drives", newCopyDrive); //add it to the runtime
-        return newCopyDrive;
-      } else {
-        return new Error("Could not add CopyDrive with mountpoint " + volume.mountpoint);
-      }
-    } else {
-      return new Error("Drive with mountpoint " + volume.mountpoint + " already registered");
-    }
-  }
-
-  /**
-   * Unlink a drive from the library
-   *
-   * @param {CopyDrive | string} driveOrId copydrive or the id
-   * @returns {Promise<Error|true>}
-   */
-  async unlinkOneDrive(driveOrId) {
-    if (driveOrId instanceof CopyDrive) {
-      const res = await DB().removeOne("drives", { id: driveOrId.id, library: this.name });
-      this.removeFromRuntime("drives", driveOrId);
-      return true;
-    } else {
-      const drive = this.index.drives[driveOrId];
-      const res = await DB().removeOne("drives", { id: driveOrId, library: this.name });
-      this.removeFromRuntime("drives", drive);
-      return true;
     }
   }
 
@@ -662,10 +542,12 @@ class WrangleBot extends EventEmitter {
         try {
           await this.generateThumbnail(library, file, null, callbackWrapper);
           finishCallback(file.id);
-        } catch (e) {
-          console.error(e);
+        } catch (e: any) {
+          LogBot.log(500, "Error while generating thumbnail for file " + file.id + ": " + e.message);
+          return false;
         }
       }
+      return true;
     } else {
       return false;
     }
@@ -680,7 +562,7 @@ class WrangleBot extends EventEmitter {
    * @param {Function} callback   - callback function to update the progress
    * @returns {Promise<boolean>}  rejects if there is no way to generate thumbnails or if there are no copies reachable
    */
-  async generateThumbnail(library, metaFile, metaCopy, callback: Function) {
+  private async generateThumbnail(library, metaFile, metaCopy, callback: Function) {
     if (metaFile.fileType === "photo" || metaFile.fileType === "video") {
       //find the first copy that is has a reachable path
       let reachableMetaCopy;
@@ -717,14 +599,10 @@ class WrangleBot extends EventEmitter {
             metaFile.addThumbnail(thumbnail);
           }
 
-          // for (let thumb of metaFile.getThumbnails()) {
-          //   await DB().updateOne("thumbnails", { id: thumb.id, metafile: metaFile.id }, await thumb.toJSON({ db: true }), false);
-          // }
-
           const thumbData: any[] = [];
 
           for (let thumb of metaFile.getThumbnails()) {
-            thumbData.push(await thumb.toJSON({ db: true }));
+            thumbData.push(thumb.toJSON());
           }
 
           await DB().insertMany("thumbnails", { metaFile: metaFile.id, library }, thumbData);
@@ -801,159 +679,20 @@ class WrangleBot extends EventEmitter {
 
   /* LOGGING & DEBUGGING */
 
-  success(message) {
-    return LogBot.log(200, message, true);
-  }
-
   error(message) {
     return LogBot.log(500, message, true);
   }
-
-  /*watch() {
-    //listen on volume mount and dismounts
-    this.driveWatcher.watch();
-
-    DB().on("taskUpdated", (task) => {
-      const taskToUpdate = this.index.copyTasks[task.id];
-      if (taskToUpdate) {
-        taskToUpdate.update(task);
-        LogBot.log(200, "[DB] Task " + task.label + " Update");
-      }
-    });
-    DB().on("taskRemoved", (task) => {      const taskToRemove = this.index.copyTasks[task.id];
-      if (taskToRemove) {
-        this.removeFromRuntime("copyTasks", taskToRemove);
-        LogBot.log(200, "[DB] Task Deleted: " + task);
-      } else {
-        LogBot.log(500, "[DB] Task not found: " + task);
-      }
-    });
-
-    DB().on("metaFileUpdated", (metaFile) => {
-      const metaFileToUpdate = this.index.metaFiles[metaFile.id];
-      if (metaFileToUpdate) {
-        metaFileToUpdate.update(metaFile);
-        LogBot.log(200, "[DB] MetaFile " + metaFile.name + " Update");
-      }
-    });
-    DB().on("metaFileRemoved", (metaFile) => {
-      const metaFileToRemove = this.index.metaFiles[metaFile.id];
-      if (metaFileToRemove) {
-        this.removeFromRuntime("metaFiles", metaFileToRemove);
-        LogBot.log(200, "[DB] MetaFile Deleted: " + metaFile);
-      } else {
-        LogBot.log(500, "[DB] MetaFile not found: " + metaFile);
-      }
-    });
-
-    DB().on("metaCopyUpdated", (metaCopy) => {
-      const metaCopyToUpdate = this.index.metaCopies[metaCopy.id];
-      if (metaCopyToUpdate) {
-        metaCopyToUpdate.update(metaCopy);
-        LogBot.log(200, "[DB] MetaFile " + metaCopy.id + " Update");
-      }
-    });
-    DB().on("metaCopyRemoved", (metaCopy) => {
-      const metaCopyToRemove = Object.values(this.index.metaCopies).find((m: any) => m._id === metaCopy);
-      if (metaCopyToRemove) {
-        this.removeFromRuntime("metaCopies", metaCopyToRemove);
-        LogBot.log(200, "[DB] MetaCopy Deleted: " + metaCopy);
-      } else {
-        LogBot.log(500, "[DB] MetaCopy not found: " + metaCopy);
-      }
-    });
-
-    DB().on("driveUpdated", (drive) => {
-      const driveToUpdate = this.index.drives[drive.id];
-      if (driveToUpdate) {
-        driveToUpdate.update(drive);
-        LogBot.log(200, "[DB] MetaFile " + drive.label + " Update");
-      }
-    });
-
-    DB().on("driveRemoved", (drive) => {
-      const driveToRemove = this.index.drives[drive.id];
-      if (driveToRemove) {
-        this.removeFromRuntime("drives", driveToRemove);
-        LogBot.log(200, "[DB] Drive Deleted: " + drive);
-      } else {
-        LogBot.log(500, "[DB] Drive not found: " + drive);
-      }
-    });
-
-    DB().on("libraryUpdated", async (library) => {
-      LogBot.log(200, "[DB] Library " + library.name + " Update");
-      const lib = this.index.libraries.find((l: any) => l.name === library.name);
-      if (lib) {
-        if (library.pathToLibrary) lib.pathToLibrary = library.pathToLibrary;
-        if (library.folders) lib.folders = library.folders;
-        if (library.drops) lib.drops = new MetaLibraryData(library.drops);
-      } else {
-        await this.loadOneLibrary(library.name);
-      }
-    });
-    DB().on("libraryRemoved", async (library) => {
-      const libraryToRemove = this.index.libraries.find((l: any) => l._id === library);
-      if (libraryToRemove) {
-        await this.unloadOneLibrary(libraryToRemove.name);
-
-        LogBot.log(200, "[DB] Library Deleted: " + library);
-      } else {
-        LogBot.log(500, "[DB] Library not found: " + library);
-      }
-    });
-  }*/
-
-  /*
-  API v2
-   */
 
   notify(title, message) {
     this.emit("notification", { title, message });
   }
 
+  //**********************************
+  //* API v2                         *
+  //**********************************
+
   get query() {
     return {
-      /**
-       * sets cursor to users
-       */
-      users: {
-        /**
-         * selects one user
-         */
-        one: (options: { id: string }): { fetch(); put: (options) => any } => {
-          if (!options.id) throw new Error("No id provided");
-
-          const user = AccountManager.getOneUser(options.id);
-          if (!user) throw new Error("No user found with that " + options.id);
-
-          return {
-            fetch(): User {
-              user.query = this;
-              return user;
-            },
-            put: (options) => {
-              //return await AccountManager.updateUser(user, options);
-            },
-          };
-        },
-        /**
-         * selects multiple users
-         */
-        many: (filters = {}): { fetch: Function } => {
-          return {
-            fetch(): User[] {
-              return AccountManager.getAllUsers(filters);
-            },
-          };
-        },
-        post: async (options) => {
-          return AccountManager.addOneUser({
-            ...options,
-            create: true,
-          });
-        },
-      },
       library: {
         many: (filters = {}) => {
           const libs = this.index.libraries.filter((lib) => {
@@ -964,42 +703,46 @@ class WrangleBot extends EventEmitter {
           });
 
           return {
-            /**
-             * Returns the grabbed libraries
-             * @returns {Promise<MetaLibrary[]>}
-             */
             fetch: async () => {
               return libs;
             },
           };
         },
-        one: (libraryId) => {
+        one: (libraryId: string) => {
           const lib = this.index.libraries.find((l) => l.name === libraryId);
           if (!lib) throw new Error("Library is not loaded or does not exist.");
 
           return {
-            /**
-             * Returns the grabbed library
-             * @returns {MetaLibrary}
-             */
-            fetch() {
+            fetch(): MetaLibrary {
               lib.query = this;
               return lib;
             },
-            put: async (options) => {
-              return await lib.update(options);
+            put: (options: MetaLibraryUpdateOptions): Boolean => {
+              return lib.update(options);
             },
-            delete: async () => {
-              return await this.removeOneLibrary(libraryId);
+            delete: (): Boolean => {
+              return this.removeOneLibrary(libraryId);
             },
-            scan: async () => {
+            scan: async (): Promise<Task | false> => {
               return await lib.createCopyTaskForNewFiles();
             },
             transactions: {
-              one: (id) => {},
-              many: (filter) => {
+              one: (id: string) => {
                 return {
-                  fetch: async () => {
+                  fetch: (): Transaction => {
+                    const t = this.getManyTransaction({
+                      id: id,
+                    });
+                    if (t.length > 0) {
+                      return t[0];
+                    }
+                    throw new Error("Transaction not found.");
+                  },
+                };
+              },
+              many: (filter = {}) => {
+                return {
+                  fetch: (): Transaction[] => {
                     return this.getManyTransactions({
                       ...filter,
                       library: lib.name,
@@ -1009,7 +752,7 @@ class WrangleBot extends EventEmitter {
               },
             },
             metafiles: {
-              one: (metaFileId) => {
+              one: (metaFileId: string) => {
                 const metafile = lib.getOneMetaFile(metaFileId);
                 if (!metafile) throw new Error("Metafile not found.");
 
@@ -1018,75 +761,80 @@ class WrangleBot extends EventEmitter {
                     metafile.query = this;
                     return metafile;
                   },
-                  delete: async () => {
+                  delete: (): Boolean => {
                     return lib.removeOneMetaFile(metafile);
                   },
                   thumbnails: {
-                    one: (id) => {
+                    one: (id: string) => {
                       return {
-                        fetch: async (): Promise<Thumbnail> => {
+                        fetch: (): Thumbnail => {
                           return metafile.getThumbnail(id);
                         },
                       };
                     },
-                    all: {
-                      fetch: async (): Promise<Thumbnail[]> => {
-                        return metafile.getThumbnails();
-                      },
+                    many: (filters) => {
+                      const thumbnails = metafile.getThumbnails(filters);
+                      return {
+                        fetch: (): Thumbnail[] => {
+                          return thumbnails;
+                        },
+                        analyse: async (options) => {
+                          return await metafile.analyse({
+                            ...options,
+                            frames: thumbnails.map((t) => t.id),
+                          });
+                        },
+                      };
                     },
                     first: {
-                      fetch: async (): Promise<Thumbnail> => {
+                      fetch: (): Thumbnail => {
                         return metafile.getThumbnails()[0];
                       },
                     },
                     center: {
-                      fetch: async (): Promise<Thumbnail> => {
+                      fetch: (): Thumbnail => {
                         const thumbs = metafile.getThumbnails();
-                        if (!(thumbs instanceof Array)) return thumbs;
-
                         return thumbs[Math.floor(thumbs.length / 2)];
                       },
                     },
                     last: {
-                      fetch: async (): Promise<Thumbnail> => {
+                      fetch: (): Thumbnail => {
                         const thumbs = metafile.getThumbnails();
-                        if (!(thumbs instanceof Array)) return thumbs;
-
                         return thumbs[thumbs.length - 1];
                       },
                     },
-                    post: {},
-                    put: {},
-                    delete: {},
+                    generate: async (): Promise<Boolean> => {
+                      return await this.generateThumbnails(lib, metafile);
+                    },
                   },
                   metacopies: {
                     one: (metaCopyId) => {
                       const metacopy = lib.getOneMetaCopy(metaFileId, metaCopyId);
                       if (!metacopy) throw new Error("Metacopy not found.");
                       return {
-                        fetch() {
+                        fetch(): MetaCopy {
                           metacopy.query = this;
                           return metacopy;
                         },
-                        delete: async (options = { deleteFile: false }) => {
+                        delete: (options = { deleteFile: false }) => {
                           return lib.removeOneMetaCopy(metacopy, options);
                         },
                       };
                     },
                     many: (filters = {}) => {
                       return {
-                        fetch: async () => {
+                        fetch: () => {
                           return lib.getManyMetaCopies(metaFileId);
                         },
                       };
                     },
                   },
                   metadata: {
-                    put: async (options) => {
-                      return await lib.updateMetaDataOfFile(metafile, options.key, options.value);
+                    put: (options): Boolean => {
+                      return lib.updateMetaDataOfFile(metafile, options.key, options.value);
                     },
                   },
-                  analyse: async (options: analyseMetaFileOptions) => {
+                  analyse: async (options: analyseMetaFileOptions): Promise<{ response: Object }> => {
                     return await metafile.analyse(options);
                   },
                 };
@@ -1098,7 +846,7 @@ class WrangleBot extends EventEmitter {
                     return files;
                   },
                   export: {
-                    report: async (options) => {
+                    report: async (options): Promise<Boolean> => {
                       return await lib.generateOneReport(files, {
                         pathToExport: options.pathToExport ? options.pathToExport : lib.pathToLibrary + "/_Reports",
                         reportName: options.reportName || "Report",
@@ -1109,35 +857,21 @@ class WrangleBot extends EventEmitter {
                         credits: options.credits,
                       });
                     },
-                    transcode: {
-                      post: async (options): Promise<TranscodeTask> => {
-                        return await lib.addOneTranscodeTask(files, options);
-                      },
-                      run: async (jobId, callback, cancelToken) => {
-                        return await lib.runOneTranscodeTask(jobId, callback, cancelToken);
-                      },
-                      delete: async (jobId) => {
-                        return lib.removeOneTranscodeTask(jobId);
-                      },
-                    },
                   },
                 };
               },
             },
-            /*
-            sets cursor to tasks
-             */
             tasks: {
               one: (id) => {
                 let task = lib.getOneTask(id);
 
                 return {
-                  fetch() {
+                  fetch(): Task {
                     task.query = this;
                     return task;
                   },
-                  run: async (cb, cancelToken) => {
-                    return await lib.runOneTask(id, cb, cancelToken);
+                  run: async (callback: Function, cancelToken: CancelToken): Promise<Task> => {
+                    return await lib.runOneTask(id, callback, cancelToken);
                   },
                   put: async (options) => {
                     return await lib.updateOneTask({ id, ...options });
@@ -1152,20 +886,17 @@ class WrangleBot extends EventEmitter {
                   fetch() {
                     return lib.getManyTasks();
                   },
-                  put: async () => {}, //TODO
                   delete: async () => {
                     return await lib.removeManyTasks(filters);
                   },
                 };
               },
-              post: {
-                one: async (options: { label: string; jobs: { source: string; destinations?: string[] }[] }) => {
-                  if (!options.label) throw new Error("No data provided to create task.");
-                  return await lib.addOneTask(options);
-                },
-                generate: async (options: createTaskOptions) => {
-                  return await lib.generateOneTask(options);
-                },
+              post: async (options: { label: string; jobs: { source: string; destinations?: string[] }[] }) => {
+                if (!options.label) throw new Error("No data provided to create task.");
+                return await lib.addOneTask(options);
+              },
+              generate: async (options: createTaskOptions) => {
+                return await lib.generateOneTask(options);
               },
             },
             transcodes: {
@@ -1177,53 +908,83 @@ class WrangleBot extends EventEmitter {
                     transcode.query = this;
                     return transcode;
                   },
-                  run: async (cb, cancelToken) => {
-                    return await lib.runOneTranscodeTask(id, cb, cancelToken);
+                  run: async (callback: Function, cancelToken: CancelToken): Promise<void> => {
+                    await lib.runOneTranscodeTask(id, callback, cancelToken);
                   },
-                  put: async (options) => {
-                    // return await lib.updateOneTranscodeJob({ id, ...options });
-                  },
-                  delete: async () => {
+                  delete: (): Boolean => {
                     return lib.removeOneTranscodeTask(id);
                   },
                 };
               },
-              many: (filters = {}) => {
+              many: () => {
                 return {
-                  fetch() {
+                  fetch(): TranscodeTask[] {
                     return lib.getManyTranscodeTasks();
                   },
+                  // delete: async () => {
+                  //   return lib.removeManyTranscodeTask({$ids : filters.$ids});
+                  // },
                 };
+              },
+              post: async (files: MetaFile[], options): Promise<TranscodeTask> => {
+                return await lib.addOneTranscodeTask(files, options);
               },
             },
             folders: {
-              put: async (folderPath, overwriteOptions) => {
-                return await lib.updateFolder(folderPath, overwriteOptions);
+              put: async (options: FolderOptions): Promise<Boolean> => {
+                return await lib.updateFolder(options.path, options.options);
               },
             },
           };
         },
-        post: {
-          /**
-           * Adds a new library
-           * @param options
-           * @returns {Promise<MetaLibrary>}
-           */
-          one: async (options): Promise<MetaLibrary> => {
-            return await this.addOneLibrary(options);
-          },
+        post: async (options: MetaLibraryOptions): Promise<MetaLibrary> => {
+          return await this.addOneLibrary(options);
         },
-        /*
-        Loads a library into runtime
-         */
         load: async (name: string) => {
           return await this.loadOneLibrary(name);
         },
-        /*
-        Unloads a library from runtime
-         */
-        unload: async (name: string) => {
-          return await this.unloadOneLibrary(name);
+        unload: (name: string) => {
+          return this.unloadOneLibrary(name);
+        },
+      },
+      users: {
+        one: (options: { id: string }) => {
+          if (!options.id) throw new Error("No id provided");
+
+          const user = AccountManager.getOneUser(options.id);
+          if (!user) throw new Error("No user found with that " + options.id);
+
+          return {
+            fetch(): User {
+              user.query = this;
+              return user;
+            },
+            put: (options) => {
+              return AccountManager.updateUser(user, options);
+            },
+            allow: (libraryName: string) => {
+              return AccountManager.allowAccess(user, libraryName);
+            },
+            revoke: (libraryName: string) => {
+              return AccountManager.revokeAccess(user, libraryName);
+            },
+            reset: () => {
+              return AccountManager.resetPassword(user);
+            },
+          };
+        },
+        many: (filters = {}): { fetch: Function } => {
+          return {
+            fetch(): User[] {
+              return AccountManager.getAllUsers(filters);
+            },
+          };
+        },
+        post: async (options) => {
+          return AccountManager.addOneUser({
+            ...options,
+            create: true,
+          });
         },
       },
       volumes: {
@@ -1231,7 +992,8 @@ class WrangleBot extends EventEmitter {
           const vol = this.driveBot.drives.find((d) => d.volumeId === id);
           if (!vol) throw new Error("Volume not found.");
           return {
-            fetch() {
+            fetch(): Volume {
+              vol.query = this;
               return vol;
             },
             eject: async () => {
@@ -1246,36 +1008,6 @@ class WrangleBot extends EventEmitter {
               return await driveWatcher.getDrives();
             },
           };
-        },
-      },
-      drives: {
-        one: (id) => {
-          let linkedDrive = this.getOneLinkedDrive("id", id);
-
-          return {
-            fetch(): CopyDrive {
-              linkedDrive.query = this;
-              return linkedDrive;
-            },
-            put: async (options) => {
-              return await this.updateOneDrive({ ...options, id });
-            },
-            delete: async (): Promise<Error | boolean> => {
-              return await this.unlinkOneDrive(linkedDrive);
-            },
-          };
-        },
-        many: (filters: { wbType: "source" | "endpoint" | "generic" | "all" } = { wbType: "all" }) => {
-          return {
-            fetch: async (): Promise<CopyDrive[]> => {
-              return await this.getManyLinkedDrives(filters.wbType, false);
-            },
-          };
-        },
-        post: {
-          one: async (options: { volume: Volume; type: "source" | "endpoint" | "generic" }) => {
-            return await this.linkOneDrive(options.volume, options.type);
-          },
         },
       },
       transactions: {
@@ -1324,18 +1056,7 @@ class WrangleBot extends EventEmitter {
     };
   }
 
-  get drops() {
-    //get drops of each metalibrary and return them in one map
-    let drops: Map<string, string> = new Map();
-    for (let lib of this.index.libraries) {
-      for (let key in lib.drops) {
-        drops.set(key, lib.drops[key]);
-      }
-    }
-    return Object.fromEntries(drops);
-  }
-
-  async applyTransaction(transaction) {
+  private async applyTransaction(transaction) {
     try {
       if (transaction.$method === "updateOne") await this.applyTransactionUpdateOne(transaction);
       if (transaction.$method === "insertMany") await this.applyTransactionInsertMany(transaction);
@@ -1346,7 +1067,7 @@ class WrangleBot extends EventEmitter {
     }
   }
 
-  async applyTransactionUpdateOne(transaction) {
+  private async applyTransactionUpdateOne(transaction) {
     LogBot.log(100, "applying transaction: " + transaction.id);
 
     //LIBRARY ADDED/UPDATED
@@ -1473,7 +1194,7 @@ class WrangleBot extends EventEmitter {
     }
   }
 
-  async applyTransactionInsertMany(transaction) {
+  private async applyTransactionInsertMany(transaction) {
     if (transaction.$collection === "thumbnails") {
       const metaFile = this.index.metaFiles[transaction.$query.metaFile];
       if (!metaFile) throw new Error("MetaFile not found.");
@@ -1484,7 +1205,7 @@ class WrangleBot extends EventEmitter {
     }
   }
 
-  async applyTransactionRemoveOne(transaction) {
+  private async applyTransactionRemoveOne(transaction) {
     if (transaction.$collection === "libraries") {
       let lib = this.index.libraries.find((l) => l.name === transaction.$query.name);
       if (lib) {

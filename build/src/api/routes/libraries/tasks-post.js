@@ -30,7 +30,7 @@ exports.default = {
                 throw new Error("Job destinations is not defined. if you are using a single destination, please use an array");
         }
         const lib = yield bot.query.library.one(libraryId).fetch();
-        const task = yield lib.query.tasks.post.one({
+        const task = yield lib.query.tasks.post({
             label,
             jobs,
         });

@@ -4,10 +4,6 @@ declare class Thumbnail {
     data: any;
     metaFile: MetaFile | undefined;
     constructor(thumb: any);
-    /**
-     *
-     * @returns {Promise<{data: string, id: string}>}
-     */
     toJSON(): {
         data: string;
         id: string;

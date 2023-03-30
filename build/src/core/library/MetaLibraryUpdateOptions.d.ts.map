@@ -1,0 +1,1 @@
+{"version":3,"file":"MetaLibraryUpdateOptions.d.ts","sourceRoot":"","sources":["../../../../src/core/library/MetaLibraryUpdateOptions.ts"],"names":[],"mappings":"AAAA,OAAO,OAAO,MAAM,WAAW,CAAC;AAEhC,MAAM,CAAC,OAAO,WAAW,wBAAwB;IAC/C,aAAa,CAAC,EAAE,MAAM,CAAC;IACvB,KAAK,CAAC,EAAE,MAAM,CAAC;IACf,OAAO,CAAC,EAAE,OAAO,EAAE,CAAC;CACrB"}

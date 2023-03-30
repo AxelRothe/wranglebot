@@ -14,7 +14,10 @@ export default {
     if (!overwrite) throw new Error("Overwrite Options are required");
 
     const lib = bot.query.library.one(libraryId).fetch();
-    const result = await lib.query.folders.put(pathToFolder, overwrite);
+    const result = await lib.query.folders.put({
+      pathToFolder: pathToFolder,
+      overwriteOptions: overwrite,
+    });
 
     return new RouteResult(200, {
       status: "success",

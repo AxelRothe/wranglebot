@@ -12,7 +12,7 @@ export default {
 
     let { label, types, source, destinations, settings } = req.body;
 
-    const task = await lib.query.tasks.post.generate({
+    const task = await lib.query.tasks.generate({
       label,
       types,
       source,

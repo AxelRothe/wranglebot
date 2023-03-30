@@ -10,6 +10,8 @@ class Volume {
   status = "offline";
   volumeId = "";
 
+  query;
+
   constructor(drive) {
     const parsedLabel = drive.mount.match(new RegExp("(?<!/ )[^/]*$"));
     if (parsedLabel.length > 0) {

@@ -41,7 +41,7 @@ exports.default = {
             if (analyseOptions.save) {
                 if (!analyseOptions.save.key)
                     throw new Error("Key is required for saving analyse result");
-                const res = yield bot.query.library.one(libraryId).metafiles.one(metafileId).metadata.put({
+                const res = bot.query.library.one(libraryId).metafiles.one(metafileId).metadata.put({
                     key: analyseOptions.save.key,
                     value: result.response,
                 });

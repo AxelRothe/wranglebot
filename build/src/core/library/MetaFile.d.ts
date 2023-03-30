@@ -60,7 +60,9 @@ declare class MetaFile {
     getCopiesAs(type: any): any;
     getMetaCopy(metaCopyId: any): any;
     getThumbnail(thumbnailId: any, by?: string): any;
-    getThumbnails(): Thumbnail[];
+    getThumbnails(filters?: {
+        $ids?: any;
+    }): Thumbnail[];
     analyse(options: analyseMetaFileOptions): Promise<{
         response: string;
         cost: number;

@@ -17,7 +17,7 @@ declare const _exports: {
     };
     toPrettyBytes: string[];
     toPrettyTime: string[];
-    exportPDF(metaFiles: any, options?: {}): Promise<boolean | undefined>;
+    exportPDF(metaFiles: any, options?: {}): Promise<boolean>;
 };
 export = _exports;
 //# sourceMappingURL=index.d.ts.map

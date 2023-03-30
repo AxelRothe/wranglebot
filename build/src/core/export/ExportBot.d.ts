@@ -19,6 +19,6 @@ declare class ExportBot {
     };
     toPrettyBytes: string[];
     toPrettyTime: string[];
-    exportPDF(metaFiles: any, options?: {}): Promise<boolean | undefined>;
+    exportPDF(metaFiles: any, options?: {}): Promise<boolean>;
 }
 //# sourceMappingURL=ExportBot.d.ts.map

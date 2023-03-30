@@ -22,8 +22,8 @@ exports.default = {
         const { libraryName } = req.params;
         const transcode = req.body;
         const lib = yield bot.query.library.one(libraryName).fetch();
-        const metaFiles = lib.query.metafiles.many({ $ids: transcode.files });
-        if (metaFiles.fetch().length === 0) {
+        const metaFiles = lib.query.metafiles.many({ $ids: transcode.files }).fetch();
+        if (metaFiles.length === 0) {
             throw new Error("No files found with ids supplied");
         }
         if (!transcode.codec ||
@@ -38,7 +38,7 @@ exports.default = {
         if (!transcodeTemplate) {
             throw new Error("No transcode template found");
         }
-        const transcodeJob = yield metaFiles.export.transcode.post({
+        const transcodeJob = yield lib.query.transcodes.post(metaFiles, {
             label: transcode.label,
             pathToExport: transcode.path,
             overwrite: transcode.overwrite,

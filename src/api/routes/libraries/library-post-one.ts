@@ -13,7 +13,7 @@ export default {
       throw new Error("Missing required parameters");
     }
 
-    await bot.query.library.post.one({ name, pathToLibrary, folders, drops });
+    await bot.query.library.post({ name, pathToLibrary, folders, drops });
 
     return new RouteResult(200, { status: "success", message: `Library ${name} created` });
   },

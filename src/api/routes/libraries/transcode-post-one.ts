@@ -1,7 +1,5 @@
-import LogBot from "logbotjs";
 import { WrangleBot } from "../../../core/WrangleBot";
 import { SocketServer } from "../../SocketServer";
-import express from "express";
 import TranscodeTemplates from "../../../core/transcode/TranscodeTemplates";
 import RouteResult from "../../RouteResult";
 
@@ -14,9 +12,9 @@ export default {
     const transcode = req.body;
 
     const lib = await bot.query.library.one(libraryName).fetch();
-    const metaFiles = lib.query.metafiles.many({ $ids: transcode.files });
+    const metaFiles = lib.query.metafiles.many({ $ids: transcode.files }).fetch();
 
-    if (metaFiles.fetch().length === 0) {
+    if (metaFiles.length === 0) {
       throw new Error("No files found with ids supplied");
     }
 
@@ -47,7 +45,7 @@ export default {
       throw new Error("No transcode template found");
     }
 
-    const transcodeJob = await metaFiles.export.transcode.post({
+    const transcodeJob = await lib.query.transcodes.post(metaFiles, {
       label: transcode.label,
       pathToExport: transcode.path,
       overwrite: transcode.overwrite,

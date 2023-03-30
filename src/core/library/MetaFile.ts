@@ -233,11 +233,15 @@ class MetaFile {
     }
   }
 
-  getThumbnails() {
-    return this.thumbnails.map((thumbnail) => {
+  getThumbnails(filters: { $ids? } = {}) {
+    const thumbs = this.thumbnails.map((thumbnail) => {
       thumbnail.metaFile = this;
       return thumbnail;
     });
+    if (filters.$ids) {
+      return thumbs.filter((thumbnail) => filters.$ids.includes(thumbnail.id));
+    }
+    return thumbs;
   }
 
   analyse(options: analyseMetaFileOptions) {

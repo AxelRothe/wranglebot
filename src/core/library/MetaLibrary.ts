@@ -23,19 +23,10 @@ import { Indexer } from "../media/Indexer";
 import Job from "../media/Job";
 import Status from "../media/Status";
 import createTaskOptions from "./createTaskOptions";
-
-interface Folders {
-  name: string;
-  watch: boolean;
-  folders: Folders[];
-}
-
-interface MetaLibraryOptions {
-  name: string;
-  pathToLibrary: string;
-  drops: object;
-  folders: Folders[];
-}
+import Folders from "./Folders";
+import MetaLibraryOptions from "./MetaLibraryOptions";
+import MetaLibraryUpdateOptions from "./MetaLibraryUpdateOptions";
+import CancelToken from "./CancelToken";
 
 interface ReportOptions {
   format: "html" | "json" | "text" | "pdf" | "csv";
@@ -98,9 +89,9 @@ export default class MetaLibrary {
    * Updates and saves the library
    * @param options {{pathToLibrary?:string, drops?:Map<name,value>, folders?:Folders}}
    * @param save
-   * @returns {Promise<boolean>|boolean}
+   * @returns {boolean}
    */
-  async update(options, save = true) {
+  update(options: MetaLibraryUpdateOptions, save = true) {
     if (options.pathToLibrary) {
       if (!finder.isReachable(options.pathToLibrary) && save && !this.readOnly) {
         throw new Error(options.pathToLibrary + " is not reachable and can not be updated.");
@@ -708,14 +699,14 @@ export default class MetaLibrary {
     return true;
   }
 
-  async updateMetaDataOfFile(metafile, key, value) {
+  updateMetaDataOfFile(metafile, key, value) {
     if (metafile) {
       metafile.metaData.updateEntry(key, value);
 
       const set = { metaData: {} };
       set.metaData[key] = value;
 
-      const result = await DB().updateOne("metafiles", { id: metafile.id, library: this.name }, set);
+      DB().updateOne("metafiles", { id: metafile.id, library: this.name }, set);
       return true;
     }
     throw new Error("File not found");
@@ -872,7 +863,7 @@ export default class MetaLibrary {
    * @param {Function} cb the callback to get progress and speed
    * @param {{cancel:boolean}} cancelToken cancel the operation
    */
-  async runOneTask(id, cb, cancelToken = { cancel: false }) {
+  async runOneTask(id, cb, cancelToken: CancelToken) {
     if (this.readOnly) throw new Error("Library is read only");
 
     const task = this.getOneTask(id);
@@ -1040,7 +1031,7 @@ export default class MetaLibrary {
     return this.transcodes;
   }
 
-  async addOneTranscodeTask(files, options: { pathToExport: string }) {
+  async addOneTranscodeTask(files: MetaFile[], options: { pathToExport: string }) {
     if (!options.pathToExport) throw new Error("No path to export set");
     if (!finder.isReachable(options.pathToExport)) throw new Error("Path to export is not reachable");
 
@@ -1061,9 +1052,9 @@ export default class MetaLibrary {
       if (save) DB().removeOne("transcodes", { id: task.id, library: this.name });
 
       this.wb.removeFromRuntime("transcodes", task);
-    } else {
-      throw Error("Job does not exist or is still running.");
+      return true;
     }
+    throw Error("Job does not exist or is still running.");
   }
 
   async runOneTranscodeTask(id, cb, cancelToken) {
@@ -1074,18 +1065,22 @@ export default class MetaLibrary {
           DB().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
         });
         DB().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+        return true;
       } catch (e) {
         throw e;
       }
     }
   }
 
-  async generateOneReport(metaFiles: MetaFile[], options: ReportOptions) {
+  async generateOneReport(metaFiles: MetaFile[], options: ReportOptions): Promise<Boolean> {
     if (metaFiles.length === 0) throw new Error("No files to generate report for.");
 
     if (options.format === "html") {
       // return await ExportBot.generateHTML(metaFiles, options);
-    } else if (options.format === "pdf") {
+      throw new Error("HTML reports are not supported yet.");
+    }
+
+    if (options.format === "pdf") {
       return await ExportBot.exportPDF(metaFiles, {
         paths: [options.pathToExport || this.pathToLibrary + "/_reports"],
         fileName: options.reportName,
@@ -1095,6 +1090,7 @@ export default class MetaLibrary {
         template: options.template,
       });
     }
+    return false;
   }
 
   /* SAVING */

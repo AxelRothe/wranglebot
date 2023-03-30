@@ -2,6 +2,9 @@ import User from "./User";
 import DB from "../database/DB";
 import md5 from "md5";
 
+import { v4 as uuidv4 } from "uuid";
+import createUserOptions from "./createUserOptions";
+
 class AccountManager {
   users: Set<User> = new Set();
   salt = "Wr4ngle_b0t"; //TODO: Salt needs to be stored somewhere else
@@ -30,7 +33,7 @@ class AccountManager {
     }
   }
 
-  addOneUser(options) {
+  addOneUser(options: createUserOptions) {
     let user = this.getOneUser(options.username);
 
     if (options.create) {
@@ -108,7 +111,7 @@ class AccountManager {
     return this.getAllUsers().find((u) => u.username === username);
   }
 
-  addRole(user, role) {
+  addRole(user: User, role) {
     if (!user.roles.includes(role)) {
       user.roles.push(role);
       const res = DB().updateOne(
@@ -125,7 +128,7 @@ class AccountManager {
     return false;
   }
 
-  setRoles(user, roles) {
+  setRoles(user: User, roles) {
     user.roles = roles;
     const res = DB().updateOne(
       "users",
@@ -137,7 +140,7 @@ class AccountManager {
     return !!res;
   }
 
-  removeRole(user, role) {
+  removeRole(user: User, role) {
     if (user.roles.indexOf(role) > -1) {
       user.roles.splice(user.roles.indexOf(role), 1);
       const res = DB().updateOne(
@@ -162,14 +165,14 @@ class AccountManager {
    * @param user
    * @param roles
    */
-  hasRole(user, roles) {
+  hasRole(user: User, roles) {
     for (const role of roles) {
       if (user.roles.includes(role)) return true;
     }
     return false;
   }
 
-  changePassword(user, password) {
+  changePassword(user: User, password) {
     user.password = md5(password + this.salt);
     return DB().updateOne(
       "users",
@@ -180,7 +183,7 @@ class AccountManager {
     );
   }
 
-  changeEmail(user, email) {
+  changeEmail(user: User, email) {
     user.email = email;
     return DB().updateOne(
       "users",
@@ -191,7 +194,7 @@ class AccountManager {
     );
   }
 
-  changeFirstName(user, firstName) {
+  changeFirstName(user: User, firstName) {
     user.firstName = firstName;
     return DB().updateOne(
       "users",
@@ -202,7 +205,7 @@ class AccountManager {
     );
   }
 
-  changeLastName(user, lastName) {
+  changeLastName(user: User, lastName) {
     user.lastName = lastName;
     return DB().updateOne(
       "users",
@@ -211,6 +214,34 @@ class AccountManager {
         lastName: user.lastName,
       }
     );
+  }
+
+  updateUser(user: User, options) {
+    if (options.password) {
+      if (options.password.length < 8) throw new Error("Password must be at least 8 characters long");
+      //must contain at least one number, one lowercase letter, one uppercase letter, and one special character
+      if (options.password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/) === null)
+        throw new Error("Password must contain at least one number, one lowercase letter, one uppercase letter, and one special character");
+    }
+
+    let email = options.email;
+    let roles = options.roles;
+    let password = options.password ? md5(options.password + this.salt) : undefined;
+    let libraries = options.libraries;
+    let firstName = options.firstName;
+    let lastName = options.lastName;
+
+    const updatedOptions = {
+      email,
+      roles,
+      password,
+      libraries,
+      firstName,
+      lastName,
+    };
+
+    user.update(updatedOptions);
+    return DB().updateOne("users", { id: user.id }, updatedOptions);
   }
 
   allowAccess(user, library) {
@@ -245,6 +276,13 @@ class AccountManager {
       user.libraries.push(library); //put it back, if it failed
       return false;
     }
+    return false;
+  }
+
+  resetPassword(user: User) {
+    const password = uuidv4();
+    const res = this.changePassword(user, password);
+    if (res) return password;
     return false;
   }
 
