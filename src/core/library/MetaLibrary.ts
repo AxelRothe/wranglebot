@@ -107,6 +107,9 @@ export default class MetaLibrary {
     }
 
     if (save) return this.save(options);
+
+    this.wb.emit("metalibrary-edit", this);
+
     return true;
   }
 
@@ -141,6 +144,9 @@ export default class MetaLibrary {
       this.save({
         folders: this.folders,
       });
+
+      this.wb.emit("metalibrary-edit", this);
+
       return true;
     } catch (e) {
       throw e;
@@ -543,6 +549,8 @@ export default class MetaLibrary {
     await DB().updateOne("metafiles", { id: metaFile.id, library: this.name }, metaFile.toJSON({ db: true }));
     this.metaFiles.push(metaFile);
     this.wb.addToRuntime("metaFiles", metaFile);
+
+    this.wb.emit("metafile-new", metaFile);
   }
 
   /**
@@ -624,6 +632,8 @@ export default class MetaLibrary {
             DB().removeMany("thumbnails", { metafile: f.id, library: this.name });
           }
 
+          this.wb.emit("metafile-removed", f.id);
+
           this.metaFiles.splice(this.metaFiles.indexOf(f), 1);
         }
       }
@@ -650,6 +660,9 @@ export default class MetaLibrary {
       }
     );
     await utility.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
+
+    this.wb.emit("metacopy-new", metaCopy);
+
     return DB().updateOne("metacopies", { id: metaCopy.id, library: this.name, metaFile: metaFile.id }, metaCopy.toJSON({ db: true }));
   }
 
@@ -693,6 +706,7 @@ export default class MetaLibrary {
           copies: metaCopy.metaFile.copies.map((c) => c.id),
         }
       );
+      this.wb.emit("metacopy-remove", metaCopy.id);
     }
 
     this.#removeFromRunTime("metaCopies", metaCopy);
@@ -707,6 +721,13 @@ export default class MetaLibrary {
       set.metaData[key] = value;
 
       DB().updateOne("metafiles", { id: metafile.id, library: this.name }, set);
+
+      this.wb.emit("metafile-metadata-edit", {
+        id: metafile.id,
+        key: key,
+        value: value,
+      });
+
       return true;
     }
     throw new Error("File not found");
@@ -777,10 +798,14 @@ export default class MetaLibrary {
       }
 
       if (jobs.length > 0) {
-        return await this.addOneTask({
+        const task = await this.addOneTask({
           label: options.label,
           jobs: jobs,
         });
+
+        this.wb.emit("copytask-new", task);
+
+        return task;
       } else {
         throw new Error("No files that matched the criteria were found");
       }
@@ -838,6 +863,8 @@ export default class MetaLibrary {
       this.tasks.push(task);
       await DB().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
       this.wb.addToRuntime("copyTasks", task);
+
+      this.wb.emit("copytask-new", task);
 
       return task;
     } else {
@@ -940,10 +967,17 @@ export default class MetaLibrary {
       }
 
       await DB().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+
+      this.wb.emit("copytask-edit", task);
+
       return task;
     } catch (e) {
       await DB().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+
       LogBot.log(500, "Task failed or cancelled");
+
+      this.wb.emit("copytask-edit", task);
+
       throw e;
     }
   }
@@ -969,6 +1003,9 @@ export default class MetaLibrary {
     if (copyTask) {
       copyTask.label = options.label;
       const result = await DB().updateOne("tasks", { id: copyTask.id, library: this.name }, copyTask.toJSON({ db: true }));
+
+      this.wb.emit("copytask-edit", copyTask);
+
       return true;
     }
     return new Error("No task found with that id.");
@@ -989,10 +1026,14 @@ export default class MetaLibrary {
     if (task) {
       if (save) {
         DB().removeOne("tasks", { id: task.id, library: this.name });
+
+        this.wb.emit("copytask-remove", task);
       }
 
       this.tasks = this.tasks.filter((t) => t.id !== task.id);
       this.wb.removeFromRuntime("copyTasks", task);
+
+      return true;
     }
   }
 
@@ -1010,7 +1051,7 @@ export default class MetaLibrary {
       for (let task of tasks) {
         for (let key in filters) {
           if (task[key] !== filters[key]) continue;
-          await this.removeOneTask(filters[key], key);
+          this.removeOneTask(filters[key], key);
 
           await utility.twiddleThumbs(5); //wait a few ms to make sure the timestamp is different
         }
@@ -1039,6 +1080,9 @@ export default class MetaLibrary {
     this.transcodes.push(newTask);
     await DB().updateOne("transcodes", { library: this.name, id: newTask.id }, newTask.toJSON({ db: true }));
     this.wb.addToRuntime("transcodes", newTask);
+
+    this.wb.emit("transcode-new", newTask);
+
     return newTask;
   }
 
@@ -1049,7 +1093,10 @@ export default class MetaLibrary {
     if (task && task.status !== 2) {
       this.transcodes = this.transcodes.filter((j) => j.id !== id);
 
-      if (save) DB().removeOne("transcodes", { id: task.id, library: this.name });
+      if (save) {
+        DB().removeOne("transcodes", { id: task.id, library: this.name });
+        this.wb.emit("transcode-remove", task);
+      }
 
       this.wb.removeFromRuntime("transcodes", task);
       return true;
@@ -1062,11 +1109,15 @@ export default class MetaLibrary {
     if (task) {
       try {
         await task.run(this, cb, cancelToken, (job) => {
-          DB().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+          //DB().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
         });
+
         DB().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+        this.wb.emit("transcode-edit", task);
+
         return true;
       } catch (e) {
+        DB().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
         throw e;
       }
     }

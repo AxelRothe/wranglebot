@@ -287,7 +287,7 @@ class WrangleBot extends EventEmitter {
    * UTILITY FUNCTIONS
    */
 
-  private emit(event: string, ...args: any[]) {
+  emit(event: string, ...args: any[]) {
     this.runCustomScript(event, ...args)
       .then(() => {
         return super.emit(event, ...args);
@@ -415,6 +415,8 @@ class WrangleBot extends EventEmitter {
 
     metaLibrary.createFoldersOnDiskFromTemplate();
 
+    this.emit("metalibrary-new", metaLibrary);
+
     return metaLibrary;
   }
 
@@ -429,6 +431,7 @@ class WrangleBot extends EventEmitter {
     if (save) {
       return DB().removeOne("libraries", { name });
     }
+    this.emit("metalibrary-remove", name);
     return true;
   }
 
@@ -616,6 +619,9 @@ class WrangleBot extends EventEmitter {
               thumbnails: metaFile.getThumbnails().map((t) => t.id),
             }
           );
+
+          this.emit("thumbnail-new", metaFile.getThumbnails());
+          this.emit("metafile-edit", metaFile);
 
           LogBot.log(200, "Saved Thumbnails <" + thumbnails.length + "> for <" + metaFile.name + "> in DB");
 

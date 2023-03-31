@@ -352,6 +352,7 @@ class WrangleBot extends EventEmitter {
             //add metaLibrary in database
             yield DB().updateOne("libraries", { name: metaLibrary.name }, metaLibrary.toJSON({ db: true }));
             metaLibrary.createFoldersOnDiskFromTemplate();
+            this.emit("metalibrary-new", metaLibrary);
             return metaLibrary;
         });
     }
@@ -366,6 +367,7 @@ class WrangleBot extends EventEmitter {
         if (save) {
             return DB().removeOne("libraries", { name });
         }
+        this.emit("metalibrary-remove", name);
         return true;
     }
     getOneLibrary(name) {
@@ -535,6 +537,8 @@ class WrangleBot extends EventEmitter {
                         yield DB().updateOne("metafiles", { id: metaFile.id, library }, {
                             thumbnails: metaFile.getThumbnails().map((t) => t.id),
                         });
+                        this.emit("thumbnail-new", metaFile.getThumbnails());
+                        this.emit("metafile-edit", metaFile);
                         logbotjs_1.default.log(200, "Saved Thumbnails <" + thumbnails.length + "> for <" + metaFile.name + "> in DB");
                         return true;
                     }

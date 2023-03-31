@@ -91,6 +91,7 @@ class MetaLibrary {
         }
         if (save)
             return this.save(options);
+        this.wb.emit("metalibrary-edit", this);
         return true;
     }
     updateFolder(folderPath, overwriteOptions) {
@@ -121,6 +122,7 @@ class MetaLibrary {
                 this.save({
                     folders: this.folders,
                 });
+                this.wb.emit("metalibrary-edit", this);
                 return true;
             }
             catch (e) {
@@ -448,6 +450,7 @@ class MetaLibrary {
             yield (0, DB_1.default)().updateOne("metafiles", { id: metaFile.id, library: this.name }, metaFile.toJSON({ db: true }));
             this.metaFiles.push(metaFile);
             this.wb.addToRuntime("metaFiles", metaFile);
+            this.wb.emit("metafile-new", metaFile);
         });
     }
     /**
@@ -523,6 +526,7 @@ class MetaLibrary {
                         (0, DB_1.default)().removeMany("metacopies", { metafile: f.id, library: this.name });
                         (0, DB_1.default)().removeMany("thumbnails", { metafile: f.id, library: this.name });
                     }
+                    this.wb.emit("metafile-removed", f.id);
                     this.metaFiles.splice(this.metaFiles.indexOf(f), 1);
                 }
             }
@@ -544,6 +548,7 @@ class MetaLibrary {
                 copies: metaFile.copies.map((c) => c.id),
             });
             yield utility_1.default.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
+            this.wb.emit("metacopy-new", metaCopy);
             return (0, DB_1.default)().updateOne("metacopies", { id: metaCopy.id, library: this.name, metaFile: metaFile.id }, metaCopy.toJSON({ db: true }));
         });
     }
@@ -580,6 +585,7 @@ class MetaLibrary {
             const updateResult = (0, DB_1.default)().updateOne("metafiles", { id: metaCopy.metaFile.id, library: this.name }, {
                 copies: metaCopy.metaFile.copies.map((c) => c.id),
             });
+            this.wb.emit("metacopy-remove", metaCopy.id);
         }
         __classPrivateFieldGet(this, _MetaLibrary_instances, "m", _MetaLibrary_removeFromRunTime).call(this, "metaCopies", metaCopy);
         return true;
@@ -590,6 +596,11 @@ class MetaLibrary {
             const set = { metaData: {} };
             set.metaData[key] = value;
             (0, DB_1.default)().updateOne("metafiles", { id: metafile.id, library: this.name }, set);
+            this.wb.emit("metafile-metadata-edit", {
+                id: metafile.id,
+                key: key,
+                value: value,
+            });
             return true;
         }
         throw new Error("File not found");
@@ -653,10 +664,12 @@ class MetaLibrary {
                     });
                 }
                 if (jobs.length > 0) {
-                    return yield this.addOneTask({
+                    const task = yield this.addOneTask({
                         label: options.label,
                         jobs: jobs,
                     });
+                    this.wb.emit("copytask-new", task);
+                    return task;
                 }
                 else {
                     throw new Error("No files that matched the criteria were found");
@@ -710,6 +723,7 @@ class MetaLibrary {
                 this.tasks.push(task);
                 yield (0, DB_1.default)().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
                 this.wb.addToRuntime("copyTasks", task);
+                this.wb.emit("copytask-new", task);
                 return task;
             }
             else {
@@ -805,11 +819,13 @@ class MetaLibrary {
                     }
                 }
                 yield (0, DB_1.default)().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+                this.wb.emit("copytask-edit", task);
                 return task;
             }
             catch (e) {
                 yield (0, DB_1.default)().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
                 logbotjs_1.default.log(500, "Task failed or cancelled");
+                this.wb.emit("copytask-edit", task);
                 throw e;
             }
         });
@@ -835,6 +851,7 @@ class MetaLibrary {
             if (copyTask) {
                 copyTask.label = options.label;
                 const result = yield (0, DB_1.default)().updateOne("tasks", { id: copyTask.id, library: this.name }, copyTask.toJSON({ db: true }));
+                this.wb.emit("copytask-edit", copyTask);
                 return true;
             }
             return new Error("No task found with that id.");
@@ -855,9 +872,11 @@ class MetaLibrary {
         if (task) {
             if (save) {
                 (0, DB_1.default)().removeOne("tasks", { id: task.id, library: this.name });
+                this.wb.emit("copytask-remove", task);
             }
             this.tasks = this.tasks.filter((t) => t.id !== task.id);
             this.wb.removeFromRuntime("copyTasks", task);
+            return true;
         }
     }
     /**
@@ -875,7 +894,7 @@ class MetaLibrary {
                 for (let key in filters) {
                     if (task[key] !== filters[key])
                         continue;
-                    yield this.removeOneTask(filters[key], key);
+                    this.removeOneTask(filters[key], key);
                     yield utility_1.default.twiddleThumbs(5); //wait a few ms to make sure the timestamp is different
                 }
             }
@@ -903,6 +922,7 @@ class MetaLibrary {
             this.transcodes.push(newTask);
             yield (0, DB_1.default)().updateOne("transcodes", { library: this.name, id: newTask.id }, newTask.toJSON({ db: true }));
             this.wb.addToRuntime("transcodes", newTask);
+            this.wb.emit("transcode-new", newTask);
             return newTask;
         });
     }
@@ -912,8 +932,10 @@ class MetaLibrary {
         const task = this.getOneTranscodeTask(id);
         if (task && task.status !== 2) {
             this.transcodes = this.transcodes.filter((j) => j.id !== id);
-            if (save)
+            if (save) {
                 (0, DB_1.default)().removeOne("transcodes", { id: task.id, library: this.name });
+                this.wb.emit("transcode-remove", task);
+            }
             this.wb.removeFromRuntime("transcodes", task);
             return true;
         }
@@ -925,12 +947,14 @@ class MetaLibrary {
             if (task) {
                 try {
                     yield task.run(this, cb, cancelToken, (job) => {
-                        (0, DB_1.default)().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+                        //DB().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
                     });
                     (0, DB_1.default)().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+                    this.wb.emit("transcode-edit", task);
                     return true;
                 }
                 catch (e) {
+                    (0, DB_1.default)().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
                     throw e;
                 }
             }

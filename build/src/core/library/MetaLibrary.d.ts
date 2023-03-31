@@ -155,7 +155,7 @@ export default class MetaLibrary {
      * @param save
      * @return {Promise<{deletedCount:number}>}
      */
-    removeOneTask(key: any, by?: string, save?: boolean): void;
+    removeOneTask(key: any, by?: string, save?: boolean): true | undefined;
     /**
      * Removes all tasks that match the filter
      *

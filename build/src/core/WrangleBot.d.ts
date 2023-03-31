@@ -105,7 +105,7 @@ declare class WrangleBot extends EventEmitter {
     /**
      * UTILITY FUNCTIONS
      */
-    private emit;
+    emit(event: string, ...args: any[]): void;
     private runCustomScript;
     private loadExtensions;
     getAvailableLibraries(): any;
@@ -231,7 +231,7 @@ declare class WrangleBot extends EventEmitter {
                         fetch(): Task;
                         run: (callback: Function, cancelToken: CancelToken) => Promise<Task>;
                         put: (options: any) => Promise<true | Error>;
-                        delete: () => Promise<void>;
+                        delete: () => Promise<true | undefined>;
                     };
                     many: (filters?: {}) => {
                         fetch(): Task[];
