@@ -43,6 +43,10 @@ WrangleBot offers a variety of features to make asset management easier and more
 - Manage Metadata
   - edit and view metadata in advanced meta data editor
   - extract and scrub through thumbnails
+- Auto Tag with AI
+  - tag over 1500 objects classes
+  - detect landmarks and celebrities
+  - requires a wallet at [wranglebot.io](https://wranglebot.io/account)
 - Library Management
   - create bins to manage media into categories and tags
   - import new files from "watched" bins
