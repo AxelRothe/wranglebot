@@ -83,6 +83,23 @@ CLOUD_ML_URL="https://ai.wranglebot.io" # you will need a positive credits balan
 DEBUG_NOTIFICATIONS="false" #show notifications in console
 ```
 
+## Starting via Interface
+
+```js
+wranglebot.open({
+  client: {
+    database: {
+      cloud: {
+        token: "<YOUR_DATABASE_TOKEN>",
+        databaseURL: "https://db2.wranglebot.io",
+        machineLearningURL: "https://ai.wranglebot.io",
+      },
+    },
+    port: 3200,
+  }
+})
+```
+
 ## 🪨 Offline Mode
 
 If you are not using Cloud Sync, then you can use the offline mode. This mode will allow you to use WrangleBot without an internet connection. To use the offline mode, you will need to create a `.env` file in the root directory of the project. The `.env` file should contain the following:
