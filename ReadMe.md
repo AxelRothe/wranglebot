@@ -83,7 +83,19 @@ CLOUD_ML_URL="https://ai.wranglebot.io" # you will need a positive credits balan
 DEBUG_NOTIFICATIONS="false" #show notifications in console
 ```
 
-## Starting via Interface
+## 🪨 Offline Mode
+
+If you are not using Cloud Sync, then you can use the offline mode. This mode will allow you to use WrangleBot without an internet connection. To use the offline mode, you will need to create a `.env` file in the root directory of the project. The `.env` file should contain the following:
+
+> Note: You will not be able to use AI Services in offline mode, as they are tied to your Cloud Sync account. If you need to migrate an offline database to Cloud Sync please write us an email at [a.rothe@vanrothe.com](mailto:a.rothe@vanrothe.com)
+
+```dotenv
+DATABASE_KEY="xxxx-xxxx-xxxx-xxxx"
+```
+
+The key can be any string of characters.
+
+## Starting via NodeJS
 
 ```js
 wranglebot.open({
@@ -100,17 +112,19 @@ wranglebot.open({
 })
 ```
 
-## 🪨 Offline Mode
 
-If you are not using Cloud Sync, then you can use the offline mode. This mode will allow you to use WrangleBot without an internet connection. To use the offline mode, you will need to create a `.env` file in the root directory of the project. The `.env` file should contain the following:
-
-> Note: You will not be able to use AI Services in offline mode, as they are tied to your Cloud Sync account. If you need to migrate an offline database to Cloud Sync please write us an email at [a.rothe@vanrothe.com](mailto:a.rothe@vanrothe.com)
-
-```dotenv
-DATABASE_KEY="xxxx-xxxx-xxxx-xxxx"
+```js
+wranglebot.open({
+  client: {
+    database: {
+      local: {
+        key: "<YOUR_DATABASE_NAME>"
+      },
+    },
+    port: 3200,
+  }
+})
 ```
-
-The key can be any string of characters.
 
 ## 📑 Documentation
 
