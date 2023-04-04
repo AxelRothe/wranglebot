@@ -18,20 +18,6 @@ If you are looking for the Desktop App then please download the newest builds he
 
 ---
 
-## ⚠️ Limitations & Data Privacy Concerns
-### Read Before Using!
-
-As of right now, WrangleBot is still in development. This means that there are some limitations to what WrangleBot can do.
-
-**These limitations are as follows:**
-
-- WrangleBot is only available for MacOS. (We are looking for contributors to help us port WrangleBot to other platforms.)
-- WrangleBot **Cloud Sync does not yet utilize end-to-end encryption** to protect your data, but uses TLS-Encryption to communicate and send data between you and the cloud sync servers. This means that **your data is encrypted while it is in transit, but not while it is stored on the cloud sync servers**.
-
-We are committed to addressing these limitations and implementing new features as soon as possible. We are also committed to protecting your data and privacy. We will never sell your data to third parties, and we will never use your data for any other purpose than to provide you with the best possible experience with WrangleBot. Please review our data [privacy policy here](https://wranglebot.io/privacy) for more information.
-
----
-
 ## 🧰 Features
 
 WrangleBot offers a variety of features to make asset management easier and more efficient:
@@ -43,6 +29,10 @@ WrangleBot offers a variety of features to make asset management easier and more
 - Manage Metadata
   - edit and view metadata in advanced meta data editor
   - extract and scrub through thumbnails
+- Auto Tag with AI
+  - tag over 1500 objects classes
+  - detect landmarks and celebrities
+  - requires a wallet at [wranglebot.io](https://wranglebot.io/account)
 - Library Management
   - create bins to manage media into categories and tags
   - import new files from "watched" bins
@@ -105,6 +95,37 @@ DATABASE_KEY="xxxx-xxxx-xxxx-xxxx"
 
 The key can be any string of characters.
 
+## Starting via NodeJS
+
+```js
+wranglebot.open({
+  client: {
+    database: {
+      cloud: {
+        token: "<YOUR_DATABASE_TOKEN>",
+        databaseURL: "https://db2.wranglebot.io",
+        machineLearningURL: "https://ai.wranglebot.io",
+      },
+    },
+    port: 3200,
+  }
+})
+```
+
+
+```js
+wranglebot.open({
+  client: {
+    database: {
+      local: {
+        key: "<YOUR_DATABASE_NAME>"
+      },
+    },
+    port: 3200,
+  }
+})
+```
+
 ## 📑 Documentation
 
 Review our extensive Endpoint Documentation: [(Postman) REST API with Examples](https://documenter.getpostman.com/view/26212996/2s93JtQPKd)
@@ -117,6 +138,23 @@ Join our [Discord](https://discord.gg/p3Rmhagvkm) for live support.
 
 We welcome contributions to WrangleBot! Please join us on our Discord to discuss how you can help. We are always looking for new contributors to help us build the best media asset management tool possible and want to make it as easy as possible for you to get involved.
 
-## 📜 License
+## 📜 License 
+
+WrangleBot is released under the GPL-3.0 License. For more information, please view the license. You must publish all changes and modifications to the source code under the same license. We encourage you to contribute to the project and make it better for everyone.
+
+---
+
+## ⚠️ Limitations & Data Privacy Concerns
+### Read Before Using!
+
+As of right now, WrangleBot is still in development. This means that there are some limitations to what WrangleBot can do.
+
+**These limitations are as follows:**
+
+- WrangleBot is only available for MacOS. (We are looking for contributors to help us port WrangleBot to other platforms.)
+- WrangleBot **Cloud Sync does not yet utilize end-to-end encryption** to protect your data, but uses TLS-Encryption to communicate and send data between you and the cloud sync servers. This means that **your data is encrypted while it is in transit, but not while it is stored on the cloud sync servers**.
+
+We are committed to addressing these limitations and implementing new features as soon as possible. We are also committed to protecting your data and privacy. We will never sell your data to third parties, and we will never use your data for any other purpose than to provide you with the best possible experience with WrangleBot. Please review our data [privacy policy here](https://wranglebot.io/privacy) for more information.
+
 
 WrangleBot is released under the GPL-3.0 License. For more information, please view the license. You must publish all changes and modifications to the source code under the same license. We encourage you to contribute to the project and make it better for everyone.
