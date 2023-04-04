@@ -109,7 +109,7 @@ We welcome contributions to WrangleBot! Please join us on our Discord to discuss
 
 ## 📜 License 
 
-WrangleBot is released under the GPL-3.0 License. For more information, please view the license. You must publish all changes and modifications to the source code under the same license. We encourage you to contribute to the project and make it better for everyone. WrangleBot is a registered Trademark of VAN ROTHE GbR.
+WrangleBot is released under the GPL-3.0 License. For more information, please view the license. You must publish all changes and modifications to the source code under the same license. We encourage you to contribute to the project and make it better for everyone.
 
 ---
 
