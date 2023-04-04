@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const logbotjs_1 = __importDefault(require("logbotjs"));
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "post",
@@ -31,6 +32,11 @@ exports.default = {
             //remove job from queue
             thumbnailGenerationQueue[metaFileId] = false;
         };
+        const failedCallback = (metaFileId, error) => {
+            server.inform("thumbnails", metaFileId, { error: error.message });
+            //remove job from queue
+            thumbnailGenerationQueue[metaFileId] = false;
+        };
         //check if any of the files are already in the queue
         let fileIds = files.filter((file) => !thumbnailGenerationQueue[file]);
         let filesToGenerate = bot.query.library.one(id).metafiles.many({ $ids: fileIds }).fetch();
@@ -40,7 +46,12 @@ exports.default = {
             thumbnailGenerationQueue[file] = true;
         });
         //dont wait for the job to finish
-        bot.generateThumbnails(id, filesToGenerate, progressCallback, jobFinishCallback);
+        bot.generateThumbnails(id, filesToGenerate, progressCallback, jobFinishCallback).catch((e) => {
+            logbotjs_1.default.log(500, e.message);
+            filesToGenerate.forEach((f) => {
+                failedCallback(f.id, e);
+            });
+        });
         return new RouteResult_1.default(200, { success: true, message: "generating thumbnails for " + filesToGenerate.length + " files." });
     }),
 };

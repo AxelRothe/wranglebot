@@ -15,9 +15,15 @@ export default {
     const metaFile = await bot.query.library.one(id).metafiles.one(file).fetch();
 
     if (metaFile.thumbnails.length === 0) {
-      bot.generateThumbnails(id, [metaFile], cb).then(() => {
-        server.inform("thumbnails", file, { status: "done" });
-      });
+      bot
+        .generateThumbnails(id, [metaFile], cb)
+        .then(() => {
+          server.inform("thumbnails", file, { status: "done" });
+        })
+        .catch((e) => {
+          console.error(e);
+          server.inform("thumbnails", file, { error: e.message });
+        });
 
       return new RouteResult(200, { success: true, message: "thumbnails are being generated." });
     } else {

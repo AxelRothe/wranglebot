@@ -187,6 +187,7 @@ export default class MetaLibrary {
             count: {
                 total: number;
                 video: number;
+                "video-raw": number;
                 audio: number;
                 photo: number;
                 sidecar: number;

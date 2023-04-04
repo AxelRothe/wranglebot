@@ -21,13 +21,24 @@ if (process.env.DATABASE_TOKEN) {
   };
 }
 
+// wb.open({
+//   client: {
+//     database: {
+//       cloud: {
+//         token: conf.token,
+//         databaseURL: conf.database,
+//         machineLearningURL: conf.mlserver,
+//       },
+//     },
+//     port: 3200,
+//   },
+// });
+
 wb.open({
   client: {
     database: {
-      cloud: {
-        token: conf.token,
-        databaseURL: conf.database,
-        machineLearningURL: conf.mlserver,
+      local: {
+        key: "mykey",
       },
     },
     port: 3200,

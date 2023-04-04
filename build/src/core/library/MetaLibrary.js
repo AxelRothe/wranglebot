@@ -992,6 +992,7 @@ class MetaLibrary {
             count: {
                 total: this.metaFiles.length,
                 video: 0,
+                "video-raw": 0,
                 audio: 0,
                 photo: 0,
                 sidecar: 0,

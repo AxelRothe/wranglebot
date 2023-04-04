@@ -25,6 +25,12 @@ export default {
       thumbnailGenerationQueue[metaFileId] = false;
     };
 
+    const failedCallback = (metaFileId, error) => {
+      server.inform("thumbnails", metaFileId, { error: error.message });
+      //remove job from queue
+      thumbnailGenerationQueue[metaFileId] = false;
+    };
+
     //check if any of the files are already in the queue
     let fileIds = files.filter((file) => !thumbnailGenerationQueue[file]);
 
@@ -38,7 +44,12 @@ export default {
     });
 
     //dont wait for the job to finish
-    bot.generateThumbnails(id, filesToGenerate, progressCallback, jobFinishCallback);
+    bot.generateThumbnails(id, filesToGenerate, progressCallback, jobFinishCallback).catch((e) => {
+      LogBot.log(500, e.message);
+      filesToGenerate.forEach((f) => {
+        failedCallback(f.id, e);
+      });
+    });
 
     return new RouteResult(200, { success: true, message: "generating thumbnails for " + filesToGenerate.length + " files." });
   },

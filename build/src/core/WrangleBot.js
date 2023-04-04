@@ -475,7 +475,7 @@ class WrangleBot extends EventEmitter {
                     }
                     catch (e) {
                         logbotjs_1.default.log(500, "Error while generating thumbnail for file " + file.id + ": " + e.message);
-                        return false;
+                        throw e;
                     }
                 }
                 return true;
