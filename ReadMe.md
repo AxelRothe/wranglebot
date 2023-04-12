@@ -126,9 +126,13 @@ wranglebot.open({
 })
 ```
 
-## 📑 Documentation
+## 📑 REST API Documentation
 
-Review our extensive Endpoint Documentation: [(Postman) REST API with Examples](https://documenter.getpostman.com/view/26212996/2s93JtQPKd)
+[(Postman) REST API with Examples](https://documenter.getpostman.com/view/26212996/2s93JtQPKd)
+
+## 📑 NodeJS Documentation
+
+[(GitBook) NodeJS API & Model Documentation](https://van-rothe.gitbook.io/wranglebot-nodejs-documentation/)
 
 ## 💬 Discord
 
