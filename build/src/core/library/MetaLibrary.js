@@ -548,7 +548,7 @@ class MetaLibrary {
                 throw new Error("Library is read only");
             metaFile.addCopy(metaCopy);
             this.wb.addToRuntime("metaCopies", metaCopy);
-            yield (0, DB_1.default)().updateOne("metafiles", { id: metaFile.id, library: this.name }, {
+            (0, DB_1.default)().updateOne("metafiles", { id: metaFile.id, library: this.name }, {
                 copies: metaFile.copies.map((c) => c.id),
             });
             yield utility_1.default.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
@@ -823,12 +823,12 @@ class MetaLibrary {
                         yield addMetaCopy(executedJob, task, newMetaFile);
                     }
                 }
-                yield (0, DB_1.default)().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+                (0, DB_1.default)().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
                 this.wb.emit("copytask-edit", task);
                 return task;
             }
             catch (e) {
-                yield (0, DB_1.default)().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+                (0, DB_1.default)().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
                 logbotjs_1.default.log(500, "Task failed or cancelled");
                 this.wb.emit("copytask-edit", task);
                 throw e;

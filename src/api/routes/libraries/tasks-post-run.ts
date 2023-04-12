@@ -15,6 +15,7 @@ export default {
 
     const cb = (data) => {
       server.inform("task", task.id, {
+        status: "running",
         jobs: task.jobs.map((j) => j.toJSON()),
         ...data,
       });
@@ -34,12 +35,14 @@ export default {
       .run(cb, cancelToken)
       .then((result) => {
         server.inform("task", task.id, {
+          status: "complete",
           jobs: task.jobs.map((j) => j.toJSON()),
         });
       })
       .catch((e) => {
         console.log(e);
         server.inform("task", task.id, {
+          status: "error",
           jobs: task.jobs.map((j) => j.toJSON()),
         });
       });

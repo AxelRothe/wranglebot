@@ -64,7 +64,7 @@ class Task {
             pending: 0,
             running: 0,
             done: 0,
-            failed: 0
+            failed: 0,
         };
         let totalSize = 0;
         let totalRead = 0;

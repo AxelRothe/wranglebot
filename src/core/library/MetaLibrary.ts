@@ -656,7 +656,7 @@ export default class MetaLibrary {
 
     metaFile.addCopy(metaCopy);
     this.wb.addToRuntime("metaCopies", metaCopy);
-    await DB().updateOne(
+    DB().updateOne(
       "metafiles",
       { id: metaFile.id, library: this.name },
       {
@@ -969,13 +969,13 @@ export default class MetaLibrary {
         }
       }
 
-      await DB().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+      DB().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
 
       this.wb.emit("copytask-edit", task);
 
       return task;
     } catch (e) {
-      await DB().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+      DB().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
 
       LogBot.log(500, "Task failed or cancelled");
 

@@ -43,10 +43,17 @@ export default class Job {
         this.status = Status.RUNNING;
         const cup = new Espresso();
 
+        try {
+          cup.pour(this.source);
+        } catch (e) {
+          this.status = Status.FAILED;
+          reject(e);
+          return;
+        }
+
         //copy and analyse
         if (this.destinations !== null) {
           cup
-            .pour(this.source)
             .drink(this.destinations, cancelToken, callback)
             .then((result) => {
               if (result) {
@@ -64,7 +71,6 @@ export default class Job {
         } else {
           //analyse only
           cup
-            .pour(this.source)
             .analyse(cancelToken, callback)
             .then((result) => {
               if (result) {

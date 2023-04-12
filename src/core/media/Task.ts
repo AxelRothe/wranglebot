@@ -64,19 +64,19 @@ export default class Task {
       pending: 0,
       running: 0,
       done: 0,
-      failed: 0
+      failed: 0,
     };
     let totalSize = 0;
     let totalRead = 0;
     for (let job of this.jobs) {
-      stats[job.status-1]++;
+      stats[job.status - 1]++;
       totalSize += job.result.size || 0;
       totalRead += job.status === Status.DONE ? job.result.size : 0;
     }
     return {
       ...stats,
       totalSize,
-      totalRead
+      totalRead,
     };
   }
 

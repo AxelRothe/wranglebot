@@ -56,6 +56,10 @@ export default class Espresso {
    * @returns {Espresso} returns the current instance
    */
   pour(pathToFile) {
+    if (!fs.existsSync(pathToFile)) {
+      throw new Error("File does not exist");
+    }
+
     this.pathToFile = pathToFile;
     return this;
   }

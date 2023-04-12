@@ -46,10 +46,17 @@ class Job {
                 if (this.status !== Status_1.default.DONE || !this.result) {
                     this.status = Status_1.default.RUNNING;
                     const cup = new Espresso_1.default();
+                    try {
+                        cup.pour(this.source);
+                    }
+                    catch (e) {
+                        this.status = Status_1.default.FAILED;
+                        reject(e);
+                        return;
+                    }
                     //copy and analyse
                     if (this.destinations !== null) {
                         cup
-                            .pour(this.source)
                             .drink(this.destinations, cancelToken, callback)
                             .then((result) => {
                             if (result) {
@@ -69,7 +76,6 @@ class Job {
                     else {
                         //analyse only
                         cup
-                            .pour(this.source)
                             .analyse(cancelToken, callback)
                             .then((result) => {
                             if (result) {

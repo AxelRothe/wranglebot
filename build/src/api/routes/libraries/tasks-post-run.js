@@ -23,7 +23,7 @@ exports.default = {
         const lib = bot.query.library.one(libraryId).fetch();
         const task = lib.query.tasks.one(taskId).fetch();
         const cb = (data) => {
-            server.inform("task", task.id, Object.assign({ jobs: task.jobs.map((j) => j.toJSON()) }, data));
+            server.inform("task", task.id, Object.assign({ status: "running", jobs: task.jobs.map((j) => j.toJSON()) }, data));
         };
         const cancelToken = { cancel: false };
         let cancelTokens = server.getFromCache("cancelTokens");
@@ -36,12 +36,14 @@ exports.default = {
             .run(cb, cancelToken)
             .then((result) => {
             server.inform("task", task.id, {
+                status: "complete",
                 jobs: task.jobs.map((j) => j.toJSON()),
             });
         })
             .catch((e) => {
             console.log(e);
             server.inform("task", task.id, {
+                status: "error",
                 jobs: task.jobs.map((j) => j.toJSON()),
             });
         });
