@@ -11,15 +11,7 @@ export default {
     const { libraryId } = req.params;
     const { label, jobs } = req.body;
 
-    if (!label) {
-      throw new Error("Label is required");
-    }
-
-    for (const job of jobs) {
-      if (!job.source) throw new Error("Job source is not defined");
-      if (!job.destinations || !(job.destinations instanceof Array))
-        throw new Error("Job destinations is not defined. if you are using a single destination, please use an array");
-    }
+    console.log("jobs", jobs);
 
     const lib = await bot.query.library.one(libraryId).fetch();
 

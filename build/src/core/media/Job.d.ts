@@ -1,7 +1,7 @@
 export default class Job {
     id: string;
     source: string;
-    destinations: string[];
+    destinations: string[] | null;
     status: number;
     result: any;
     stats: any;
@@ -19,14 +19,13 @@ export default class Job {
     run(callback: any, cancelToken: any): Promise<unknown>;
     /**
      * Returns the job as a json object
-     * @returns {{result: {}, destination: string, id: string, source: string, status}}
      */
     toJSON(options?: {
         db: boolean;
     }): {
         id: string;
         source: string;
-        destinations: string[];
+        destinations: string[] | null;
         status: number;
         result: any;
         stats: any;

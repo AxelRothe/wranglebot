@@ -803,8 +803,6 @@ class WrangleBot extends EventEmitter {
                                 };
                             },
                             post: (options) => __awaiter(this, void 0, void 0, function* () {
-                                if (!options.label)
-                                    throw new Error("No data provided to create task.");
                                 return yield lib.addOneTask(options);
                             }),
                             generate: (options) => __awaiter(this, void 0, void 0, function* () {

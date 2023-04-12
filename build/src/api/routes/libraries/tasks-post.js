@@ -20,15 +20,7 @@ exports.default = {
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const { libraryId } = req.params;
         const { label, jobs } = req.body;
-        if (!label) {
-            throw new Error("Label is required");
-        }
-        for (const job of jobs) {
-            if (!job.source)
-                throw new Error("Job source is not defined");
-            if (!job.destinations || !(job.destinations instanceof Array))
-                throw new Error("Job destinations is not defined. if you are using a single destination, please use an array");
-        }
+        console.log("jobs", jobs);
         const lib = yield bot.query.library.one(libraryId).fetch();
         const task = yield lib.query.tasks.post({
             label,

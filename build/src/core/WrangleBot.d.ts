@@ -241,7 +241,7 @@ declare class WrangleBot extends EventEmitter {
                         label: string;
                         jobs: {
                             source: string;
-                            destinations?: string[];
+                            destinations?: string[] | null;
                         }[];
                     }) => Promise<Task>;
                     generate: (options: createTaskOptions) => Promise<Task>;

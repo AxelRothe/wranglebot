@@ -897,8 +897,7 @@ class WrangleBot extends EventEmitter {
                   },
                 };
               },
-              post: async (options: { label: string; jobs: { source: string; destinations?: string[] }[] }) => {
-                if (!options.label) throw new Error("No data provided to create task.");
+              post: async (options: { label: string; jobs: { source: string; destinations?: string[] | null }[] }) => {
                 return await lib.addOneTask(options);
               },
               generate: async (options: createTaskOptions) => {

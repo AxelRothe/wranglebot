@@ -115,6 +115,9 @@ export default class Espresso {
         //get size of file
         const stats = fs.statSync(this.pathToFile);
         const fileSizeInBytes = stats.size;
+        let startTime = 0;
+        let lastTime = 0;
+        let tick = 0;
 
         //start parsing the file with mediainfo
         mediaInfo.openBufferInit(fileSizeInBytes, 0);
@@ -132,6 +135,10 @@ export default class Espresso {
           reject(new Error("Failed"));
         });
 
+        readStream.on("open", () => {
+          startTime = lastTime = Date.now();
+        });
+
         //on each chunk
         readStream.on("data", (chunk) => {
           if (cancelToken !== null && cancelToken.cancel) {
@@ -145,7 +152,8 @@ export default class Espresso {
           mediaInfo.openBufferContinue(chunk, chunk.length);
           this.hash.update(chunk);
 
-          if (callback) {
+          tick++;
+          if (callback && tick % 10 === 0) {
             callback({
               bytesPerSecond: speedInBytes,
               bytesRead: totalBytesRead,

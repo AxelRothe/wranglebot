@@ -6,7 +6,7 @@ export default class Job {
   id: string;
   source: string;
 
-  destinations: string[];
+  destinations: string[] | null;
 
   status: number;
 
@@ -25,7 +25,7 @@ export default class Job {
     this.id = options.id || uuidv4();
     this.status = options.status || Status.PENDING;
     this.source = options.source ? options.source : null;
-    this.destinations = options.destinations || [];
+    this.destinations = options.destinations ? options.destinations : null;
     this.result = options.result || {};
     this.stats = options.stats || {
       size: 0,
@@ -89,7 +89,6 @@ export default class Job {
 
   /**
    * Returns the job as a json object
-   * @returns {{result: {}, destination: string, id: string, source: string, status}}
    */
   toJSON(options: { db: boolean } = { db: false }) {
     return {

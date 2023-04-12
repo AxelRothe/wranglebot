@@ -29,7 +29,7 @@ class Job {
         this.id = options.id || (0, uuid_1.v4)();
         this.status = options.status || Status_1.default.PENDING;
         this.source = options.source ? options.source : null;
-        this.destinations = options.destinations || [];
+        this.destinations = options.destinations ? options.destinations : null;
         this.result = options.result || {};
         this.stats = options.stats || {
             size: 0,
@@ -96,7 +96,6 @@ class Job {
     }
     /**
      * Returns the job as a json object
-     * @returns {{result: {}, destination: string, id: string, source: string, status}}
      */
     toJSON(options = { db: false }) {
         return {

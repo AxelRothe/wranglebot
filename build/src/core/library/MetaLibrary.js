@@ -308,6 +308,8 @@ class MetaLibrary {
                     let metaCopy = this.getMetaCopyByPath(indexItem.pathToFile);
                     let f = jobs.find((j) => j.source === indexItem.pathToFile);
                     let t = Object.values(this.wb.index.copyTasks).find((t) => t.jobs.find((j) => {
+                        if (j.destinations === null)
+                            return false;
                         const inDestinations = j.destinations.find((d) => d === indexItem.pathToFile);
                         return j.source === indexItem.pathToFile || inDestinations;
                     }));
@@ -341,6 +343,8 @@ class MetaLibrary {
                 //check if this a file of an existing job
                 for (const task of Object.values(this.wb.index.copyTasks)) {
                     for (let job of task.jobs) {
+                        if (job.destinations === null)
+                            continue;
                         for (let destination of job.destinations) {
                             if (destination === path || job.source === path)
                                 return;
@@ -640,27 +644,29 @@ class MetaLibrary {
                             continue;
                         }
                     }
-                    for (let folder of options.destinations) {
-                        if (options.settings) {
-                            if (!options.settings.preserveFolderStructure && index.duplicates) {
-                                throw new Error("Must preserve folder structure when there are duplicates");
-                            }
-                            if (options.settings.preserveFolderStructure) {
-                                let prefixToStrip = options.source;
-                                let prefix = item.pathToFile.replace(prefixToStrip, "");
-                                destinations.push(folder + (options.settings.createSubFolder ? "/" + options.label : "") + prefix);
+                    if (options.destinations.length > 0) {
+                        for (let folder of options.destinations) {
+                            if (options.settings) {
+                                if (!options.settings.preserveFolderStructure && index.duplicates) {
+                                    throw new Error("Must preserve folder structure when there are duplicates");
+                                }
+                                if (options.settings.preserveFolderStructure) {
+                                    let prefixToStrip = options.source;
+                                    let prefix = item.pathToFile.replace(prefixToStrip, "");
+                                    destinations.push(folder + (options.settings.createSubFolder ? "/" + options.label : "") + prefix);
+                                }
+                                else {
+                                    destinations.push(folder + (options.settings.createSubFolder ? "/" + options.label : "") + "/" + item.basename);
+                                }
                             }
                             else {
-                                destinations.push(folder + (options.settings.createSubFolder ? "/" + options.label : "") + "/" + item.basename);
+                                destinations.push(folder + "/" + item.basename);
                             }
-                        }
-                        else {
-                            destinations.push(folder + "/" + item.basename);
                         }
                     }
                     jobs.push({
                         source: item.pathToFile,
-                        destinations: destinations,
+                        destinations: destinations.length > 0 ? destinations : null,
                     });
                 }
                 if (jobs.length > 0) {
@@ -694,20 +700,16 @@ class MetaLibrary {
             if (!options.jobs) {
                 throw new Error("No jobs provided");
             }
-            //check if destination is within the pathToLibrary
-            for (let job of options.jobs) {
-                if ((!job.destinations || job.destinations.length === 0) && !job.source.startsWith(this.pathToLibrary)) {
-                    throw new Error("Ingest in Place ERROR '" +
-                        job.source +
-                        "' is outside of the library! Move the file and try again or add a destination starting with '" +
-                        this.pathToLibrary +
-                        "' to copy the file to the library.");
-                }
-            }
             //check if task with label already exists
             const search = searchlite_1.SearchLite.find(Object.values(this.tasks), "label", options.label);
             if (search.wasFailure()) {
                 for (let job of options.jobs) {
+                    if (!job.source) {
+                        throw new Error("No source provided");
+                    }
+                    if (job.destinations !== null && job.destinations instanceof Array && job.destinations.length === 0) {
+                        throw new Error("No destinations provided. Arrays must not be empty, use null instead.");
+                    }
                     if (!system_1.finder.existsSync(job.source)) {
                         throw new Error("Source file does not exist: " + job.source);
                     }
@@ -757,6 +759,35 @@ class MetaLibrary {
             if (!task) {
                 throw new Error("Task not found");
             }
+            const addMetaCopy = (executedJob, task, metaFile) => __awaiter(this, void 0, void 0, function* () {
+                if (executedJob.destinations === null) {
+                    //add metacopy that is in place
+                    const newMetaCopy = new MetaCopy_1.MetaCopy({
+                        hash: executedJob.result.hash,
+                        pathToSource: executedJob.source,
+                        pathToBucket: executedJob.source,
+                        label: task.label,
+                        metaFile: metaFile,
+                    });
+                    //push changes to the database
+                    yield this.addOneMetaCopy(newMetaCopy, metaFile);
+                    yield utility_1.default.twiddleThumbs(5); //wait 5 milliseconds to make sure the timestamp is incremented
+                    return;
+                }
+                for (let destination of executedJob.destinations) {
+                    //add metacopy to the metafile
+                    const newMetaCopy = new MetaCopy_1.MetaCopy({
+                        hash: executedJob.result.hash,
+                        pathToSource: executedJob.source,
+                        pathToBucket: destination,
+                        label: task.label,
+                        metaFile: metaFile,
+                    });
+                    //push changes to the database
+                    yield this.addOneMetaCopy(newMetaCopy, metaFile);
+                    yield utility_1.default.twiddleThumbs(5); //wait 5 milliseconds to make sure the timestamp is incremented
+                }
+            });
             try {
                 //iterate over all jobs
                 for (let job of task.jobs) {
@@ -773,19 +804,7 @@ class MetaLibrary {
                     const foundMetaFile = this.findMetaFileByHash(executedJob.result.hash);
                     if (foundMetaFile) {
                         //if found, add copy to metafile
-                        for (let destination of executedJob.destinations) {
-                            //add metacopy to the metafile
-                            const newMetaCopy = new MetaCopy_1.MetaCopy({
-                                hash: executedJob.result.hash,
-                                pathToSource: executedJob.source,
-                                pathToBucket: destination,
-                                label: task.label,
-                                metaFile: foundMetaFile,
-                            });
-                            //push changes to the database
-                            yield this.addOneMetaCopy(newMetaCopy, foundMetaFile);
-                            yield utility_1.default.twiddleThumbs(5); //wait 5 milliseconds to make sure the timestamp is incremented
-                        }
+                        yield addMetaCopy(executedJob, task, foundMetaFile);
                     }
                     else {
                         //create new metafile
@@ -801,21 +820,7 @@ class MetaLibrary {
                         });
                         yield this.addOneMetaFile(newMetaFile);
                         yield utility_1.default.twiddleThumbs(5); //wait a few ms to make sure the timestamp is different
-                        //add copies to the metafile
-                        for (let destination of executedJob.destinations) {
-                            //add metaCopy
-                            const newMetaCopy = new MetaCopy_1.MetaCopy({
-                                hash: executedJob.result.hash,
-                                pathToSource: executedJob.source,
-                                pathToBucket: destination,
-                                label: task.label,
-                                metaFile: newMetaFile,
-                                thumbnails: executedJob.result.thumbnails,
-                            });
-                            yield this.addOneMetaCopy(newMetaCopy, newMetaFile);
-                            yield utility_1.default.twiddleThumbs(5); //wait 5 milliseconds to make sure the timestamp is incremented
-                            //executedJob.result.metaCopies.push(newMetaCopy);
-                        }
+                        yield addMetaCopy(executedJob, task, newMetaFile);
                     }
                 }
                 yield (0, DB_1.default)().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
