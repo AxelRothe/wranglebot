@@ -26,8 +26,8 @@ exports.default = {
             throw new Error("Overwrite Options are required");
         const lib = bot.query.library.one(libraryId).fetch();
         const result = yield lib.query.folders.put({
-            pathToFolder: pathToFolder,
-            overwriteOptions: overwrite,
+            path: pathToFolder,
+            options: overwrite,
         });
         return new RouteResult_1.default(200, {
             status: "success",
