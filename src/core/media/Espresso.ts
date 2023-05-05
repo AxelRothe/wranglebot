@@ -98,101 +98,111 @@ export default class Espresso {
   ): Promise<{ metaData: Object; hash: string; bytesPerSecond: number; bytesRead: number; size: number }> {
     return new Promise((resolve, reject) => {
       //set options for HighWaterMarks and chunk size for MediaInfo
-      const options = { highWaterMark: Math.pow(1024, 2) * 10 };
+      const options = { highWaterMark: Math.pow(1024, 2) * 5 };
       //init streamSpeed Instance with a second interval
       const streamSpeed = new StreamSpeed({ timeUnit: 1 });
 
       let speedInBytes = 0; //current speed in bytes per second
       let totalBytesRead = 0; //total bytes read so far
 
-      this.#createMediaInfoInstance().then((mediaInfo: any) => {
-        //get size of file
-        const readStream = fs.createReadStream(this.pathToFile, options);
-        let writeStreams: any = [];
+      this.#createMediaInfoInstance()
+        .then((mediaInfo: any) => {
+          //get size of file
+          const readStream = fs.createReadStream(this.pathToFile, options);
+          let writeStreams: any = [];
 
-        if (pathToTargets.length > 0) {
-          for (let i = 0; i < pathToTargets.length; i++) {
-            writeStreams.push(fs.createWriteStream(pathToTargets[i], options));
-          }
-        }
-
-        //get size of file
-        const stats = fs.statSync(this.pathToFile);
-        const fileSizeInBytes = stats.size;
-        let startTime = 0;
-        let lastTime = 0;
-        let tick = 0;
-
-        //start parsing the file with mediainfo
-        mediaInfo.openBufferInit(fileSizeInBytes, 0);
-
-        //start streamspeed
-        streamSpeed.add(readStream);
-
-        //listen to streamspeed
-        streamSpeed.on("speed", (speed) => {
-          speedInBytes = speed * 1024;
-        });
-
-        //error handle
-        readStream.on("error", (err) => {
-          reject(new Error("Failed"));
-        });
-
-        readStream.on("open", () => {
-          startTime = lastTime = Date.now();
-        });
-
-        //on each chunk
-        readStream.on("data", (chunk) => {
-          if (cancelToken !== null && cancelToken.cancel) {
-            readStream.close();
-            reject(new Error("Cancelled"));
-            return;
-          }
-
-          totalBytesRead += chunk.length;
-
-          mediaInfo.openBufferContinue(chunk, chunk.length);
-          this.hash.update(chunk);
-
-          tick++;
-          if (callback && tick % 10 === 0) {
-            callback({
-              bytesPerSecond: speedInBytes,
-              bytesRead: totalBytesRead,
-              size: fileSizeInBytes,
-            });
-          }
-        });
-
-        //on end of stream
-        readStream.on("end", () => {
-          mediaInfo.openBufferFinalize();
-          const metaData = mediaInfo.inform();
-          mediaInfo.close();
-
-          let digest = this.hash.digest();
-          const decoder = new StringDecoder("base64");
-
-          resolve({
-            metaData: JSON.parse(metaData),
-            hash: decoder.write(digest),
-            bytesPerSecond: speedInBytes,
-            bytesRead: totalBytesRead,
-            size: fileSizeInBytes,
-          });
-        });
-
-        if (pathToTargets.length > 0) {
-          for (let i = 0; i < writeStreams.length; i++) {
-            if (!fs.existsSync(path.dirname(pathToTargets[i]))) {
-              fs.mkdirSync(path.dirname(pathToTargets[i]), { recursive: true });
+          if (pathToTargets.length > 0) {
+            for (let i = 0; i < pathToTargets.length; i++) {
+              const ws = fs.createWriteStream(pathToTargets[i], options);
+              ws.on("error", (err) => {
+                reject(new Error("Write Process Failed"));
+              });
+              writeStreams.push(ws);
             }
-            readStream.pipe(writeStreams[i]);
           }
-        }
-      });
+
+          //get size of file
+          const stats = fs.statSync(this.pathToFile);
+          const fileSizeInBytes = stats.size;
+          let startTime = 0;
+          let lastTime = 0;
+
+          //start parsing the file with mediainfo
+          mediaInfo.openBufferInit(fileSizeInBytes, 0);
+
+          //start streamspeed
+          streamSpeed.add(readStream);
+
+          //listen to streamspeed
+          streamSpeed.on("speed", (speed) => {
+            speedInBytes = speed * 1024;
+          });
+
+          //error handle
+          readStream.on("error", (err) => {
+            reject(new Error("Read Process Failed"));
+          });
+
+          readStream.on("open", () => {
+            startTime = lastTime = Date.now();
+          });
+
+          //on each chunk
+          readStream.on("data", (chunk) => {
+            if (cancelToken !== null && cancelToken.cancel) {
+              readStream.close();
+              reject(new Error("Cancelled"));
+              return;
+            }
+
+            totalBytesRead += chunk.length;
+
+            mediaInfo.openBufferContinue(chunk, chunk.length);
+            this.hash.update(chunk);
+
+            setTimeout(() => {
+              callback({
+                bytesPerSecond: speedInBytes,
+                bytesRead: totalBytesRead,
+                size: fileSizeInBytes,
+              });
+            }, 0);
+          });
+
+          //on end of stream
+          readStream.on("end", () => {
+            try {
+              mediaInfo.openBufferFinalize();
+              const metaData = mediaInfo.inform();
+              mediaInfo.close();
+
+              let digest = this.hash.digest();
+              const decoder = new StringDecoder("base64");
+
+              resolve({
+                metaData: JSON.parse(metaData),
+                hash: decoder.write(digest),
+                bytesPerSecond: speedInBytes,
+                bytesRead: totalBytesRead,
+                size: fileSizeInBytes,
+              });
+            } catch (e) {
+              reject(e);
+            }
+          });
+
+          if (pathToTargets.length > 0) {
+            for (let i = 0; i < writeStreams.length; i++) {
+              if (!fs.existsSync(path.dirname(pathToTargets[i]))) {
+                fs.mkdirSync(path.dirname(pathToTargets[i]), { recursive: true });
+              }
+              readStream.pipe(writeStreams[i]);
+            }
+          }
+        })
+        .catch((e) => {
+          reject(e);
+        });
     });
   }
 }

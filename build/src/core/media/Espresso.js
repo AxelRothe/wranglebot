@@ -84,18 +84,23 @@ class Espresso {
     drink(pathToTargets = [], cancelToken, callback) {
         return new Promise((resolve, reject) => {
             //set options for HighWaterMarks and chunk size for MediaInfo
-            const options = { highWaterMark: Math.pow(1024, 2) * 10 };
+            const options = { highWaterMark: Math.pow(1024, 2) * 5 };
             //init streamSpeed Instance with a second interval
             const streamSpeed = new streamspeed_1.default({ timeUnit: 1 });
             let speedInBytes = 0; //current speed in bytes per second
             let totalBytesRead = 0; //total bytes read so far
-            __classPrivateFieldGet(this, _Espresso_instances, "m", _Espresso_createMediaInfoInstance).call(this).then((mediaInfo) => {
+            __classPrivateFieldGet(this, _Espresso_instances, "m", _Espresso_createMediaInfoInstance).call(this)
+                .then((mediaInfo) => {
                 //get size of file
                 const readStream = fs_1.default.createReadStream(this.pathToFile, options);
                 let writeStreams = [];
                 if (pathToTargets.length > 0) {
                     for (let i = 0; i < pathToTargets.length; i++) {
-                        writeStreams.push(fs_1.default.createWriteStream(pathToTargets[i], options));
+                        const ws = fs_1.default.createWriteStream(pathToTargets[i], options);
+                        ws.on("error", (err) => {
+                            reject(new Error("Write Process Failed"));
+                        });
+                        writeStreams.push(ws);
                     }
                 }
                 //get size of file
@@ -103,7 +108,6 @@ class Espresso {
                 const fileSizeInBytes = stats.size;
                 let startTime = 0;
                 let lastTime = 0;
-                let tick = 0;
                 //start parsing the file with mediainfo
                 mediaInfo.openBufferInit(fileSizeInBytes, 0);
                 //start streamspeed
@@ -114,7 +118,7 @@ class Espresso {
                 });
                 //error handle
                 readStream.on("error", (err) => {
-                    reject(new Error("Failed"));
+                    reject(new Error("Read Process Failed"));
                 });
                 readStream.on("open", () => {
                     startTime = lastTime = Date.now();
@@ -129,29 +133,33 @@ class Espresso {
                     totalBytesRead += chunk.length;
                     mediaInfo.openBufferContinue(chunk, chunk.length);
                     this.hash.update(chunk);
-                    tick++;
-                    if (callback && tick % 10 === 0) {
+                    setTimeout(() => {
                         callback({
                             bytesPerSecond: speedInBytes,
                             bytesRead: totalBytesRead,
                             size: fileSizeInBytes,
                         });
-                    }
+                    }, 0);
                 });
                 //on end of stream
                 readStream.on("end", () => {
-                    mediaInfo.openBufferFinalize();
-                    const metaData = mediaInfo.inform();
-                    mediaInfo.close();
-                    let digest = this.hash.digest();
-                    const decoder = new string_decoder_1.StringDecoder("base64");
-                    resolve({
-                        metaData: JSON.parse(metaData),
-                        hash: decoder.write(digest),
-                        bytesPerSecond: speedInBytes,
-                        bytesRead: totalBytesRead,
-                        size: fileSizeInBytes,
-                    });
+                    try {
+                        mediaInfo.openBufferFinalize();
+                        const metaData = mediaInfo.inform();
+                        mediaInfo.close();
+                        let digest = this.hash.digest();
+                        const decoder = new string_decoder_1.StringDecoder("base64");
+                        resolve({
+                            metaData: JSON.parse(metaData),
+                            hash: decoder.write(digest),
+                            bytesPerSecond: speedInBytes,
+                            bytesRead: totalBytesRead,
+                            size: fileSizeInBytes,
+                        });
+                    }
+                    catch (e) {
+                        reject(e);
+                    }
                 });
                 if (pathToTargets.length > 0) {
                     for (let i = 0; i < writeStreams.length; i++) {
@@ -161,6 +169,9 @@ class Espresso {
                         readStream.pipe(writeStreams[i]);
                     }
                 }
+            })
+                .catch((e) => {
+                reject(e);
             });
         });
     }
