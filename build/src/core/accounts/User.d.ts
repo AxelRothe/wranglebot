@@ -7,13 +7,15 @@ export default class User {
     email: any;
     roles: string[];
     libraries: never[];
+    config: any;
     query: any;
     token: string;
     constructor(options: any);
     get fullName(): string;
     update(options: any): void;
-    toJSON({ db }: {
-        db?: boolean | undefined;
+    setConfig(options: any): void;
+    toJSON(options?: {
+        db: boolean;
     }): {
         id: any;
         username: any;
@@ -23,6 +25,7 @@ export default class User {
         email: any;
         roles: string[];
         libraries: never[];
+        config: any;
     };
 }
 //# sourceMappingURL=User.d.ts.map

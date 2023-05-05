@@ -24,6 +24,7 @@ class AccountManager {
             libraries: user.libraries,
             firstName: user.firstName,
             lastName: user.lastName,
+            config: user.config,
             create: false,
           });
         }
@@ -50,6 +51,7 @@ class AccountManager {
         libraries: options.libraries,
         firstName: options.firstName,
         lastName: options.lastName,
+        config: options.config,
       });
       DB().updateOne("users", { id: user.id }, user.toJSON({ db: true }));
       this.users.add(user);
@@ -63,6 +65,7 @@ class AccountManager {
           libraries: options.libraries,
           firstName: options.firstName,
           lastName: options.lastName,
+          config: options.config,
         });
       } else {
         user = new User({
@@ -74,11 +77,17 @@ class AccountManager {
           libraries: options.libraries,
           firstName: options.firstName,
           lastName: options.lastName,
+          config: options.config,
         });
         this.users.add(user);
       }
     }
     return user;
+  }
+
+  updateUserConfig(user: User, config: any) {
+    user.setConfig(config);
+    DB().updateOne("users", { id: user.id }, user.toJSON({ db: true }));
   }
 
   removeOneUser(user) {
@@ -230,6 +239,7 @@ class AccountManager {
     let libraries = options.libraries;
     let firstName = options.firstName;
     let lastName = options.lastName;
+    let config = options.config;
 
     const updatedOptions = {
       email,
@@ -238,6 +248,7 @@ class AccountManager {
       libraries,
       firstName,
       lastName,
+      config,
     };
 
     user.update(updatedOptions);

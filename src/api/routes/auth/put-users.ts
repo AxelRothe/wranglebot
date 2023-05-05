@@ -16,19 +16,15 @@ export default {
     }
 
     if (req.body.password) await wrangleBot.accountManager.changePassword(user, req.body.password);
-    if (req.body.firstName) {
-      await wrangleBot.accountManager.changeFirstName(user, req.body.firstName);
-    }
-    if (req.body.lastName) {
-      await wrangleBot.accountManager.changeLastName(user, req.body.lastName);
-    }
-    if (req.body.email) {
-      await wrangleBot.accountManager.changeEmail(user, req.body.email);
-    }
 
-    if (req.body.roles) {
-      wrangleBot.accountManager.setRoles(user, req.body.roles);
-    }
+    user.query.put({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      roles: req.body.roles,
+      libraries: req.body.libraries,
+      config: req.body.config,
+    });
 
     return new RouteResult(200, user.toJSON({ security: true }));
   },

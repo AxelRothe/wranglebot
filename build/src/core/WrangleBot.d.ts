@@ -53,6 +53,10 @@ declare class WrangleBot extends EventEmitter {
         salt: string;
         init(): Promise<void>;
         addOneUser(options: import("./accounts/createUserOptions").default): User;
+        /**
+         * index
+         */
+        updateUserConfig(user: User, config: any): void;
         removeOneUser(user: any): boolean;
         getAllUsers(filters?: {}): User[];
         getOneUser(username: any): User | undefined;

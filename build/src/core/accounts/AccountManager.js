@@ -36,6 +36,7 @@ class AccountManager {
                             libraries: user.libraries,
                             firstName: user.firstName,
                             lastName: user.lastName,
+                            config: user.config,
                             create: false,
                         });
                     }
@@ -61,6 +62,7 @@ class AccountManager {
                 libraries: options.libraries,
                 firstName: options.firstName,
                 lastName: options.lastName,
+                config: options.config,
             });
             (0, DB_1.default)().updateOne("users", { id: user.id }, user.toJSON({ db: true }));
             this.users.add(user);
@@ -75,6 +77,7 @@ class AccountManager {
                     libraries: options.libraries,
                     firstName: options.firstName,
                     lastName: options.lastName,
+                    config: options.config,
                 });
             }
             else {
@@ -87,11 +90,16 @@ class AccountManager {
                     libraries: options.libraries,
                     firstName: options.firstName,
                     lastName: options.lastName,
+                    config: options.config,
                 });
                 this.users.add(user);
             }
         }
         return user;
+    }
+    updateUserConfig(user, config) {
+        user.setConfig(config);
+        (0, DB_1.default)().updateOne("users", { id: user.id }, user.toJSON({ db: true }));
     }
     removeOneUser(user) {
         const removed = (0, DB_1.default)().removeOne("users", { id: user.id });
@@ -212,6 +220,7 @@ class AccountManager {
         let libraries = options.libraries;
         let firstName = options.firstName;
         let lastName = options.lastName;
+        let config = options.config;
         const updatedOptions = {
             email,
             roles,
@@ -219,6 +228,7 @@ class AccountManager {
             libraries,
             firstName,
             lastName,
+            config,
         };
         user.update(updatedOptions);
         return (0, DB_1.default)().updateOne("users", { id: user.id }, updatedOptions);

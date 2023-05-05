@@ -12,9 +12,7 @@ export default {
 
     const users = bot.query.users.many().fetch();
     const map = users.map((user) => {
-      return user.toJSON({
-        security: true,
-      });
+      return user.toJSON();
     });
     return new RouteResult(200, map);
   },

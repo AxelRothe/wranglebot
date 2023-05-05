@@ -10,6 +10,8 @@ export default class User {
   roles: string[] = []; // ["admin", "maintainer", "contributor", "curator"]
   libraries = []; //@deprecated
 
+  config: any = {};
+
   query: any;
   token: string = "";
 
@@ -25,6 +27,7 @@ export default class User {
     this.email = options.email;
     this.roles = options.roles || [];
     this.libraries = options.libraries || []; //@deprecated
+    this.config = options.config || {};
   }
 
   get fullName() {
@@ -32,25 +35,30 @@ export default class User {
   }
 
   update(options) {
-    this.username = options.username;
-    this.password = options.password;
-    this.firstName = options.firstName;
-    this.lastName = options.lastName;
-    this.email = options.email;
-    this.roles = options.roles;
-    this.libraries = options.libraries;
+    this.username = options.username || this.username;
+    this.firstName = options.firstName || this.firstName;
+    this.lastName = options.lastName || this.lastName;
+    this.email = options.email || this.email;
+    this.roles = options.roles || this.roles;
+    this.libraries = options.libraries || this.libraries; //@deprecated
+    this.config = options.config ? { ...this.config, ...options.config } : this.config;
   }
 
-  toJSON({ db = false }) {
+  setConfig(options) {
+    this.config = { ...this.config, ...options };
+  }
+
+  toJSON(options = { db: false }) {
     return {
       id: this.id,
       username: this.username,
       firstName: this.firstName,
       lastName: this.lastName,
-      password: db ? this.password : undefined,
+      password: options.db ? this.password : undefined,
       email: this.email,
       roles: this.roles,
-      libraries: this.libraries, //@deprecated
+      libraries: this.libraries, //@deprecated,
+      config: this.config,
     };
   }
 }

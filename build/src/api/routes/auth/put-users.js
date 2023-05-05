@@ -29,18 +29,14 @@ exports.default = {
         }
         if (req.body.password)
             yield wrangleBot.accountManager.changePassword(user, req.body.password);
-        if (req.body.firstName) {
-            yield wrangleBot.accountManager.changeFirstName(user, req.body.firstName);
-        }
-        if (req.body.lastName) {
-            yield wrangleBot.accountManager.changeLastName(user, req.body.lastName);
-        }
-        if (req.body.email) {
-            yield wrangleBot.accountManager.changeEmail(user, req.body.email);
-        }
-        if (req.body.roles) {
-            wrangleBot.accountManager.setRoles(user, req.body.roles);
-        }
+        user.query.put({
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            email: req.body.email,
+            roles: req.body.roles,
+            libraries: req.body.libraries,
+            config: req.body.config,
+        });
         return new RouteResult_1.default(200, user.toJSON({ security: true }));
     }),
 };

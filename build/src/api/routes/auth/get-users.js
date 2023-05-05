@@ -22,9 +22,7 @@ exports.default = {
         logbotjs_1.default.log(200, `GET /users/`);
         const users = bot.query.users.many().fetch();
         const map = users.map((user) => {
-            return user.toJSON({
-                security: true,
-            });
+            return user.toJSON();
         });
         return new RouteResult_1.default(200, map);
     }),

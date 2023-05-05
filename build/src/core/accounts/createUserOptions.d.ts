@@ -8,5 +8,6 @@ export default interface CreateUserOptions {
     lastName: string;
     roles: string[];
     libraries: string[];
+    config: any;
 }
 //# sourceMappingURL=createUserOptions.d.ts.map
