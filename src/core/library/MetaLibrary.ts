@@ -1135,14 +1135,18 @@ export default class MetaLibrary {
     }
 
     if (options.format === "pdf") {
-      return await ExportBot.exportPDF(metaFiles, {
-        paths: [options.pathToExport || this.pathToLibrary + "/_reports"],
-        fileName: options.reportName,
-        logo: options.logoPath,
-        uniqueNames: options.uniqueNames,
-        credits: options.credits,
-        template: options.template,
-      });
+      try {
+        return await ExportBot.exportPDF(metaFiles, {
+          paths: [options.pathToExport || this.pathToLibrary + "/_reports"],
+          fileName: options.reportName,
+          logo: options.logoPath,
+          uniqueNames: options.uniqueNames,
+          credits: options.credits,
+          template: options.template,
+        });
+      } catch (e) {
+        return false;
+      }
     }
     return false;
   }

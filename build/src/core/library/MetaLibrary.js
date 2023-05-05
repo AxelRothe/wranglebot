@@ -974,14 +974,19 @@ class MetaLibrary {
                 throw new Error("HTML reports are not supported yet.");
             }
             if (options.format === "pdf") {
-                return yield export_1.default.exportPDF(metaFiles, {
-                    paths: [options.pathToExport || this.pathToLibrary + "/_reports"],
-                    fileName: options.reportName,
-                    logo: options.logoPath,
-                    uniqueNames: options.uniqueNames,
-                    credits: options.credits,
-                    template: options.template,
-                });
+                try {
+                    return yield export_1.default.exportPDF(metaFiles, {
+                        paths: [options.pathToExport || this.pathToLibrary + "/_reports"],
+                        fileName: options.reportName,
+                        logo: options.logoPath,
+                        uniqueNames: options.uniqueNames,
+                        credits: options.credits,
+                        template: options.template,
+                    });
+                }
+                catch (e) {
+                    return false;
+                }
             }
             return false;
         });
