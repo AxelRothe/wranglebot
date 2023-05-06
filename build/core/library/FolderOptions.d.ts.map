@@ -1,0 +1,1 @@
+{"version":3,"file":"FolderOptions.d.ts","sourceRoot":"","sources":["../../../src/core/library/FolderOptions.ts"],"names":[],"mappings":"AAAA,OAAO,OAAO,MAAM,WAAW,CAAC;AAEhC,MAAM,CAAC,OAAO,WAAW,aAAa;IACpC,IAAI,EAAE,MAAM,CAAC;IACb,OAAO,EAAE;QACP,IAAI,CAAC,EAAE,MAAM,CAAC;QACd,KAAK,CAAC,EAAE,OAAO,CAAC;QAChB,OAAO,CAAC,EAAE,OAAO,EAAE,CAAC;KACrB,CAAC;CACH"}
