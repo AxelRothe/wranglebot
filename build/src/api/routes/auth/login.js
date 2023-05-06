@@ -15,8 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const logbotjs_1 = __importDefault(require("logbotjs"));
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
-    method: 'post',
-    url: '/login',
+    method: "post",
+    url: "/login",
     public: true,
     handler: (req, res, wranglebot, socketServer) => __awaiter(void 0, void 0, void 0, function* () {
         const { username, password, token } = req.body;
@@ -32,7 +32,8 @@ exports.default = {
             firstName: client.firstName,
             lastName: client.lastName,
             libraries: client.libraries,
+            config: client.config,
         });
-    })
+    }),
 };
 //# sourceMappingURL=login.js.map

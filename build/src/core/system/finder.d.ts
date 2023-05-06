@@ -8,7 +8,6 @@ declare class Finder {
         darwin: string;
         linux: string;
     };
-    mediaInfo: any;
     platform: "linux" | "aix" | "android" | "darwin" | "freebsd" | "haiku" | "openbsd" | "sunos" | "win32" | "cygwin" | "netbsd";
     pathToVolumes: string;
     isMac(): boolean;

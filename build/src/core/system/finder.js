@@ -16,20 +16,15 @@ const ejectMedia = require("eject-media");
 const checkDiskSpace = require("check-disk-space");
 const writeFileAtomicSync = require("write-file-atomic").sync;
 const LogBot = require("logbotjs");
-const MediaInfo = require("mediainfo.js");
 const Cryptr = require("cryptr");
 class Finder {
     constructor() {
-        this.cryptr = new Cryptr("b2909139-4cdc-46d6-985c-3726ede95335");
+        this.cryptr = new Cryptr("b2909139-4cdc-46d6-985c-3726ede95335"); //this is just for obfuscation
         this.supportedPlatforms = {
             win32: "Windows",
             darwin: "MacOS",
             linux: "linux",
         };
-        // usbDetect.startMonitoring();
-        MediaInfo({ chunkSize: 1024 * 1024 * 10, coverData: false, format: "object" }, (mediaInfo) => {
-            this.mediaInfo = mediaInfo;
-        });
         this.platform = os.platform();
         if (this.supportedPlatforms[this.platform]) {
             LogBot.log(200, "Detected supported Platform: " + this.supportedPlatforms[this.platform]);
@@ -90,7 +85,7 @@ class Finder {
         return new Promise((resolve) => {
             si.fsSize().then((r) => {
                 let blockDevices = r.filter((element) => {
-                    return element.mount.toLowerCase().startsWith("/volumes/");
+                    return element.mount.toLowerCase().startsWith(this.pathToVolumes.toLowerCase());
                 });
                 blockDevices = blockDevices.map((d) => {
                     d = Object.assign(d, {
@@ -472,7 +467,7 @@ class Finder {
      * @param {String} pathToFolder Absolute Path to Folder
      * @param options
      */
-    getContentOfFolder(pathToFolder, options = { showHidden: false, filters: 'both', recursive: false, depth: 10 }) {
+    getContentOfFolder(pathToFolder, options = { showHidden: false, filters: "both", recursive: false, depth: 10 }) {
         try {
             let list = fs.readdirSync(pathToFolder);
             if (!options.showHidden) {
