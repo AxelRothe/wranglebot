@@ -15,32 +15,38 @@ export default {
    * Note: This only launches an HTTP Server, if you require HTTPS you need to add an HTTPS configuration like NGINX in front of this app.
    *
    * @param {WrangleBot} bot
-   * @param {number} port the port number
-   * @param key
+   * @param {{port:number, secret:string, mailConfig?: Object}} options
    * @return {Promise<{httpServer,socketServer,transporter}>}
    */
-  init(bot, port = 3200, key) {
+  init(bot, options) {
     return new Promise((resolve, reject) => {
       const app = express();
 
-      const transporter = nodemailer.createTransport({
-        host: "mx2fd2.netcup.net",
-        port: 25,
-        auth: {
-          user: "noreply@vanrothe.com",
-          pass: "4Q32-ItAg-L2x1-FUA7",
-        },
-      });
+      let transporter;
 
-      if (port) {
+      if (!options.mailConfig) {
+        transporter = {
+          sendMail: () => {
+            return new Promise((resolve) => {
+              resolve(true);
+            });
+          },
+        };
+        LogBot.log(404, "No mail configuration found. Mails will not be sent.");
+      } else {
+        transporter = nodemailer.createTransport(options.mailConfig);
+        LogBot.log(200, "Mail configuration found. Mails will be sent from " + options.mailConfig.auth.user);
+      }
+
+      if (options.port) {
         app.use(cors({ origin: "*", methods: "GET,HEAD,PUT,PATCH,POST,DELETE,NOTIFY", allowedHeaders: ["Content-Type", "Authorization"] }));
         app.use(express.json({ limit: "100mb" }));
         app.use(express.urlencoded({ limit: "100mb", extended: true }));
 
         const httpServer = http.createServer(app);
-        const socketServer = SocketServer(httpServer, app, bot, transporter, key).then((socketServer) => {
-          httpServer.listen(port, () => {
-            LogBot.log(200, `WrangleBot listening on port ${port}`);
+        const socketServer = SocketServer(httpServer, app, bot, transporter, options.secret).then((socketServer) => {
+          httpServer.listen(options.port, () => {
+            LogBot.log(200, `WrangleBot listening on port ${options.port}`);
             resolve({
               httpServer,
               transporter,

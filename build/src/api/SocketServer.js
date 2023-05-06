@@ -16,7 +16,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _SocketServer_instances, _SocketServer_secret, _SocketServer_signToken, _SocketServer_jwtValid;
+var _SocketServer_instances, _SocketServer_signToken, _SocketServer_jwtValid;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Client = exports.Betweeny = exports.SocketServer = void 0;
 const Client_1 = __importDefault(require("./Client"));
@@ -34,14 +34,13 @@ const routes_1 = __importDefault(require("./routes"));
 const RouteFactory_1 = __importDefault(require("./RouteFactory"));
 /* CLASS */
 class SocketServer {
-    constructor(http, app, bot, mail, key) {
+    constructor(http, app, bot, mail, secret) {
         _SocketServer_instances.add(this);
         // this is temp until we have a better way to manage sockets
         this.users = [];
         this.clients = [];
         this.hooks = [];
         this.sockets = new Set();
-        _SocketServer_secret.set(this, system_1.config.get("jwt-secret", true));
         this.cache = {};
         /**
          * Checks if the token is valid
@@ -78,7 +77,7 @@ class SocketServer {
         this.bot = bot;
         this.mail = mail;
         this.app = app;
-        this.key = key;
+        this.secret = secret;
     }
     addToCache(key, value) {
         this.cache[key] = value;
@@ -172,10 +171,15 @@ class SocketServer {
         const plugins = system_1.finder.getContentOfFolder(pathToPlugins);
         for (let plugin of plugins) {
             const pluginFolders = system_1.finder.getContentOfFolder(pathToPlugins + plugin);
+            if (pluginFolders.length === 0) {
+                continue;
+            }
+            logbotjs_1.default.log(100, "Loading third party endpoints of " + plugin);
             for (let pluginFolder of pluginFolders) {
                 if (pluginFolder === "endpoints") {
                     const pluginRoutes = system_1.finder.getContentOfFolder(pathToPlugins + plugin + "/endpoints");
                     for (let r of pluginRoutes) {
+                        logbotjs_1.default.log(100, "Loading third party endpoint " + r + " of " + plugin);
                         routeFactory.build(require(pathToPlugins + plugin + "/endpoints/" + r));
                     }
                 }
@@ -427,17 +431,13 @@ class SocketServer {
     }
 }
 exports.SocketServer = SocketServer;
-_SocketServer_secret = new WeakMap(), _SocketServer_instances = new WeakSet(), _SocketServer_signToken = function _SocketServer_signToken(user, expiresIn = "30 days") {
+_SocketServer_instances = new WeakSet(), _SocketServer_signToken = function _SocketServer_signToken(user, expiresIn = "30 days") {
     return jsonwebtoken_1.default.sign({
         user: user.username,
-        key: this.key,
-    }, __classPrivateFieldGet(this, _SocketServer_secret, "f"), { expiresIn });
+    }, this.secret, { expiresIn });
 }, _SocketServer_jwtValid = function _SocketServer_jwtValid(token) {
     try {
-        const decoded = jsonwebtoken_1.default.verify(token, __classPrivateFieldGet(this, _SocketServer_secret, "f"));
-        const key = decoded.key;
-        if (key !== this.key)
-            throw new Error("Invalid key");
+        const decoded = jsonwebtoken_1.default.verify(token, this.secret);
         const user = this.bot.accountManager.getOneUser(decoded.user);
         if (user)
             return user;

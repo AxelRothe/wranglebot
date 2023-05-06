@@ -150,7 +150,8 @@ class WrangleBot extends EventEmitter {
                     //start Socket and REST API
                     yield this.startServer({
                         port: options.client.port || this.config.get("port"),
-                        key: this.config.get("jwt-secret"),
+                        secret: options.client.secret || this.config.get("jwt-secret"),
+                        mailConfig: options.mailConfig || this.config.get("mail"),
                     });
                     yield this.driveBot.updateDrives();
                     this.driveBot.watch(); //start drive watching
@@ -234,7 +235,7 @@ class WrangleBot extends EventEmitter {
     }
     startServer(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.servers = yield api_1.default.init(this, options.port, options.key);
+            this.servers = yield api_1.default.init(this, options);
         });
     }
     /**
@@ -272,8 +273,10 @@ class WrangleBot extends EventEmitter {
                 //and load the routes from the plugins
                 const pathToPlugins = finder.getPathToUserData("wranglebot/custom/");
                 const thirdPartyPluginsRAW = finder.getContentOfFolder(pathToPlugins);
+                logbotjs_1.default.log(100, "Found " + thirdPartyPluginsRAW.length + " third party plugins.");
                 if (thirdPartyPluginsRAW.length > 0) {
                     for (let folderName of thirdPartyPluginsRAW) {
+                        logbotjs_1.default.log(100, "Loading plugin " + folderName + " ... ");
                         const pathToPlugin = finder.getPathToUserData("wranglebot/custom/" + folderName);
                         const folderContents = finder.getContentOfFolder(pathToPlugin);
                         for (let pluginFolder of folderContents) {
@@ -281,6 +284,7 @@ class WrangleBot extends EventEmitter {
                                 const pathToPluginHooks = finder.getPathToUserData("wranglebot/custom/" + folderName + "/" + pluginFolder);
                                 const hookFolderContent = finder.getContentOfFolder(pathToPluginHooks);
                                 for (let scriptFileName of hookFolderContent) {
+                                    logbotjs_1.default.log(100, "Loading hook " + scriptFileName + " ... ");
                                     const script = yield (_a = pathToPluginHooks + "/" + scriptFileName, Promise.resolve().then(() => __importStar(require(_a))));
                                     if (!script.name || script.name === "") {
                                         logbotjs_1.default.log(404, "Plugin " + folderName + " does not have a valid name. Skipping ... ");

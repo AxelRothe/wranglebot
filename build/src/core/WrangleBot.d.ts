@@ -14,26 +14,12 @@ import MetaLibraryUpdateOptions from "./library/MetaLibraryUpdateOptions";
 import FolderOptions from "./library/FolderOptions";
 import Transaction from "./database/Transaction";
 import CancelToken from "./library/CancelToken";
+import WrangleBotOptions from "./WrangleBotOptions";
 declare const EventEmitter: any;
 interface ReturnObject {
     status: 200 | 400 | 500 | 404;
     message?: string;
     result?: any;
-}
-interface WrangleBotOptions {
-    client: {
-        database: {
-            cloud?: {
-                token: string;
-                databaseURL: string;
-                machineLearningURL: string;
-            };
-            local?: {
-                key: string;
-            };
-        };
-        port: number;
-    };
 }
 /**
  * WrangleBot Interface
@@ -53,9 +39,6 @@ declare class WrangleBot extends EventEmitter {
         salt: string;
         init(): Promise<void>;
         addOneUser(options: import("./accounts/createUserOptions").default): User;
-        /**
-         * index
-         */
         updateUserConfig(user: User, config: any): void;
         removeOneUser(user: any): boolean;
         getAllUsers(filters?: {}): User[];

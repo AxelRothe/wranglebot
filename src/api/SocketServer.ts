@@ -32,13 +32,14 @@ class SocketServer {
   clients: Client[] = [];
   hooks: SocketHook[] = [];
   sockets = new Set();
-  #secret = config.get("jwt-secret", true);
+
+  private readonly secret: string;
   bot: WrangleBot;
   mail;
-  key: string;
+
   private cache = {};
 
-  constructor(http, app, bot, mail, key: string) {
+  constructor(http, app, bot, mail, secret: string) {
     // @ts-ignore
     this.server = new Server(http, {
       cors: {
@@ -50,7 +51,7 @@ class SocketServer {
     this.bot = bot;
     this.mail = mail;
     this.app = app;
-    this.key = key;
+    this.secret = secret;
   }
 
   addToCache(key, value) {
@@ -161,10 +162,18 @@ class SocketServer {
 
     for (let plugin of plugins) {
       const pluginFolders = finder.getContentOfFolder(pathToPlugins + plugin);
+
+      if (pluginFolders.length === 0) {
+        continue;
+      }
+
+      LogBot.log(100, "Loading third party endpoints of " + plugin);
+
       for (let pluginFolder of pluginFolders) {
         if (pluginFolder === "endpoints") {
           const pluginRoutes = finder.getContentOfFolder(pathToPlugins + plugin + "/endpoints");
           for (let r of pluginRoutes) {
+            LogBot.log(100, "Loading third party endpoint " + r + " of " + plugin);
             routeFactory.build(require(pathToPlugins + plugin + "/endpoints/" + r));
           }
         }
@@ -214,9 +223,8 @@ class SocketServer {
     return jwt.sign(
       {
         user: user.username,
-        key: this.key,
       },
-      this.#secret,
+      this.secret,
       { expiresIn }
     );
   }
@@ -278,9 +286,7 @@ class SocketServer {
    */
   #jwtValid(token): User | null {
     try {
-      const decoded = jwt.verify(token, this.#secret);
-      const key = decoded.key;
-      if (key !== this.key) throw new Error("Invalid key");
+      const decoded = jwt.verify(token, this.secret);
       const user = this.bot.accountManager.getOneUser(decoded.user);
       if (user) return user;
     } catch (e) {
@@ -345,7 +351,12 @@ class SocketServer {
   }
 
   async sendMail(emailTemplate) {
-    return await this.mail.sendMail(this.createEmailTemplate(emailTemplate).compile());
+    try {
+      return await this.mail.sendMail(this.createEmailTemplate(emailTemplate).compile());
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
   }
 
   hook(event, callback) {

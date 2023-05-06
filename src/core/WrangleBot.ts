@@ -26,6 +26,7 @@ import MetaLibraryUpdateOptions from "./library/MetaLibraryUpdateOptions";
 import FolderOptions from "./library/FolderOptions";
 import Transaction from "./database/Transaction";
 import CancelToken from "./library/CancelToken";
+import WrangleBotOptions from "./WrangleBotOptions";
 const EventEmitter = require("events");
 const { finder } = require("./system");
 const { SearchLite } = require("searchlite");
@@ -42,22 +43,6 @@ interface ReturnObject {
   status: 200 | 400 | 500 | 404;
   message?: string;
   result?: any;
-}
-
-interface WrangleBotOptions {
-  client: {
-    database: {
-      cloud?: {
-        token: string;
-        databaseURL: string;
-        machineLearningURL: string;
-      };
-      local?: {
-        key: string;
-      };
-    };
-    port: number;
-  };
 }
 
 /**
@@ -182,7 +167,8 @@ class WrangleBot extends EventEmitter {
         //start Socket and REST API
         await this.startServer({
           port: options.client.port || this.config.get("port"),
-          key: this.config.get("jwt-secret"),
+          secret: options.client.secret || this.config.get("jwt-secret"),
+          mailConfig: options.mailConfig || this.config.get("mail"),
         });
 
         await this.driveBot.updateDrives();
@@ -279,8 +265,8 @@ class WrangleBot extends EventEmitter {
     return WrangleBot.CLOSED;
   }
 
-  private async startServer(options: { port: number; key: string }) {
-    this.servers = await api.init(this, options.port, options.key);
+  private async startServer(options: { port: number; mailConfig: Object; secret: string }) {
+    this.servers = await api.init(this, options);
   }
 
   /**
@@ -317,8 +303,10 @@ class WrangleBot extends EventEmitter {
       //and load the routes from the plugins
       const pathToPlugins = finder.getPathToUserData("wranglebot/custom/");
       const thirdPartyPluginsRAW = finder.getContentOfFolder(pathToPlugins);
+      LogBot.log(100, "Found " + thirdPartyPluginsRAW.length + " third party plugins.");
       if (thirdPartyPluginsRAW.length > 0) {
         for (let folderName of thirdPartyPluginsRAW) {
+          LogBot.log(100, "Loading plugin " + folderName + " ... ");
           const pathToPlugin = finder.getPathToUserData("wranglebot/custom/" + folderName);
           const folderContents = finder.getContentOfFolder(pathToPlugin);
 
@@ -328,6 +316,7 @@ class WrangleBot extends EventEmitter {
               const hookFolderContent = finder.getContentOfFolder(pathToPluginHooks);
 
               for (let scriptFileName of hookFolderContent) {
+                LogBot.log(100, "Loading hook " + scriptFileName + " ... ");
                 const script = await import(pathToPluginHooks + "/" + scriptFileName);
 
                 if (!script.name || script.name === "") {

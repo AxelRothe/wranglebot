@@ -7,11 +7,10 @@ declare const _default: {
      * Note: This only launches an HTTP Server, if you require HTTPS you need to add an HTTPS configuration like NGINX in front of this app.
      *
      * @param {WrangleBot} bot
-     * @param {number} port the port number
-     * @param key
+     * @param {{port:number, secret:string, mailConfig?: Object}} options
      * @return {Promise<{httpServer,socketServer,transporter}>}
      */
-    init(bot: any, port: number | undefined, key: any): Promise<unknown>;
+    init(bot: any, options: any): Promise<unknown>;
 };
 export default _default;
 //# sourceMappingURL=index.d.ts.map

@@ -17,11 +17,11 @@ declare class SocketServer {
     clients: Client[];
     hooks: SocketHook[];
     sockets: Set<unknown>;
+    private readonly secret;
     bot: WrangleBot;
     mail: any;
-    key: string;
     private cache;
-    constructor(http: any, app: any, bot: any, mail: any, key: string);
+    constructor(http: any, app: any, bot: any, mail: any, secret: string);
     addToCache(key: any, value: any): any;
     getFromCache(key: any): any;
     removeFromCache(key: any): void;
