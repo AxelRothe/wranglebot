@@ -1,5 +1,5 @@
 const LogBot = require("logbotjs");
-const wb = require("../build/src/");
+const wb = require("../build/");
 LogBot.verbose = true;
 const { config } = require("dotenv");
 config();
@@ -20,19 +20,6 @@ if (process.env.DATABASE_TOKEN) {
     mlserver: process.env.CLOUD_ML_URL,
   };
 }
-
-// wb.open({
-//   client: {
-//     database: {
-//       cloud: {
-//         token: conf.token,
-//         databaseURL: conf.database,
-//         machineLearningURL: conf.mlserver,
-//       },
-//     },
-//     port: 3200,
-//   },
-// });
 
 wb.open({
   client: {

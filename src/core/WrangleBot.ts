@@ -223,7 +223,6 @@ class WrangleBot extends EventEmitter {
 
         this.emit("notification", {
           title: "WrangleBot is ready",
-          message: "WrangleBot is ready to rumble.",
         });
 
         this.emit("ready", this);

@@ -8,8 +8,8 @@ const Cryptr = require("cryptr");
 const writeFileAtomicSync = require("write-file-atomic").sync;
 
 class Config {
-  appName = require("../../../package.json").appName;
-  versionNumber = "7";
+  appName = "wranglebot";
+  versionNumber = "8";
   cryptr = new Cryptr("c9b7fd52-e1c7-4c23-9e7f-75639b91f276");
 
   constructor() {
@@ -54,9 +54,9 @@ class Config {
       if (!this.config["wb-version"] || this.config["wb-version"] !== this.versionNumber) {
         LogBot.log(409, "Upgrading config from " + this.config.version + " to version " + this.versionNumber);
         this.set("wb-version", this.versionNumber);
-        this.set("appName", this.appName);
-        this.set("auth_server", "https://wranglebot.io");
-        this.set("ml_server", "https://ai.wranglebot.io");
+        this.set("app-name", this.appName);
+        this.set("auth-server", "https://wranglebot.io");
+        this.set("ml-server", "https://ai.wranglebot.io");
         this.set("database", "https://db2.wranglebot.io");
         this.set("luts", pathToLUTs);
         this.set("jwt-secret", this.cryptr.encrypt(ezyrnd.randomString(128)));
@@ -65,10 +65,10 @@ class Config {
       LogBot.log(100, "Creating config version " + this.versionNumber);
       this.config = {
         "jwt-secret": this.cryptr.encrypt(ezyrnd.randomString(128)),
-        appName: this.appName,
+        "app-name": this.appName,
         "wb-version": this.versionNumber,
-        auth_server: "https://wranglebot.io",
-        ml_server: "https://ai.wranglebot.io",
+        "auth-server": "https://wranglebot.io",
+        "ml-server": "https://ai.wranglebot.io",
         database: "https://db2.wranglebot.io",
         luts: pathToLUTs,
       };

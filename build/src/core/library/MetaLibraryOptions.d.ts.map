@@ -1,1 +1,0 @@
-{"version":3,"file":"MetaLibraryOptions.d.ts","sourceRoot":"","sources":["../../../../src/core/library/MetaLibraryOptions.ts"],"names":[],"mappings":"AAAA,OAAO,OAAO,MAAM,WAAW,CAAC;AAEhC,MAAM,CAAC,OAAO,WAAW,kBAAkB;IACzC,IAAI,EAAE,MAAM,CAAC;IACb,aAAa,EAAE,MAAM,CAAC;IACtB,KAAK,EAAE,MAAM,CAAC;IACd,OAAO,EAAE,OAAO,EAAE,CAAC;CACpB"}

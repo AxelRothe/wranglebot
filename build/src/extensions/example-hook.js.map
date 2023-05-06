@@ -1,1 +1,0 @@
-{"version":3,"file":"example-hook.js","sourceRoot":"","sources":["../../../src/extensions/example-hook.ts"],"names":[],"mappings":";;;;;;;;;;;AAEA,kBAAe;IACb,IAAI,EAAE,cAAc;IACpB,WAAW,EAAE,iBAAiB;IAC9B,OAAO,EAAE,OAAO;IAChB,MAAM,EAAE,CAAC,eAAe,CAAC;IACzB,OAAO,EAAE,CAAO,KAAa,EAAE,IAAS,EAAE,GAAe,EAAE,EAAE;QAC3D,oBAAoB;IACtB,CAAC,CAAA;CACF,CAAC"}
