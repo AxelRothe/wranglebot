@@ -106,6 +106,14 @@ class EmailTemplate {
           line-height: 100%;
         }
       
+        code {
+          font-family: monospace, monospace;
+          font-size: 1em;
+          padding: 0.25em 0.5em;
+          background-color: #111;
+          border-radius: 0.25em;
+        }
+      
         .apple-link a {
           color: inherit !important;
           font-family: inherit !important;
@@ -134,7 +142,7 @@ class EmailTemplate {
                   <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; width: 100%;" width="100%">
                     <tr>
                       <td class="align-center" style="font-family: sans-serif; font-size: 14px; vertical-align: top; text-align: center;" valign="top" align="center">
-                        <a href="https://wranglebot.io" style="color: #00FFA3; text-decoration: underline;"><img src="https://wranglebot.io/assets/logo.png" height="40" alt="WrangleBot" style="border: none; -ms-interpolation-mode: bicubic; max-width: 100%;"></a>
+                        <a href="https://wranglebot.io" style="color: #00FFA3; text-decoration: underline;"><img src="https://wranglebot.io/assets/images/logo.png" height="40" alt="WrangleBot" style="border: none; -ms-interpolation-mode: bicubic; max-width: 100%;"></a>
                       </td>
                     </tr>
                   </table>
@@ -142,7 +150,7 @@ class EmailTemplate {
                 <div class="content" style="box-sizing: border-box; display: block; Margin: 0 auto; max-width: 580px; padding: 10px;">
       
                   <!-- START CENTERED WHITE CONTAINER -->
-                  <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;">This is preheader text. Some clients will show this text as a preview.</span>
+<!--                  <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;"></span>-->
                   <table role="presentation" class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; background: #ffffff; border-radius: 3px; width: 100%;" width="100%">
       
                     <!-- START MAIN CONTENT AREA -->

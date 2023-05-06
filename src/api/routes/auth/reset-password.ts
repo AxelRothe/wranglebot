@@ -25,7 +25,7 @@ export default {
         },
         to: user,
         subject: "Password Reset",
-        body: `Your password has been reset to ${password}. Please download your client at <a href="https://wranglebot.io">wranglebot.io</a> to get started.<br><br>`,
+        body: `Your password has been reset to <code>${password}</code>. Please download your client at <a href="https://wranglebot.io">wranglebot.io</a> to get started.<br><br>`,
         button: {
           text: "Download Client Here",
           link: "https://wranglebot.io/download",
