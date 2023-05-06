@@ -138,6 +138,6 @@ declare class SocketServer {
     };
     createEmailTemplate(email: EmailTemplateOptions): EmailTemplate;
 }
-export default function (http: any, app: any, bot: any, mail: any, key: any): Promise<SocketServer>;
+export default function (http: any, app: any, bot: any, mail: any, secret: any): Promise<SocketServer>;
 export { SocketServer, Betweeny, Client };
 //# sourceMappingURL=SocketServer.d.ts.map

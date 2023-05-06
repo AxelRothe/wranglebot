@@ -293,7 +293,13 @@ class SocketServer {
     }
     sendMail(emailTemplate) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.mail.sendMail(this.createEmailTemplate(emailTemplate).compile());
+            try {
+                return yield this.mail.sendMail(this.createEmailTemplate(emailTemplate).compile());
+            }
+            catch (e) {
+                console.error(e);
+                return false;
+            }
         });
     }
     hook(event, callback) {
@@ -447,10 +453,10 @@ _SocketServer_instances = new WeakSet(), _SocketServer_signToken = function _Soc
     }
     return null;
 };
-function default_1(http, app, bot, mail, key) {
+function default_1(http, app, bot, mail, secret) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const socketServer = new SocketServer(http, app, bot, mail, key);
+            const socketServer = new SocketServer(http, app, bot, mail, secret);
             socketServer.start();
             logbotjs_1.default.log(200, `Socket server started.`);
             return socketServer;

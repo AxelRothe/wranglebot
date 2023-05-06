@@ -499,9 +499,9 @@ class SocketServer {
   }
 }
 
-export default async function (http, app, bot, mail, key) {
+export default async function (http, app, bot, mail, secret) {
   try {
-    const socketServer = new SocketServer(http, app, bot, mail, key);
+    const socketServer = new SocketServer(http, app, bot, mail, secret);
     socketServer.start();
     LogBot.log(200, `Socket server started.`);
 

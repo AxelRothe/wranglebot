@@ -23,6 +23,14 @@ exports.default = {
      */
     init(bot, options) {
         return new Promise((resolve, reject) => {
+            if (!options.secret || options.secret === "") {
+                logbotjs_1.default.log(500, "No secret specified.");
+                reject(new Error("No Secret"));
+            }
+            if (!options.port) {
+                logbotjs_1.default.log(500, "No port specified.");
+                reject(new Error("No Port"));
+            }
             const app = (0, express_1.default)();
             let transporter;
             if (!options.mailConfig) {
@@ -39,33 +47,31 @@ exports.default = {
                 transporter = nodemailer_1.default.createTransport(options.mailConfig);
                 logbotjs_1.default.log(200, "Mail configuration found. Mails will be sent from " + options.mailConfig.auth.user);
             }
-            if (options.port) {
-                app.use((0, cors_1.default)({ origin: "*", methods: "GET,HEAD,PUT,PATCH,POST,DELETE,NOTIFY", allowedHeaders: ["Content-Type", "Authorization"] }));
-                app.use(express_1.default.json({ limit: "100mb" }));
-                app.use(express_1.default.urlencoded({ limit: "100mb", extended: true }));
-                const httpServer = http_1.default.createServer(app);
-                const socketServer = (0, SocketServer_1.default)(httpServer, app, bot, transporter, options.secret).then((socketServer) => {
-                    httpServer.listen(options.port, () => {
-                        logbotjs_1.default.log(200, `WrangleBot listening on port ${options.port}`);
-                        resolve({
-                            httpServer,
-                            transporter,
-                            socketServer,
-                        });
-                    });
-                    httpServer.on("error", (e) => {
-                        // @ts-ignore
-                        if (e.code === "EADDRINUSE") {
-                            reject(new Error("Address in use. Please set a different port in the config.json file."));
-                            httpServer.close();
-                        }
+            app.use((0, cors_1.default)({ origin: "*", methods: "GET,HEAD,PUT,PATCH,POST,DELETE,NOTIFY", allowedHeaders: ["Content-Type", "Authorization"] }));
+            app.use(express_1.default.json({ limit: "100mb" }));
+            app.use(express_1.default.urlencoded({ limit: "100mb", extended: true }));
+            const httpServer = http_1.default.createServer(app);
+            const socketServer = (0, SocketServer_1.default)(httpServer, app, bot, transporter, options.secret)
+                .then((socketServer) => {
+                httpServer.listen(options.port, () => {
+                    logbotjs_1.default.log(200, `WrangleBot listening on port ${options.port}`);
+                    resolve({
+                        httpServer,
+                        transporter,
+                        socketServer,
                     });
                 });
-            }
-            else {
-                logbotjs_1.default.log(500, "No listening port specified.");
-                return false;
-            }
+                httpServer.on("error", (e) => {
+                    // @ts-ignore
+                    if (e.code === "EADDRINUSE") {
+                        reject(new Error("Address in use. Is another instance of WrangleBot running?"));
+                        httpServer.close();
+                    }
+                });
+            })
+                .catch((e) => {
+                reject(e);
+            });
         });
     },
 };

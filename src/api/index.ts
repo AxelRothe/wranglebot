@@ -20,6 +20,16 @@ export default {
    */
   init(bot, options) {
     return new Promise((resolve, reject) => {
+      if (!options.secret || options.secret === "") {
+        LogBot.log(500, "No secret specified.");
+        reject(new Error("No Secret"));
+      }
+
+      if (!options.port) {
+        LogBot.log(500, "No port specified.");
+        reject(new Error("No Port"));
+      }
+
       const app = express();
 
       let transporter;
@@ -38,13 +48,13 @@ export default {
         LogBot.log(200, "Mail configuration found. Mails will be sent from " + options.mailConfig.auth.user);
       }
 
-      if (options.port) {
-        app.use(cors({ origin: "*", methods: "GET,HEAD,PUT,PATCH,POST,DELETE,NOTIFY", allowedHeaders: ["Content-Type", "Authorization"] }));
-        app.use(express.json({ limit: "100mb" }));
-        app.use(express.urlencoded({ limit: "100mb", extended: true }));
+      app.use(cors({ origin: "*", methods: "GET,HEAD,PUT,PATCH,POST,DELETE,NOTIFY", allowedHeaders: ["Content-Type", "Authorization"] }));
+      app.use(express.json({ limit: "100mb" }));
+      app.use(express.urlencoded({ limit: "100mb", extended: true }));
 
-        const httpServer = http.createServer(app);
-        const socketServer = SocketServer(httpServer, app, bot, transporter, options.secret).then((socketServer) => {
+      const httpServer = http.createServer(app);
+      const socketServer = SocketServer(httpServer, app, bot, transporter, options.secret)
+        .then((socketServer) => {
           httpServer.listen(options.port, () => {
             LogBot.log(200, `WrangleBot listening on port ${options.port}`);
             resolve({
@@ -57,15 +67,14 @@ export default {
           httpServer.on("error", (e) => {
             // @ts-ignore
             if (e.code === "EADDRINUSE") {
-              reject(new Error("Address in use. Please set a different port in the config.json file."));
+              reject(new Error("Address in use. Is another instance of WrangleBot running?"));
               httpServer.close();
             }
           });
+        })
+        .catch((e) => {
+          reject(e);
         });
-      } else {
-        LogBot.log(500, "No listening port specified.");
-        return false;
-      }
     });
   },
 };

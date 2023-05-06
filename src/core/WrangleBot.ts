@@ -393,12 +393,6 @@ class WrangleBot extends EventEmitter {
     //add library to runtime
     this.index.libraries.unshift(metaLibrary);
 
-    //write to config file for startup
-    this.config.set(
-      "libraries",
-      this.index.libraries.map((lib) => lib.name)
-    );
-
     //add metaLibrary in database
     await DB().updateOne("libraries", { name: metaLibrary.name }, metaLibrary.toJSON({ db: true }));
 
