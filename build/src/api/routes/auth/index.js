@@ -8,11 +8,6 @@ const get_users_1 = __importDefault(require("./get-users"));
 const put_users_1 = __importDefault(require("./put-users"));
 const delete_users_1 = __importDefault(require("./delete-users"));
 const post_users_1 = __importDefault(require("./post-users"));
-exports.default = [
-    login_1.default,
-    get_users_1.default,
-    put_users_1.default,
-    delete_users_1.default,
-    post_users_1.default,
-];
+const reset_password_1 = __importDefault(require("./reset-password"));
+exports.default = [login_1.default, get_users_1.default, put_users_1.default, delete_users_1.default, post_users_1.default, reset_password_1.default];
 //# sourceMappingURL=index.js.map
