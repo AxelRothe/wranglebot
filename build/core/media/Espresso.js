@@ -152,6 +152,7 @@ class Espresso {
                         mediaInfo.close();
                         let digest = this.hash.digest();
                         const decoder = new string_decoder_1.StringDecoder("base64");
+                        this.compareSizes(pathToTargets, fileSizeInBytes);
                         resolve({
                             metaData: JSON.parse(metaData),
                             hash: decoder.write(digest),
@@ -213,6 +214,22 @@ class Espresso {
                 logbotjs_1.default.log(200, `Volume ${volume.path} has enough free space with ${volume.freeSpace} bytes`);
             }
         });
+    }
+    /**
+     * Checks if the size of the file is the same as the size of the file that was read
+     * @param paths
+     * @param fileSize
+     * @return {boolean}
+     */
+    compareSizes(paths, fileSize) {
+        for (let i = 0; i < paths.length; i++) {
+            const stats = fs_1.default.statSync(paths[i]);
+            if (stats.size !== fileSize) {
+                throw new Error(`File Size of ${paths[i]} is not the same as the original file`);
+            }
+        }
+        logbotjs_1.default.log(200, `File Size of ${paths} is the same as the original file.`);
+        return true;
     }
 }
 exports.default = Espresso;

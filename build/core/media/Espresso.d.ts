@@ -48,5 +48,12 @@ export default class Espresso {
         size: number;
     }>;
     calculateRequiredSpace(paths: string[], fileSize: number): void;
+    /**
+     * Checks if the size of the file is the same as the size of the file that was read
+     * @param paths
+     * @param fileSize
+     * @return {boolean}
+     */
+    compareSizes(paths: string[], fileSize: number): boolean;
 }
 //# sourceMappingURL=Espresso.d.ts.map
