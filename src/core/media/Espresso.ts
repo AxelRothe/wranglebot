@@ -4,6 +4,12 @@ import { StringDecoder } from "string_decoder";
 import MediaInfo from "mediainfo.js";
 import { XXHash128, XXHash3, XXHash32, XXHash64 } from "xxhash-addon";
 import fs from "fs";
+import diskusage from "diskusage";
+
+interface Volume {
+  path: string;
+  freeSpace: number;
+}
 
 export default class Espresso {
   static key = "12345678";
@@ -192,6 +198,14 @@ export default class Espresso {
           });
 
           if (pathToTargets.length > 0) {
+            //check if there is enough space on the disk to write the file
+            try {
+              this.calculateRequiredSpace(pathToTargets, fileSizeInBytes);
+            } catch (e) {
+              reject(e);
+            }
+
+            //pipe the read stream to the writeStreams
             for (let i = 0; i < writeStreams.length; i++) {
               if (!fs.existsSync(path.dirname(pathToTargets[i]))) {
                 fs.mkdirSync(path.dirname(pathToTargets[i]), { recursive: true });
@@ -203,6 +217,32 @@ export default class Espresso {
         .catch((e) => {
           reject(e);
         });
+    });
+  }
+
+  calculateRequiredSpace(paths: string[], fileSize: number): void {
+    const volumes: Volume[] = [];
+
+    // get list of unique volumes
+    paths.forEach((filePath) => {
+      const volumePath = path.parse(filePath).root;
+      if (!volumes.some((volume) => volume.path === volumePath)) {
+        const freeSpace = diskusage.checkSync(volumePath).free;
+        volumes.push({ path: volumePath, freeSpace });
+      }
+    });
+
+    // check if each volume has enough free space
+    volumes.forEach((volume) => {
+      const requiredSpace = paths.reduce((totalSize, filePath) => {
+        if (path.parse(filePath).root === volume.path) {
+          return totalSize + fileSize;
+        }
+        return totalSize;
+      }, 0);
+      if (volume.freeSpace < requiredSpace) {
+        throw new Error(`Volume ${volume.path} does not have enough free space`);
+      }
     });
   }
 }
