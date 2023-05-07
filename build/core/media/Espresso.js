@@ -16,6 +16,8 @@ const mediainfo_js_1 = __importDefault(require("mediainfo.js"));
 const xxhash_addon_1 = require("xxhash-addon");
 const fs_1 = __importDefault(require("fs"));
 const diskusage_1 = __importDefault(require("diskusage"));
+const logbotjs_1 = __importDefault(require("logbotjs"));
+const finder_1 = __importDefault(require("../system/finder"));
 class Espresso {
     /**
      * Grab an Espresso Cup
@@ -160,6 +162,7 @@ class Espresso {
                     }
                     catch (e) {
                         reject(e);
+                        return;
                     }
                 });
                 if (pathToTargets.length > 0) {
@@ -169,6 +172,7 @@ class Espresso {
                     }
                     catch (e) {
                         reject(e);
+                        return;
                     }
                     //pipe the read stream to the writeStreams
                     for (let i = 0; i < writeStreams.length; i++) {
@@ -188,7 +192,7 @@ class Espresso {
         const volumes = [];
         // get list of unique volumes
         paths.forEach((filePath) => {
-            const volumePath = path_1.default.parse(filePath).root;
+            const volumePath = finder_1.default.getVolumePath(filePath);
             if (!volumes.some((volume) => volume.path === volumePath)) {
                 const freeSpace = diskusage_1.default.checkSync(volumePath).free;
                 volumes.push({ path: volumePath, freeSpace });
@@ -204,6 +208,9 @@ class Espresso {
             }, 0);
             if (volume.freeSpace < requiredSpace) {
                 throw new Error(`Volume ${volume.path} does not have enough free space`);
+            }
+            else {
+                logbotjs_1.default.log(200, `Volume ${volume.path} has enough free space with ${volume.freeSpace} bytes`);
             }
         });
     }

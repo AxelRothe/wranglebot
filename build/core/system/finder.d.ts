@@ -218,6 +218,7 @@ declare class Finder {
      * @returns {boolean}
      */
     renameAndMove(pathToElement: any, newName: any, newFolder: any): boolean;
+    getVolumePath(filePath: any): string;
 }
 import fs = require("fs");
 //# sourceMappingURL=finder.d.ts.map

@@ -601,6 +601,17 @@ class Finder {
     fs.renameSync(pathToElement, newPath);
     return fs.existsSync(newPath);
   }
+
+  getVolumePath(filePath) {
+    const root = path.parse(filePath).root;
+    if (this.platform === "darwin" && root === "/") {
+      return `/${path.parse(filePath).dir.split(path.sep)[1]}/${path.parse(filePath).dir.split(path.sep)[2]}`;
+    }
+    if (this.platform === "linux" && root === "/") {
+      return `/media/${process.env.USER}/${path.parse(filePath).dir.split(path.sep)[3]}`;
+    }
+    return root;
+  }
 }
 
 module.exports = new Finder();

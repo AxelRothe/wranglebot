@@ -5,6 +5,8 @@ import MediaInfo from "mediainfo.js";
 import { XXHash128, XXHash3, XXHash32, XXHash64 } from "xxhash-addon";
 import fs from "fs";
 import diskusage from "diskusage";
+import LogBot from "logbotjs";
+import finder from "../system/finder";
 
 interface Volume {
   path: string;
@@ -194,6 +196,7 @@ export default class Espresso {
               });
             } catch (e) {
               reject(e);
+              return;
             }
           });
 
@@ -203,6 +206,7 @@ export default class Espresso {
               this.calculateRequiredSpace(pathToTargets, fileSizeInBytes);
             } catch (e) {
               reject(e);
+              return;
             }
 
             //pipe the read stream to the writeStreams
@@ -225,7 +229,7 @@ export default class Espresso {
 
     // get list of unique volumes
     paths.forEach((filePath) => {
-      const volumePath = path.parse(filePath).root;
+      const volumePath = finder.getVolumePath(filePath);
       if (!volumes.some((volume) => volume.path === volumePath)) {
         const freeSpace = diskusage.checkSync(volumePath).free;
         volumes.push({ path: volumePath, freeSpace });
@@ -242,6 +246,8 @@ export default class Espresso {
       }, 0);
       if (volume.freeSpace < requiredSpace) {
         throw new Error(`Volume ${volume.path} does not have enough free space`);
+      } else {
+        LogBot.log(200, `Volume ${volume.path} has enough free space with ${volume.freeSpace} bytes`);
       }
     });
   }
