@@ -15,6 +15,7 @@ const string_decoder_1 = require("string_decoder");
 const mediainfo_js_1 = __importDefault(require("mediainfo.js"));
 const xxhash_addon_1 = require("xxhash-addon");
 const fs_1 = __importDefault(require("fs"));
+const diskusage_1 = __importDefault(require("diskusage"));
 class Espresso {
     /**
      * Grab an Espresso Cup
@@ -162,6 +163,14 @@ class Espresso {
                     }
                 });
                 if (pathToTargets.length > 0) {
+                    //check if there is enough space on the disk to write the file
+                    try {
+                        this.calculateRequiredSpace(pathToTargets, fileSizeInBytes);
+                    }
+                    catch (e) {
+                        reject(e);
+                    }
+                    //pipe the read stream to the writeStreams
                     for (let i = 0; i < writeStreams.length; i++) {
                         if (!fs_1.default.existsSync(path_1.default.dirname(pathToTargets[i]))) {
                             fs_1.default.mkdirSync(path_1.default.dirname(pathToTargets[i]), { recursive: true });
@@ -173,6 +182,29 @@ class Espresso {
                 .catch((e) => {
                 reject(e);
             });
+        });
+    }
+    calculateRequiredSpace(paths, fileSize) {
+        const volumes = [];
+        // get list of unique volumes
+        paths.forEach((filePath) => {
+            const volumePath = path_1.default.parse(filePath).root;
+            if (!volumes.some((volume) => volume.path === volumePath)) {
+                const freeSpace = diskusage_1.default.checkSync(volumePath).free;
+                volumes.push({ path: volumePath, freeSpace });
+            }
+        });
+        // check if each volume has enough free space
+        volumes.forEach((volume) => {
+            const requiredSpace = paths.reduce((totalSize, filePath) => {
+                if (path_1.default.parse(filePath).root === volume.path) {
+                    return totalSize + fileSize;
+                }
+                return totalSize;
+            }, 0);
+            if (volume.freeSpace < requiredSpace) {
+                throw new Error(`Volume ${volume.path} does not have enough free space`);
+            }
         });
     }
 }

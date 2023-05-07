@@ -47,5 +47,6 @@ export default class Espresso {
         bytesRead: number;
         size: number;
     }>;
+    calculateRequiredSpace(paths: string[], fileSize: number): void;
 }
 //# sourceMappingURL=Espresso.d.ts.map
