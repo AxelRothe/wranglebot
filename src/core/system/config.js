@@ -9,7 +9,7 @@ const writeFileAtomicSync = require("write-file-atomic").sync;
 
 class Config {
   appName = "wranglebot";
-  versionNumber = "8";
+  versionNumber = "9";
   cryptr = new Cryptr("c9b7fd52-e1c7-4c23-9e7f-75639b91f276");
 
   constructor() {
@@ -60,6 +60,7 @@ class Config {
         this.set("database", "https://db2.wranglebot.io");
         this.set("luts", pathToLUTs);
         this.set("jwt-secret", this.cryptr.encrypt(ezyrnd.randomString(128)));
+        this.set("port", 3300);
       }
     } else {
       LogBot.log(100, "Creating config version " + this.versionNumber);
@@ -71,6 +72,7 @@ class Config {
         "ml-server": "https://ai.wranglebot.io",
         database: "https://db2.wranglebot.io",
         luts: pathToLUTs,
+        port: 3300,
       };
       this.save();
     }
