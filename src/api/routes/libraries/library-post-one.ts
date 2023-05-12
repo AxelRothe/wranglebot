@@ -5,7 +5,7 @@ import { SocketServer } from "../../SocketServer";
 export default {
   method: "post",
   url: "/library/",
-  requiredRole: ["admin", "maintainer"],
+  requiredRole: ["admin"],
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const { name, folders, pathToLibrary, drops } = req.body;
 

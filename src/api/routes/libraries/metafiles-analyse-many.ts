@@ -5,7 +5,6 @@ import LogBot from "logbotjs";
 
 export default {
   method: "post",
-  requiredRole: ["admin", "maintainer", "contributor"],
   requiredParams: ["libraryId", "metafileId"],
   requiredBody: ["engine", "metafiles", ""],
   url: "/library/:libraryId/metafiles/analyse",

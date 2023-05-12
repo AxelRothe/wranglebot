@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "get",
-    requiredRole: ["admin", "maintainer", "contributor"],
     url: "/library/:libraryName/transcode",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const { libraryName } = req.params;

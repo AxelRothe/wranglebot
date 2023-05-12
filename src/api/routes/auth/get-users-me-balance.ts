@@ -9,7 +9,6 @@ import RouteResult from "../../RouteResult";
 export default {
   method: "get",
   url: "/users/me/balance",
-  requiredRole: ["admin", "maintainer", "contributor", "curator"],
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     if (!bot.ML) {
       return new RouteResult(404, "Machine Learning module not loaded");

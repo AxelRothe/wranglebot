@@ -5,7 +5,6 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "post",
-  requiredRole: ["admin", "maintainer", "contributor"],
   url: "/library/:library/metafiles/:metafile/metacopies/:metaCopy/show",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const { library, metafile, metaCopy } = req.params;

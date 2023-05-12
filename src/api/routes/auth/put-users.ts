@@ -7,7 +7,11 @@ export default {
   url: "/users/:username",
   handler: async (req, res, wrangleBot, socketServer) => {
     const { username } = req.params;
-    if (!socketServer.isUser(req, res, username) && !socketServer.checkRequestAuthorization(req, res, ["admin", "maintainer"])) return;
+
+    if (!req.$user.hasRole(["admin", "maintainer"]) && req.$user.username !== username) {
+      res.status(403).send({ error: LogBot.resolveErrorCode(403) });
+      return;
+    }
 
     const user = await wrangleBot.query.users.one({ id: username }).fetch();
     if (!user) {
@@ -17,14 +21,23 @@ export default {
 
     if (req.body.password) await wrangleBot.accountManager.changePassword(user, req.body.password);
 
-    user.query.put({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      roles: req.body.roles,
-      libraries: req.body.libraries,
-      config: req.body.config,
-    });
+    if (req.$user.hasRole(["admin", "maintainer"])) {
+      user.query.put({
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        roles: req.body.roles,
+        libraries: req.body.libraries,
+        config: req.body.config,
+      });
+    } else {
+      user.query.put({
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        config: req.body.config,
+      });
+    }
 
     return new RouteResult(200, user.toJSON({ security: true }));
   },

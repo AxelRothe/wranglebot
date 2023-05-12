@@ -2,8 +2,8 @@ import LogBot from "logbotjs";
 import RouteResult from "../../RouteResult";
 
 export default {
-  method: 'post',
-  url: '/social/metafile',
+  method: "post",
+  url: "/social/metafile",
   handler: async (req, res, bot, server) => {
     const requestingUser = server.getUser(req, res);
     if (!requestingUser) return;
@@ -12,14 +12,14 @@ export default {
 
     const user = await bot.getOneUser(username);
     if (!user) {
-      return new RouteResult(404, 'User Not Found');
+      return new RouteResult(404, "User Not Found");
     }
 
     const shareUrl = "wranglebot://open/" + library + "/" + metafile + "/" + metacopy;
 
-    const file = await bot.query.libraries(library).metafiles.one({ id: metafile }).fetch();
+    const file = await bot.query.libraries(library).metafiles.one(metafile).fetch();
     if (!file) {
-      return new RouteResult(404, 'MetaFile Not Found');
+      return new RouteResult(404, "MetaFile Not Found");
     }
 
     const thumbnailData = await file.query.thumbnails.center.fetch();
@@ -38,4 +38,4 @@ export default {
       success: true,
     });
   },
-}
+};

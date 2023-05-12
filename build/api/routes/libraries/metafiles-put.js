@@ -15,12 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "put",
-    requiredRole: ["admin", "maintainer"],
     url: "/library/:id/metafiles/:file/metadata/:key",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const { id, file, key } = req.params;
         const { value } = req.body;
-        yield bot.query.library.one(id).metafiles.one(file).metadata.put({
+        bot.query.library.one(id).metafiles.one(file).metadata.put({
             key,
             value,
         });

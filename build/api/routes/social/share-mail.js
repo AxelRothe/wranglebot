@@ -14,8 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
-    method: 'post',
-    url: '/social/metafile',
+    method: "post",
+    url: "/social/metafile",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const requestingUser = server.getUser(req, res);
         if (!requestingUser)
@@ -23,12 +23,12 @@ exports.default = {
         const { library, metafile, metacopy, username } = req.body;
         const user = yield bot.getOneUser(username);
         if (!user) {
-            return new RouteResult_1.default(404, 'User Not Found');
+            return new RouteResult_1.default(404, "User Not Found");
         }
         const shareUrl = "wranglebot://open/" + library + "/" + metafile + "/" + metacopy;
-        const file = yield bot.query.libraries(library).metafiles.one({ id: metafile }).fetch();
+        const file = yield bot.query.libraries(library).metafiles.one(metafile).fetch();
         if (!file) {
-            return new RouteResult_1.default(404, 'MetaFile Not Found');
+            return new RouteResult_1.default(404, "MetaFile Not Found");
         }
         const thumbnailData = yield file.query.thumbnails.center.fetch();
         yield server.sendMail({

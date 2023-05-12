@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
 exports.default = {
     method: "post",
-    requiredRole: ["admin", "maintainer"],
+    requiredRole: ["admin", "maintainer", "contributor"],
     url: "/volumes/:volumeId/eject",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const { volumeId } = req.params;

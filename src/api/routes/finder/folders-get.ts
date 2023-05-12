@@ -6,7 +6,6 @@ import RouteResult from "../../RouteResult";
 export default {
   method: "post",
   requiredParams: ["path"],
-  requiredRole: ["admin", "maintainer", "contributor"],
   url: "/utility/list",
   handler: async (req, res, bot: WrangleBot, socketServer: SocketServer) => {
     let { path, options } = req.body;

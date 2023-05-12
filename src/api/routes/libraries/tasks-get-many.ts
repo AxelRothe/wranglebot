@@ -4,6 +4,7 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "get",
+  requiredRole: ["admin", "maintainer", "contributor"],
   url: "/library/:id/tasks/",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const libraryId = req.params.id;

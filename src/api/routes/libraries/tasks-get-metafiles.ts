@@ -4,6 +4,7 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "get",
+  requiredRole: ["admin", "maintainer", "contributor"],
   url: "/library/:libid/tasks/:taskid/metafiles",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const { libid, taskid } = req.params;

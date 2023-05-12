@@ -4,7 +4,6 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "post",
-  requiredRole: ["admin", "maintainer", "contributor"],
   url: "/library/:libraryName/metafiles/export",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const libraryName = req.params.libraryName;

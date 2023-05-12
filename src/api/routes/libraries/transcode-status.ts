@@ -5,7 +5,6 @@ import RouteResult from "../../RouteResult";
 
 export default {
   method: "get",
-  requiredRole: ["admin", "maintainer", "contributor"],
   url: "/status/transcode",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
     const availableTranscodeTemplates = TranscodeTemplates.getAvailableTemplates();

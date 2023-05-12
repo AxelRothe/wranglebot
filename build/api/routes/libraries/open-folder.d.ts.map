@@ -1,1 +1,1 @@
-{"version":3,"file":"open-folder.d.ts","sourceRoot":"","sources":["../../../../src/api/routes/libraries/open-folder.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,UAAU,EAAE,MAAM,0BAA0B,CAAC;AACtD,OAAO,EAAE,YAAY,EAAE,MAAM,oBAAoB,CAAC;;;;;uCAQjB,UAAU,UAAU,YAAY;;AAJjE,wBAyBE"}
+{"version":3,"file":"open-folder.d.ts","sourceRoot":"","sources":["../../../../src/api/routes/libraries/open-folder.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,UAAU,EAAE,MAAM,0BAA0B,CAAC;AACtD,OAAO,EAAE,YAAY,EAAE,MAAM,oBAAoB,CAAC;;;;uCAOjB,UAAU,UAAU,YAAY;;AAHjE,wBAwBE"}
