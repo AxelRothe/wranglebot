@@ -18,7 +18,7 @@ export default {
       return new RouteResult(200, map);
     }
 
-    if (req.$user.hasRole("contributor", "curator")) {
+    if (req.$user.hasRole(["contributor", "curator"])) {
       return new RouteResult(200, [req.$user.toJSON()]);
     }
 

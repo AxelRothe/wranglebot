@@ -28,7 +28,7 @@ exports.default = {
             });
             return new RouteResult_1.default(200, map);
         }
-        if (req.$user.hasRole("contributor", "curator")) {
+        if (req.$user.hasRole(["contributor", "curator"])) {
             return new RouteResult_1.default(200, [req.$user.toJSON()]);
         }
         return new RouteResult_1.default(404, logbotjs_1.default.resolveErrorCode(403));
