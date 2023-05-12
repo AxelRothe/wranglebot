@@ -58,9 +58,7 @@ declare class WrangleBot extends EventEmitter {
         checkAuth(username: any, password: any): boolean;
     };
     finder: any;
-    /**
-     @type {Config} config
-     */
+    ML: any;
     config: any;
     status: string;
     /**

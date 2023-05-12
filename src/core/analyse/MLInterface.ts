@@ -2,6 +2,7 @@ import MLInterfaceOptions from "./MLInterfaceOptions";
 import analyseOneMetaFileOptions from "./analyseOneMetaFileOptions";
 import axios from "axios";
 import Jimp from "jimp-compact";
+import LogBot from "logbotjs";
 
 class MLInterfaceSingleton {
   private readonly token: string;
@@ -9,6 +10,35 @@ class MLInterfaceSingleton {
   constructor(options: MLInterfaceOptions) {
     this.token = options.token;
     this.url = options.url;
+  }
+
+  async checkAuth() {
+    try {
+      const response = await axios.get(`${this.url}/api/auth`, {
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+        },
+      });
+
+      return response.data;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async getBalance() {
+    try {
+      const response = await axios.get(`${this.url}/api/balance`, {
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+        },
+      });
+
+      return response.data.balance;
+    } catch (e) {
+      LogBot.log(400, "Error getting balance");
+      return -1;
+    }
   }
 
   async analyseFrames(options: analyseOneMetaFileOptions) {

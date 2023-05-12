@@ -10,22 +10,13 @@ let conf = {
   debugNotifications: process.env.DEBUG_NOTIFICATIONS === "true",
 };
 
-if (process.env.DATABASE_TOKEN) {
-  conf.token = process.env.DATABASE_TOKEN;
-} else {
-  conf = {
-    ...conf,
-    token: process.env.CLOUD_SYNC_DATABASE_TOKEN,
-    database: process.env.CLOUD_SYNC_DATABASE_URL,
-    mlserver: process.env.CLOUD_ML_URL,
-  };
-}
-
 wb.open({
   client: {
     database: {
-      local: {
-        key: "mykey",
+      cloud: {
+        token: process.env.CLOUD_SYNC_DATABASE_TOKEN,
+        databaseURL: process.env.CLOUD_SYNC_DATABASE_URL,
+        machineLearningURL: process.env.CLOUD_SYNC_MACHINE_LEARNING_URL,
       },
     },
     port: 3200,

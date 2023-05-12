@@ -14,17 +14,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const logbotjs_1 = __importDefault(require("logbotjs"));
 const RouteResult_1 = __importDefault(require("../../RouteResult"));
+/**
+ * @description Retrieves all users in the database
+ */
 exports.default = {
     method: "get",
     url: "/users",
-    requiredRole: ["admin", "maintainer"],
     handler: (req, res, bot, socketServer) => __awaiter(void 0, void 0, void 0, function* () {
-        logbotjs_1.default.log(200, `GET /users/`);
-        const users = bot.query.users.many().fetch();
-        const map = users.map((user) => {
-            return user.toJSON();
-        });
-        return new RouteResult_1.default(200, map);
+        if (req.$user.hasRole(["admin", "maintainer"])) {
+            const users = bot.query.users.many().fetch();
+            const map = users.map((user) => {
+                return user.toJSON();
+            });
+            return new RouteResult_1.default(200, map);
+        }
+        if (req.$user.hasRole("contributor", "curator")) {
+            return new RouteResult_1.default(200, [req.$user.toJSON()]);
+        }
+        return new RouteResult_1.default(404, logbotjs_1.default.resolveErrorCode(403));
     }),
 };
 //# sourceMappingURL=get-users.js.map

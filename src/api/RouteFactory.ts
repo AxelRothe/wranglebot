@@ -1,6 +1,7 @@
 import express from "express";
 import { WrangleBot } from "../core/WrangleBot";
 import { SocketServer } from "./SocketServer";
+import User from "../core/accounts/User";
 const LogBot = require("logbotjs");
 
 interface RouteOptions {
@@ -42,8 +43,13 @@ export default class RouteFactory {
 
     this.app[options.method](`${this.baseUrl}${options.url}`, async (req, res) => {
       try {
-        if (options.requiredRole && !this.server.checkRequestAuthorization(req, res, options.requiredRole)) return;
-        else if (!options.public && !this.server.checkRequestAuthorization(req, res)) return;
+        if (options.requiredRole) {
+          req.$user = this.server.checkRequestAuthorization(req, res, options.requiredRole);
+          if (!req.$user) return;
+        } else if (!options.public) {
+          req.$user = this.server.checkRequestAuthorization(req, res);
+          if (!req.$user) return;
+        }
 
         const resolvedHandler = await options.handler(req, res, this.bot, this.server);
 

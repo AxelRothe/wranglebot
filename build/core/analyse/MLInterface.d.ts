@@ -4,6 +4,8 @@ declare class MLInterfaceSingleton {
     private readonly token;
     private readonly url;
     constructor(options: MLInterfaceOptions);
+    checkAuth(): Promise<any>;
+    getBalance(): Promise<any>;
     analyseFrames(options: analyseOneMetaFileOptions): Promise<{
         response: string;
         cost: number;

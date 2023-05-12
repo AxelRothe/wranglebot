@@ -20,6 +20,9 @@ exports.default = {
     requiredBody: ["engine", "frames"],
     url: "/library/:libraryId/metafiles/:metafileId/thumbnails/analyse",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
+        if (!bot.ML) {
+            return new RouteResult_1.default(404, "Machine Learning module not loaded");
+        }
         const libraryId = req.params.libraryId;
         const metafileId = req.params.metafileId;
         const analyseOptions = req.body;

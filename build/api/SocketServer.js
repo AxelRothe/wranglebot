@@ -64,7 +64,7 @@ class SocketServer {
                 });
                 return false;
             }
-            return true;
+            return user;
         };
         // @ts-ignore
         this.server = new socket_io_1.Server(http, {

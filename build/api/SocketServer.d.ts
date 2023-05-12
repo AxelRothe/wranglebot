@@ -53,7 +53,7 @@ declare class SocketServer {
      * @param {string[]} roles
      * @returns {boolean} true if the token is valid
      */
-    checkRequestAuthorization: (req: any, res: any, roles?: string[]) => boolean;
+    checkRequestAuthorization: (req: any, res: any, roles?: string[]) => User | false;
     isUser(req: any, res: any, username: any): boolean;
     /**
      *

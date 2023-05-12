@@ -10,6 +10,10 @@ export default {
   requiredBody: ["engine", "metafiles", ""],
   url: "/library/:libraryId/metafiles/analyse",
   handler: async (req, res, bot: WrangleBot, server: SocketServer) => {
+    if (!bot.ML) {
+      return new RouteResult(404, "Machine Learning module not loaded");
+    }
+
     const libraryId = req.params.libraryId;
 
     const analyseOptions = req.body;

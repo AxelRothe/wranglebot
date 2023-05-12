@@ -71,9 +71,6 @@ class WrangleBot extends EventEmitter {
         this.driveBot = DriveBot;
         this.accountManager = AccountManager_1.default;
         this.finder = finder;
-        /**
-         @type {Config} config
-         */
         this.config = config;
         this.status = WrangleBot.CLOSED;
         /**
@@ -122,7 +119,7 @@ class WrangleBot extends EventEmitter {
                     yield db.connect(options.client.database.cloud.token);
                     if (options.client.database.cloud.machineLearningURL) {
                         //init machine learning interface
-                        (0, MLInterface_1.MLInterface)({
+                        this.ML = (0, MLInterface_1.MLInterface)({
                             url: options.client.database.cloud.machineLearningURL,
                             token: options.client.database.cloud.token,
                         });
@@ -195,7 +192,8 @@ class WrangleBot extends EventEmitter {
                     this.driveBot.on("added", this.handleVolumeMount.bind(this));
                     this.status = WrangleBot.OPEN;
                     this.emit("notification", {
-                        title: "WrangleBot is ready",
+                        title: "Howdy!",
+                        message: "WrangleBot is ready to wrangle",
                     });
                     this.emit("ready", this);
                     return this;

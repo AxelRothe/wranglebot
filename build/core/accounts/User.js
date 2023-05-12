@@ -33,9 +33,24 @@ class User {
         this.libraries = options.libraries || this.libraries; //@deprecated
         this.config = options.config ? Object.assign(Object.assign({}, this.config), options.config) : this.config;
     }
+    /**
+     * @description Checks if the user has the specified role or roles
+     * @param role The role or roles to check
+     * @returns {boolean} True if the user has the role or roles, false otherwise
+     */
+    hasRole(role) {
+        if (typeof role === "string") {
+            return this.roles.includes(role);
+        }
+        return role.some((r) => this.roles.includes(r));
+    }
     setConfig(options) {
         this.config = Object.assign(Object.assign({}, this.config), options);
     }
+    /**
+     * @description Returns a JSON representation of the user
+     * @param options set db to true to include the hashed password
+     */
     toJSON(options = { db: false }) {
         return {
             id: this.id,

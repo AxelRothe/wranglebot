@@ -67,9 +67,8 @@ class WrangleBot extends EventEmitter {
 
   finder = finder;
 
-  /**
-   @type {Config} config
-   */
+  ML;
+
   config = config;
 
   status = WrangleBot.CLOSED;
@@ -135,7 +134,7 @@ class WrangleBot extends EventEmitter {
 
         if (options.client.database.cloud.machineLearningURL) {
           //init machine learning interface
-          MLInterface({
+          this.ML = MLInterface({
             url: options.client.database.cloud.machineLearningURL,
             token: options.client.database.cloud.token,
           });
@@ -222,7 +221,8 @@ class WrangleBot extends EventEmitter {
         this.status = WrangleBot.OPEN;
 
         this.emit("notification", {
-          title: "WrangleBot is ready",
+          title: "Howdy!",
+          message: "WrangleBot is ready to wrangle",
         });
 
         this.emit("ready", this);

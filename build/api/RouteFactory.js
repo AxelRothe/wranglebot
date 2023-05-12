@@ -24,10 +24,16 @@ class RouteFactory {
         LogBot.log(100, `Building route ${options.method.toUpperCase()} ${this.baseUrl}${options.url}`);
         this.app[options.method](`${this.baseUrl}${options.url}`, (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                if (options.requiredRole && !this.server.checkRequestAuthorization(req, res, options.requiredRole))
-                    return;
-                else if (!options.public && !this.server.checkRequestAuthorization(req, res))
-                    return;
+                if (options.requiredRole) {
+                    req.$user = this.server.checkRequestAuthorization(req, res, options.requiredRole);
+                    if (!req.$user)
+                        return;
+                }
+                else if (!options.public) {
+                    req.$user = this.server.checkRequestAuthorization(req, res);
+                    if (!req.$user)
+                        return;
+                }
                 const resolvedHandler = yield options.handler(req, res, this.bot, this.server);
                 if (resolvedHandler) {
                     res.status(resolvedHandler.status).send(resolvedHandler.result);

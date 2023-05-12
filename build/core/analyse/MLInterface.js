@@ -15,10 +15,42 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MLInterface = void 0;
 const axios_1 = __importDefault(require("axios"));
 const jimp_compact_1 = __importDefault(require("jimp-compact"));
+const logbotjs_1 = __importDefault(require("logbotjs"));
 class MLInterfaceSingleton {
     constructor(options) {
         this.token = options.token;
         this.url = options.url;
+    }
+    checkAuth() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield axios_1.default.get(`${this.url}/api/auth`, {
+                    headers: {
+                        Authorization: `Bearer ${this.token}`,
+                    },
+                });
+                return response.data;
+            }
+            catch (e) {
+                return false;
+            }
+        });
+    }
+    getBalance() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield axios_1.default.get(`${this.url}/api/balance`, {
+                    headers: {
+                        Authorization: `Bearer ${this.token}`,
+                    },
+                });
+                return response.data.balance;
+            }
+            catch (e) {
+                logbotjs_1.default.log(400, "Error getting balance");
+                return -1;
+            }
+        });
     }
     analyseFrames(options) {
         return __awaiter(this, void 0, void 0, function* () {

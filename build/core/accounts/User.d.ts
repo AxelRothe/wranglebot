@@ -13,7 +13,17 @@ export default class User {
     constructor(options: any);
     get fullName(): string;
     update(options: any): void;
+    /**
+     * @description Checks if the user has the specified role or roles
+     * @param role The role or roles to check
+     * @returns {boolean} True if the user has the role or roles, false otherwise
+     */
+    hasRole(role: string | string[]): boolean;
     setConfig(options: any): void;
+    /**
+     * @description Returns a JSON representation of the user
+     * @param options set db to true to include the hashed password
+     */
     toJSON(options?: {
         db: boolean;
     }): {

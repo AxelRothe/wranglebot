@@ -302,7 +302,7 @@ class SocketServer {
    * @param {string[]} roles
    * @returns {boolean} true if the token is valid
    */
-  checkRequestAuthorization = (req, res, roles: string[] = []) => {
+  checkRequestAuthorization = (req, res, roles: string[] = []): User | false => {
     const auth = req.get("authorization");
     if (!auth || !auth.startsWith("Bearer ")) {
       res.status(401).send({ error: `Invalid Authorization Format or Token. Should be: Bearer <token>.` });
@@ -322,7 +322,7 @@ class SocketServer {
       });
       return false;
     }
-    return true;
+    return user;
   };
 
   isUser(req, res, username) {

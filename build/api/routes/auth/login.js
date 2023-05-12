@@ -18,21 +18,14 @@ exports.default = {
     method: "post",
     url: "/login",
     public: true,
-    handler: (req, res, wranglebot, socketServer) => __awaiter(void 0, void 0, void 0, function* () {
+    handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         const { username, password, token } = req.body;
         if ((!username || !password) && !token) {
             return new RouteResult_1.default(404, logbotjs_1.default.resolveErrorCode(400) + ": username and password are required");
         }
-        const client = socketServer.signInClient(username || null, password || null, token || null);
+        const client = server.signInClient(username || null, password || null, token || null);
         return new RouteResult_1.default(200, {
             token: client.token,
-            username: client.username,
-            roles: client.roles,
-            email: client.email,
-            firstName: client.firstName,
-            lastName: client.lastName,
-            libraries: client.libraries,
-            config: client.config,
         });
     }),
 };
