@@ -1,20 +1,13 @@
 export default interface WrangleBotOptions {
-  client: {
-    database: {
-      cloud?: {
-        token: string;
-        databaseURL: string;
-        machineLearningURL: string;
-      };
-      local?: {
-        key: string;
-      };
-    };
-    port: number;
-    secret: string;
+  vault: {
+    token?: string;
+    sync_url?: string;
+    ai_url?: string;
+    key?: string;
   };
-
-  mailConfig?: {
+  port: number;
+  secret: string;
+  mail?: {
     host: string;
     port: number;
     auth: {

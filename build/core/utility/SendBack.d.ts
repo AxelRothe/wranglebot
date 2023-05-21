@@ -1,5 +1,8 @@
-export = SendBack;
 declare class SendBack {
+    status: any;
+    message: any;
+    result: any;
+    error: any;
     /**
      * @typedef {Object} SendBackOptions
      * @property {200|300|305|400|404|500} status
@@ -12,14 +15,11 @@ declare class SendBack {
      * @param {SendBackOptions} options
      */
     constructor(options: {
-        status: 200 | 300 | 305 | 400 | 404 | 500;
-        message: string | null;
-        result: any | null;
-        error: Error | null;
+        status: number;
+        message: string;
+        result?: any;
+        error?: Error;
     });
-    status: 200 | 500 | 300 | 305 | 400 | 404;
-    message: string;
-    result: any;
-    error: boolean | Error;
 }
+export default SendBack;
 //# sourceMappingURL=SendBack.d.ts.map

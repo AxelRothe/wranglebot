@@ -1,5 +1,4 @@
-export class Volume {
-    constructor(drive: any);
+declare class Volume {
     label: string;
     mountpoint: string;
     serialNumber: string;
@@ -7,18 +6,19 @@ export class Volume {
     removable: boolean;
     status: string;
     volumeId: string;
+    host: string;
+    fs: string;
+    size: number;
+    free: number;
     query: any;
-    host: any;
-    fs: any;
-    size: any;
-    free: any;
+    constructor(drive: any);
     get used(): number;
     scan(options?: {
         limit: number;
         extended: boolean;
-    }): string[] | {
+    }): any[] | {
         mountpoint: string;
-        paths: string[];
+        paths: any;
     };
     /**
      * Returns a JSON friendly representation of the drive
@@ -26,20 +26,29 @@ export class Volume {
      * @return {{label: string, removable: boolean, mountpoint: string, size: number,  used: number, free: number}}
      */
     print(): {
-        label: string;
-        removable: boolean;
         mountpoint: string;
+        volumeId: string;
+        fs: string;
+        serialNumber: string;
+        label: string;
+        host: string;
+        interface: string;
+        free: number;
         size: number;
         used: number;
-        free: number;
     };
     get stats(): {
-        label: string;
-        removable: boolean;
         mountpoint: string;
+        volumeId: string;
+        fs: string;
+        serialNumber: string;
+        label: string;
+        host: string;
+        interface: string;
+        free: number;
         size: number;
         used: number;
-        free: number;
     };
 }
+export { Volume };
 //# sourceMappingURL=Volume.d.ts.map

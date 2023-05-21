@@ -1,3 +1,4 @@
-export const SendBack: typeof import("./SendBack");
-export const Status: typeof import("./Status");
+import { Status } from "./Status";
+import SendBack from "./SendBack";
+export { SendBack, Status };
 //# sourceMappingURL=index.d.ts.map

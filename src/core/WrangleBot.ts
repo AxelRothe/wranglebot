@@ -1,13 +1,12 @@
-import { TranscodeBot } from "./transcode";
+import TranscodeBot from "./transcode";
 import LogBot from "logbotjs";
 import User from "./accounts/User";
 import { Volume } from "./drives/Volume";
-import { CopyDrive } from "./library/CopyDrive";
 import { Thumbnail } from "./library/Thumbnail";
 
 import MetaLibrary from "./library/MetaLibrary";
 import { MetaFile } from "./library/MetaFile";
-import { Indexer } from "./media/Indexer";
+import { indexer } from "./media/Indexer";
 import Task from "./media/Task";
 import { MetaCopy } from "./library/MetaCopy";
 import { TranscodeTask } from "./transcode/TranscodeTask";
@@ -27,17 +26,15 @@ import FolderOptions from "./library/FolderOptions";
 import Transaction from "./database/Transaction";
 import CancelToken from "./library/CancelToken";
 import WrangleBotOptions from "./WrangleBotOptions";
-const EventEmitter = require("events");
-const { finder } = require("./system");
-const { SearchLite } = require("searchlite");
+import EventEmitter from "events";
 
-const DB = require("./database/DB");
+import { config, finder } from "./system";
+import { SearchLite } from "searchlite";
+//load here, otherwise the config will be preloaded and the config will be overwritten
+import { driveBot, DriveBot } from "./drives/DriveBot";
 
-const { v4: uuidv4 } = require("uuid");
-
-const { config } = require("./system"); //load here, otherwise the config will be preloaded and the config will be overwritten
-
-const { DriveBot } = require("./drives");
+import { v4 as uuidv4 } from "uuid";
+import DB from "./database/DB";
 
 interface ReturnObject {
   status: 200 | 400 | 500 | 404;
@@ -61,7 +58,7 @@ class WrangleBot extends EventEmitter {
   /**
    * @type {DriveBot}
    */
-  driveBot = DriveBot;
+  driveBot: DriveBot = driveBot;
 
   accountManager = AccountManager;
 
@@ -81,18 +78,17 @@ class WrangleBot extends EventEmitter {
     metaFiles: { [key: string]: MetaFile };
     metaCopies: { [key: string]: MetaCopy };
     copyTasks: { [key: string]: Task };
-    drives: { [key: string]: CopyDrive };
     transcodes: { [key: string]: TranscodeTask };
   } = {
     libraries: [],
     metaFiles: {},
     metaCopies: {},
     copyTasks: {},
-    drives: {},
     transcodes: {},
   };
 
   private thirdPartyExtensions: Extension[] = [];
+  private servers: any;
 
   constructor() {
     super();
@@ -100,14 +96,14 @@ class WrangleBot extends EventEmitter {
 
   async open(options: WrangleBotOptions) {
     LogBot.log(100, "Opening WrangleBot instance ... ");
-    this.emit("notification", {
+    this.$emit("notification", {
       title: "Opening WrangleBot",
       message: "WrangleBot is starting up",
     });
 
     if (!config) throw new Error("Config failed to load. Aborting. Delete the config file and restart the bot.");
 
-    if (!options.client.port) options.client.port = config.get("port");
+    if (!options.port) options.port = config.get("port");
 
     this.pingInterval = this.config.get("pingInterval") || 5000;
 
@@ -115,37 +111,37 @@ class WrangleBot extends EventEmitter {
       await this.loadExtensions();
 
       let db;
-      if (options.client.database.cloud) {
+      if (options.vault.sync_url && options.vault.token) {
         //CLOUD SYNC DB
         LogBot.log(100, "User supplied cloud database credentials. Attempting to connect to cloud database.");
 
-        if (!options.client.database.cloud.databaseURL) throw new Error("No databaseURL provided");
-        if (!options.client.database.cloud.token) throw new Error("No token provided");
+        if (!options.vault.sync_url) throw new Error("No databaseURL provided");
+        if (!options.vault.token) throw new Error("No token provided");
 
         //init db interface
         db = DB({
-          url: options.client.database.cloud.databaseURL,
-          token: options.client.database.cloud.token,
+          url: options.vault.sync_url,
+          token: options.vault.token,
         });
         //rebuild local model
         await DB().rebuildLocalModel();
         //connect to db websocket
-        await db.connect(options.client.database.cloud.token);
+        await db.connect(options.vault.token);
 
-        if (options.client.database.cloud.machineLearningURL) {
+        if (options.vault.ai_url) {
           //init machine learning interface
           this.ML = MLInterface({
-            url: options.client.database.cloud.machineLearningURL,
-            token: options.client.database.cloud.token,
+            url: options.vault.ai_url,
+            token: options.vault.token,
           });
         }
-      } else if (options.client.database.local) {
+      } else if (options.vault.key) {
         //LOCAL DB
         LogBot.log(100, "User supplied local database credentials. Attempting to connect to local database.");
 
         //init db interface for local use
         db = DB({
-          token: options.client.database.local.key,
+          token: options.vault.key,
         });
         //rebuild local model
         await DB().rebuildLocalModel();
@@ -157,7 +153,7 @@ class WrangleBot extends EventEmitter {
         });
 
         db.on("notification", (notification) => {
-          this.emit("notification", notification);
+          this.$emit("notification", notification);
         });
 
         //start Account Manager
@@ -165,9 +161,9 @@ class WrangleBot extends EventEmitter {
 
         //start Socket and REST API
         await this.startServer({
-          port: options.client.port || this.config.get("port"),
-          secret: options.client.secret || this.config.get("jwt-secret"),
-          mailConfig: options.mailConfig || this.config.get("mail"),
+          port: options.port || this.config.get("port"),
+          secret: options.secret || this.config.get("jwt-secret"),
+          mailConfig: options.mail || this.config.get("mail"),
         });
 
         await this.driveBot.updateDrives();
@@ -182,7 +178,7 @@ class WrangleBot extends EventEmitter {
           try {
             const str = " (" + i + "/" + total + ") Attempting to load MetaLibrary " + libraryName;
 
-            this.emit("notification", {
+            this.$emit("notification", {
               title: str,
               message: `Loading library ${libraryName}`,
             });
@@ -193,13 +189,13 @@ class WrangleBot extends EventEmitter {
             if (r.status !== 200) {
               this.error(new Error("Could not load library: " + r.message));
 
-              this.emit("notification", {
+              this.$emit("notification", {
                 title: "Library failed to load",
                 message: "Library " + libraryName + " was not loaded.",
               });
             } else {
               const str = " (" + i + "/" + total + ") Successfully loaded MetaLibrary " + libraryName;
-              this.emit("notification", {
+              this.$emit("notification", {
                 title: str,
                 message: "Library " + libraryName + " loaded",
               });
@@ -211,40 +207,36 @@ class WrangleBot extends EventEmitter {
           i++;
         }
 
-        for (let drive of DB().getMany("drives", {})) {
-          this.addToRuntime("drives", new CopyDrive(drive));
-        }
-
         this.driveBot.on("removed", this.handleVolumeUnmount.bind(this));
         this.driveBot.on("added", this.handleVolumeMount.bind(this));
 
         this.status = WrangleBot.OPEN;
 
-        this.emit("notification", {
+        this.$emit("notification", {
           title: "Howdy!",
           message: "WrangleBot is ready to wrangle",
         });
 
-        this.emit("ready", this);
+        this.$emit("ready", this);
 
         return this;
       } else {
         this.status = WrangleBot.CLOSED;
 
-        this.emit("notification", {
+        this.$emit("notification", {
           title: "Could not connect to database",
           message: "WrangleBot could not connect to the database. Please check your internet connection and try again.",
         });
 
-        this.emit("error", new Error("Could not connect to database"));
+        this.$emit("error", new Error("Could not connect to database"));
         return null;
       }
     } catch (e: any) {
       LogBot.log(500, e.message);
       this.status = WrangleBot.CLOSED;
-      this.emit("error", e);
+      this.$emit("error", e);
 
-      this.emit("notification", {
+      this.$emit("notification", {
         title: "Could not connect to database",
         message: "WrangleBot could not connect to the database. Please check your internet connection and try again.",
       });
@@ -256,7 +248,8 @@ class WrangleBot extends EventEmitter {
   async close() {
     this.status = WrangleBot.CLOSED;
     clearInterval(this.ping);
-    this.driveBot.watcher.close();
+
+    this.driveBot.stopWatching();
 
     this.servers.httpServer.close();
     this.servers.socketServer.close();
@@ -272,14 +265,18 @@ class WrangleBot extends EventEmitter {
    * UTILITY FUNCTIONS
    */
 
-  emit(event: string, ...args: any[]) {
-    this.runCustomScript(event, ...args)
-      .then(() => {
-        return super.emit(event, ...args);
-      })
-      .catch((err) => {
-        LogBot.log(500, err);
-      });
+  $emit(event: string, ...args: any[]): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.runCustomScript(event, ...args)
+        .then(() => {
+          super.emit(event, ...args);
+          resolve(true);
+        })
+        .catch((err) => {
+          LogBot.log(500, err);
+          resolve(false);
+        });
+    });
   }
 
   private async runCustomScript(event: string, ...args: any[]) {
@@ -397,7 +394,7 @@ class WrangleBot extends EventEmitter {
 
     metaLibrary.createFoldersOnDiskFromTemplate();
 
-    this.emit("metalibrary-new", metaLibrary);
+    this.$emit("metalibrary-new", metaLibrary);
 
     return metaLibrary;
   }
@@ -413,7 +410,7 @@ class WrangleBot extends EventEmitter {
     if (save) {
       return DB().removeOne("libraries", { name });
     }
-    this.emit("metalibrary-remove", name);
+    this.$emit("metalibrary-remove", name);
     return true;
   }
 
@@ -560,7 +557,7 @@ class WrangleBot extends EventEmitter {
       }
 
       if (reachableMetaCopy) {
-        const thumbnails = await TranscodeBot.generateThumbnails(reachableMetaCopy.pathToBucket.file, {
+        const thumbnails: any = await TranscodeBot.generateThumbnails(reachableMetaCopy.pathToBucket.file, {
           callback,
           metaFile,
         });
@@ -602,8 +599,8 @@ class WrangleBot extends EventEmitter {
             }
           );
 
-          this.emit("thumbnail-new", metaFile.getThumbnails());
-          this.emit("metafile-edit", metaFile);
+          this.$emit("thumbnail-new", metaFile.getThumbnails());
+          this.$emit("metafile-edit", metaFile);
 
           LogBot.log(200, "Saved Thumbnails <" + thumbnails.length + "> for <" + metaFile.name + "> in DB");
 
@@ -672,7 +669,7 @@ class WrangleBot extends EventEmitter {
   }
 
   notify(title, message) {
-    this.emit("notification", { title, message });
+    this.$emit("notification", { title, message });
   }
 
   //**********************************
@@ -718,7 +715,7 @@ class WrangleBot extends EventEmitter {
               one: (id: string) => {
                 return {
                   fetch: (): Transaction => {
-                    const t = this.getManyTransaction({
+                    const t = this.getManyTransactions({
                       id: id,
                     });
                     if (t.length > 0) {
@@ -1013,7 +1010,7 @@ class WrangleBot extends EventEmitter {
   get utility() {
     return {
       index: async (pathToFolder, types) => {
-        return await Indexer.index(pathToFolder, types);
+        return await indexer.index(pathToFolder, types);
       },
       list: (pathToFolder, options: { showHidden: boolean; filters: "both" | "files" | "folders"; recursive: boolean; depth: Number }) => {
         if (!pathToFolder) throw new Error("No path provided.");
@@ -1261,5 +1258,6 @@ class WrangleBot extends EventEmitter {
 }
 const wb = new WrangleBot();
 
+module.exports = wb;
 export default wb;
 export { WrangleBot };

@@ -1,24 +1,26 @@
-export class IndexItem {
-    static hashStyle: string;
-    constructor(pathToFile: any);
+/// <reference types="node" />
+import { Stats } from "fs";
+declare class IndexItem {
     pathToFile: any;
-    basename: string;
-    name: string;
+    basename: any;
+    name: any;
     size: any;
-    fileType: "photo" | "video" | "audio" | "sidecar";
-    extension: string;
-    stat: any;
+    fileType: any;
+    extension: any;
+    stat: Stats;
     id: any;
     dirname: any;
-    isDirectory(): any;
+    constructor(pathToFile: any);
+    isDirectory(): boolean;
     is(type: any): boolean;
     toJSON(): {
         id: any;
         path: any;
-        name: string;
+        name: any;
         size: any;
-        fileType: "photo" | "video" | "audio" | "sidecar";
-        extension: string;
+        fileType: any;
+        extension: any;
     };
 }
+export { IndexItem };
 //# sourceMappingURL=IndexItem.d.ts.map

@@ -11,17 +11,14 @@ let conf = {
 };
 
 wb.open({
-  client: {
-    database: {
-      cloud: {
-        token: process.env.CLOUD_SYNC_DATABASE_TOKEN,
-        databaseURL: process.env.CLOUD_SYNC_DATABASE_URL,
-        machineLearningURL: process.env.CLOUD_SYNC_MACHINE_LEARNING_URL,
-      },
-    },
-    port: 3200,
+  vault: {
+    token: process.env.CLOUD_SYNC_DATABASE_TOKEN,
+    sync_url: process.env.CLOUD_SYNC_DATABASE_URL,
+    ai_url: process.env.CLOUD_SYNC_MACHINE_LEARNING_URL,
   },
-  mailConfig: {
+  port: 3200,
+  secret: process.env.VAULT_JWT_SECRET,
+  mail: {
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
     auth: {

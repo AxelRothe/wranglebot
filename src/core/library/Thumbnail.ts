@@ -1,6 +1,3 @@
-const { finder, config } = require("../system");
-const DB = require("../database/DB");
-import LogBot from "logbotjs";
 import { MetaFile } from "./MetaFile";
 
 class Thumbnail {
@@ -23,5 +20,4 @@ class Thumbnail {
     };
   }
 }
-module.exports.Thumbnail = Thumbnail;
 export { Thumbnail };

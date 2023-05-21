@@ -1,6 +1,9 @@
+/// <reference types="node" />
+/// <reference types="node" />
+/// <reference types="node" />
+/// <reference types="node" />
 import User from "./accounts/User";
 import { Volume } from "./drives/Volume";
-import { CopyDrive } from "./library/CopyDrive";
 import { Thumbnail } from "./library/Thumbnail";
 import MetaLibrary from "./library/MetaLibrary";
 import { MetaFile } from "./library/MetaFile";
@@ -15,7 +18,8 @@ import FolderOptions from "./library/FolderOptions";
 import Transaction from "./database/Transaction";
 import CancelToken from "./library/CancelToken";
 import WrangleBotOptions from "./WrangleBotOptions";
-declare const EventEmitter: any;
+import EventEmitter from "events";
+import { DriveBot } from "./drives/DriveBot";
 interface ReturnObject {
     status: 200 | 400 | 500 | 404;
     message?: string;
@@ -33,7 +37,7 @@ declare class WrangleBot extends EventEmitter {
     /**
      * @type {DriveBot}
      */
-    driveBot: any;
+    driveBot: DriveBot;
     accountManager: {
         users: Set<User>;
         salt: string;
@@ -57,9 +61,86 @@ declare class WrangleBot extends EventEmitter {
         resetPassword(user: User): any;
         checkAuth(username: any, password: any): boolean;
     };
-    finder: any;
+    finder: {
+        cryptr: import("cryptr");
+        supportedPlatforms: {
+            win32: string;
+            darwin: string;
+            linux: string;
+        };
+        platform: NodeJS.Platform;
+        pathToVolumes: string;
+        isMac(): boolean;
+        isWindows(): boolean;
+        isLinux(): boolean;
+        openInFinder(path: any, callback: any): void;
+        getDisks(): Promise<any[]>;
+        getMountPoint(pathToElement: any): string;
+        scanDrive(mount: any): Promise<unknown>;
+        getFolders(sourcePath: any, limit: any, index?: number): any;
+        getPathToVolumes(): string;
+        getPathToUserData(path?: string): string;
+        access(pathToElement: any): boolean;
+        isReachable(path: any): boolean;
+        existsSync(pathToElement: any): boolean;
+        exists(pathToElement: any): boolean;
+        check(...elements: any[]): boolean;
+        mkdirSync(pathToNewFolder: any, options?: {}): boolean;
+        statSync(pathToElement: any): import("fs").Stats;
+        lstatSync(pathToElement: any): import("fs").Stats;
+        createReadStream(pathToElement: any, options: any): import("fs").ReadStream;
+        createWriteStream(pathToElement: any, options?: {}): import("fs").WriteStream;
+        readdirSync(pathToFolder: any): string[];
+        readFile(pathToElement: any): Promise<unknown>;
+        writeFile(pathToNewElement: any, content: any, callback: any): void;
+        writeFileSync(pathToElement: any, content: any, options?: undefined): any;
+        save(fileName: any, content: any, encrypt?: boolean): boolean;
+        saveAsync(fileName: any, content: any, encrypt?: boolean): Promise<unknown>;
+        encrypt(data: any): string;
+        decrypt(data: any): string;
+        load(fileName: any, decrypt?: boolean): any;
+        readFileSync(pathToElement: any): Buffer;
+        parseFileSync(pathToElement: any): any;
+        rmSync(pathToElementToRemove: any): void;
+        basename(pathToElement: any): string;
+        label(pathToElement: any): string;
+        extname(pathToElement: any): string;
+        dirname(pathToElement: any): string;
+        join(...paths: any[]): string;
+        watch(pathToFolder: any, callback: any): import("fs").FSWatcher;
+        checkDiskSpace(pathToDevice: any): Promise<unknown>;
+        eject(pathToDevice: any, callback: any): void;
+        getVolumeMountpoint(stringToParse: any): string;
+        getVolumeName(pathToElement: any): any;
+        getFileType(filename: any): "photo" | "video" | "video-raw" | "audio" | "sidecar";
+        getContentOfFolder(pathToFolder: any, options?: {
+            showHidden: boolean;
+            filters: "both" | "files" | "folders";
+            recursive: boolean;
+            depth: Number;
+        }): string[];
+        isDirectory(path: any): boolean;
+        isDir(...elements: any[]): boolean;
+        rename(pathToElement: any, newName: any): void;
+        copy(pathToElement: any, newPath: any): void;
+        move(pathToElement: any, newFolder: any): void;
+        renameAndMove(pathToElement: any, newName: any, newFolder: any): boolean;
+        getVolumePath(filePath: any): string;
+    };
     ML: any;
-    config: any;
+    config: {
+        appName: string;
+        versionNumber: string;
+        cryptr: import("cryptr");
+        pathToConfigFile: string;
+        config: any;
+        getPathToUserData(): string;
+        set(key: any, value: any, encrypt?: boolean): void;
+        setConfig(key: any, value: any): void;
+        get(key: any, decrypt?: boolean): any;
+        getConfig(key: any): any;
+        save(): void;
+    };
     status: string;
     /**
      * index
@@ -75,14 +156,12 @@ declare class WrangleBot extends EventEmitter {
         copyTasks: {
             [key: string]: Task;
         };
-        drives: {
-            [key: string]: CopyDrive;
-        };
         transcodes: {
             [key: string]: TranscodeTask;
         };
     };
     private thirdPartyExtensions;
+    private servers;
     constructor();
     open(options: WrangleBotOptions): Promise<this | null>;
     close(): Promise<string>;
@@ -90,7 +169,7 @@ declare class WrangleBot extends EventEmitter {
     /**
      * UTILITY FUNCTIONS
      */
-    emit(event: string, ...args: any[]): void;
+    $emit(event: string, ...args: any[]): Promise<boolean>;
     private runCustomScript;
     private loadExtensions;
     getAvailableLibraries(): any;
@@ -271,7 +350,7 @@ declare class WrangleBot extends EventEmitter {
         volumes: {
             one: (id: any) => {
                 fetch(): Volume;
-                eject: () => Promise<any>;
+                eject: () => Promise<unknown>;
             };
             many: () => {
                 fetch(): Promise<Volume[]>;
@@ -285,15 +364,15 @@ declare class WrangleBot extends EventEmitter {
         };
     };
     get utility(): {
-        index: (pathToFolder: any, types: any) => Promise<import("./media/Indexer").Index>;
+        index: (pathToFolder: any, types: any) => Promise<import("./media/Index").default>;
         list: (pathToFolder: any, options: {
             showHidden: boolean;
             filters: "both" | "files" | "folders";
             recursive: boolean;
             depth: Number;
-        }) => any;
+        }) => string[];
         uuid(): any;
-        luts(): any;
+        luts(): string[];
     };
     private applyTransaction;
     private applyTransactionUpdateOne;

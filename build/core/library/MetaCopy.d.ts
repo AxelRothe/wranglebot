@@ -1,13 +1,13 @@
-export class MetaCopy {
+declare class MetaCopy {
+    #private;
+    id: any;
+    label: string;
+    metaFile: any;
     /**
      *
      * @param options
      */
     constructor(options: any);
-    id: any;
-    label: string;
-    metaFile: any;
-    _id: any;
     update(options: any, save?: boolean): void;
     get pathToSource(): any;
     get pathToBucket(): {
@@ -22,7 +22,9 @@ export class MetaCopy {
      */
     isVerified(): boolean;
     isReachable(): boolean;
-    toJSON(options?: {}): {
+    toJSON(options?: {
+        db: boolean;
+    }): {
         id: any;
         label: string;
         pathToSource: any;
@@ -30,6 +32,6 @@ export class MetaCopy {
         hash: string;
         reachable: boolean | undefined;
     };
-    #private;
 }
+export { MetaCopy };
 //# sourceMappingURL=MetaCopy.d.ts.map

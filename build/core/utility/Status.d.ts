@@ -1,9 +1,18 @@
-export type StatusStrings = "waiting" | "doing" | "done" | "failed";
 /**
  * @typedef {"waiting"|"doing"|"done"|"failed"} StatusStrings
  */
-export class Status {
+declare class Status {
+    status2: any;
     constructor(value?: string);
-    status: string;
+    /**
+     *
+     * @param {StatusStrings} value
+     */
+    set status(value: any);
+    /**
+     * @return {StatusStrings}
+     */
+    get status(): any;
 }
+export { Status };
 //# sourceMappingURL=Status.d.ts.map

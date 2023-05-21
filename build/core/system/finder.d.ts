@@ -1,15 +1,18 @@
 /// <reference types="node" />
-declare const _exports: Finder;
-export = _exports;
+/// <reference types="node" />
+/// <reference types="node" />
+import fs from "fs";
+import Cryptr from "cryptr";
 declare class Finder {
-    cryptr: any;
+    cryptr: Cryptr;
     supportedPlatforms: {
         win32: string;
         darwin: string;
         linux: string;
     };
-    platform: "linux" | "aix" | "android" | "darwin" | "freebsd" | "haiku" | "openbsd" | "sunos" | "win32" | "cygwin" | "netbsd";
+    platform: NodeJS.Platform;
     pathToVolumes: string;
+    constructor();
     isMac(): boolean;
     isWindows(): boolean;
     isLinux(): boolean;
@@ -26,13 +29,7 @@ declare class Finder {
      *
      * @return {Promise<DriveOptions>}
      */
-    getDisks(): Promise<{
-        label: string;
-        path: string;
-        serialNumber: string;
-        interface: string;
-        removable: boolean;
-    }>;
+    getDisks(): Promise<any[]>;
     getMountPoint(pathToElement: any): string;
     /**
      * @typedef {Object} DriveScan
@@ -46,11 +43,7 @@ declare class Finder {
      * @param mount
      * @return {Promise<DriveScan>}
      */
-    scanDrive(mount: any): Promise<{
-        uuid: string;
-        productName: string;
-        label: string;
-    }>;
+    scanDrive(mount: any): Promise<unknown>;
     /**
      * Retrieve all folders with subfolders within a folder
      *
@@ -59,7 +52,7 @@ declare class Finder {
      * @param {number} index
      * @return {String[]} the array of absolute folder paths
      */
-    getFolders(sourcePath: string, limit: number, index?: number): string[];
+    getFolders(sourcePath: any, limit: any, index?: number): any;
     getPathToVolumes(): string;
     getPathToUserData(path?: string): string;
     /**
@@ -104,22 +97,22 @@ declare class Finder {
      * @param pathToElement
      * @returns {*}
      */
-    statSync(pathToElement: any): any;
+    statSync(pathToElement: any): fs.Stats;
     /**
      * Gets file stats
      * @param pathToElement
      * @returns {*}
      */
-    lstatSync(pathToElement: any): any;
+    lstatSync(pathToElement: any): fs.Stats;
     createReadStream(pathToElement: any, options: any): fs.ReadStream;
-    createWriteStream(pathToElement: any, options: any): fs.WriteStream;
+    createWriteStream(pathToElement: any, options?: {}): fs.WriteStream;
     readdirSync(pathToFolder: any): string[];
     /**
      * Reads a File
      *
      * @param {string} pathToElement
      */
-    readFile(pathToElement: string): Promise<any>;
+    readFile(pathToElement: any): Promise<unknown>;
     /**
      * Writes to a file
      * @param pathToNewElement
@@ -135,9 +128,9 @@ declare class Finder {
      */
     writeFileSync(pathToElement: any, content: any, options?: undefined): any;
     save(fileName: any, content: any, encrypt?: boolean): boolean;
-    saveAsync(fileName: any, content: any, encrypt?: boolean): Promise<any>;
-    encrypt(data: any): any;
-    decrypt(data: any): any;
+    saveAsync(fileName: any, content: any, encrypt?: boolean): Promise<unknown>;
+    encrypt(data: any): string;
+    decrypt(data: any): string;
     load(fileName: any, decrypt?: boolean): any;
     /**
      * Reads a File
@@ -154,7 +147,7 @@ declare class Finder {
     dirname(pathToElement: any): string;
     join(...paths: any[]): string;
     watch(pathToFolder: any, callback: any): fs.FSWatcher;
-    checkDiskSpace(pathToDevice: any): Promise<any>;
+    checkDiskSpace(pathToDevice: any): Promise<unknown>;
     /**
      * ejects a drive
      *
@@ -170,30 +163,30 @@ declare class Finder {
      * @param filename {string} the path to the file
      * @returns {'photo'|'video'|'audio'|'sidecar'}
      */
-    getFileType(filename: string): 'photo' | 'video' | 'audio' | 'sidecar';
+    getFileType(filename: any): "photo" | "video" | "video-raw" | "audio" | "sidecar";
     /**
      * Returns the items of a folder
      * @param {String} pathToFolder Absolute Path to Folder
      * @param options
      */
-    getContentOfFolder(pathToFolder: string, options?: {
+    getContentOfFolder(pathToFolder: any, options?: {
         showHidden: boolean;
-        filters: string;
+        filters: "both" | "files" | "folders";
         recursive: boolean;
-        depth: number;
+        depth: Number;
     }): string[];
     /**
      * Returns true if the given path is a folder
      * @param path
      * @returns {false|*}
      */
-    isDirectory(path: any): false | any;
+    isDirectory(path: any): boolean;
     /**
      * Checks if the path is a directory
      * @param elements
      * @returns {false|*}
      */
-    isDir(...elements: any[]): false | any;
+    isDir(...elements: any[]): boolean;
     /**
      * Rename a file or folder
      *
@@ -220,5 +213,6 @@ declare class Finder {
     renameAndMove(pathToElement: any, newName: any, newFolder: any): boolean;
     getVolumePath(filePath: any): string;
 }
-import fs = require("fs");
+declare const finder: Finder;
+export default finder;
 //# sourceMappingURL=finder.d.ts.map

@@ -1,14 +1,14 @@
 /// <reference types="node" />
-declare const _exports: DriveBot;
-export = _exports;
+import EventEmitter from "events";
 declare class DriveBot extends EventEmitter {
-    constructor();
     /**
      * @wbType {Volume[]}
      */
-    drives: any[];
+    drives: any;
     verbose: any;
-    watchers: any[];
+    watchers: never[];
+    private watcher;
+    constructor();
     /**
      * Starts listening to changes to mounted volumes
      *
@@ -20,24 +20,25 @@ declare class DriveBot extends EventEmitter {
      *
      */
     watch(): void;
-    watcher: import("fs").FSWatcher | undefined;
+    hasWatcher(): boolean;
+    stopWatching(): void;
     /**
      * scans all mounted drives and returns an Array of Drives
      * @return {Promise<Volume[]>}
      */
-    scan(): Promise<Volume[]>;
+    scan(): Promise<unknown>;
     updateDrives(): Promise<void>;
     getDriveById(id: any): Promise<any>;
-    eject(id: any): Promise<any>;
-    ejectDevice(deviceName: any): Promise<any>;
+    eject(id: any): Promise<unknown>;
+    ejectDevice(deviceName: any): Promise<unknown>;
     getDrive(driveName: any): Promise<any>;
     getDriveByMountpoint(mountpoint: any): any;
     getDriveBySerial(serialNumber: any): Promise<any>;
-    getDrives(): Promise<any[]>;
+    getDrives(): Promise<any>;
     getMountPoint(mountpoint: any): Promise<any>;
     getCurrentVolumeName(serialNumber: any): Promise<any>;
     log(message: any, type: any): void;
 }
-import EventEmitter = require("events");
-import { Volume } from "./Volume";
+declare const driveBot: DriveBot;
+export { driveBot, DriveBot };
 //# sourceMappingURL=DriveBot.d.ts.map

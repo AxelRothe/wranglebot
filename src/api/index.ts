@@ -22,7 +22,7 @@ export default {
     return new Promise((resolve, reject) => {
       if (!options.secret || options.secret === "") {
         LogBot.log(500, "No secret specified.");
-        reject(new Error("No Secret"));
+        reject(new Error("No Secret specified"));
       }
 
       if (!options.port) {

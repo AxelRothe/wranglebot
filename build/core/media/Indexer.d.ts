@@ -1,32 +1,10 @@
-export const Indexer: Indexer;
-export type Index = {
-    path: string;
-    size: number;
-    counts: {
-        video: number;
-        audio: number;
-        sidecar: number;
-    };
-    items: IndexItem[];
-    duplicates?: boolean;
-};
-/**
- * @typedef {{  path: string,
- *              size: number,
- *              counts : {
- *                          video: number,
- *                          audio: number,
- *                          sidecar: number},
- *              items:IndexItem[],
- *              duplicates?: boolean,
- *              }} Index
- */
+import Index from "./Index";
 /**
  * media
  */
 declare class Indexer {
+    private readonly isLazy;
     constructor(isLazy?: boolean);
-    isLazy: boolean;
     /**
      * Indexes the folders recursively
      *
@@ -35,8 +13,8 @@ declare class Indexer {
      * @param matchExpression {RegExp|null} the expression to match
      * @return {Promise<Index>}
      */
-    index(sourcePath: string, toCount?: any, matchExpression?: RegExp | null): Promise<Index>;
+    index(sourcePath: any, toCount?: string[], matchExpression?: RegExp | null): Promise<Index>;
 }
-import { IndexItem } from "./IndexItem";
-export {};
+declare const indexer: Indexer;
+export { indexer };
 //# sourceMappingURL=Indexer.d.ts.map

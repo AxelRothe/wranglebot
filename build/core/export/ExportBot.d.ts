@@ -1,5 +1,3 @@
-declare const _exports: ExportBot;
-export = _exports;
 declare class ExportBot {
     pathToAssets: string;
     assets: {
@@ -19,6 +17,8 @@ declare class ExportBot {
     };
     toPrettyBytes: string[];
     toPrettyTime: string[];
-    exportPDF(metaFiles: any, options?: {}): Promise<boolean>;
+    exportPDF(metaFiles: any, options: any): Promise<boolean>;
 }
+declare const _default: ExportBot;
+export default _default;
 //# sourceMappingURL=ExportBot.d.ts.map

@@ -1,4 +1,5 @@
-export class MetaData {
+declare class MetaData {
+    entries: {};
     /**
      * @typedef {Object<string, string>} MetaDataTemplate
      */
@@ -10,10 +11,7 @@ export class MetaData {
      *
      * @param {MetaDataTemplate} template
      */
-    constructor(template?: {
-        [x: string]: string;
-    });
-    entries: {};
+    constructor(template?: {});
     /**
      * Returns the value of the given key
      *
@@ -23,7 +21,7 @@ export class MetaData {
      * @param {String} index
      * @return {any}
      */
-    getEntry(index: string): any;
+    getEntry(index: any): any;
     get(key: any): any;
     /**
      * Updates an Entry in the MetaData
@@ -35,7 +33,7 @@ export class MetaData {
      * @param {string} value
      * @param {boolean} upsert
      */
-    updateEntry(index: string, value: string, upsert?: boolean): void;
+    updateEntry(index: any, value: any, upsert?: boolean): void;
     set(key: any, value: any): void;
     update(metaDataEntries: any): void;
     /**
@@ -46,7 +44,7 @@ export class MetaData {
      *
      * @param {string} index
      */
-    removeEntry(index: string): void;
+    removeEntry(index: any): void;
     /**
      * Returns the MetaData as a JSON object
      *
@@ -56,8 +54,7 @@ export class MetaData {
      * @param {Object} options
      * @returns {Object<string,string>}
      */
-    toJSON(options?: any): {
-        [x: string]: string;
-    };
+    toJSON(options?: {}): {};
 }
+export { MetaData };
 //# sourceMappingURL=MetaData.d.ts.map

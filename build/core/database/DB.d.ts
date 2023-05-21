@@ -1,5 +1,5 @@
 interface DBOptions {
-    url: string;
+    url?: string;
     token: string;
 }
 declare const getDB: (options?: DBOptions | undefined) => any;

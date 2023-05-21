@@ -74,7 +74,7 @@ export default class MetaLibrary {
      * @param {string} list
      * @param {string} value
      * @param {"_id"|"id"|"label"|string} property
-     * @return {CopyBucket|CopyDrive|MetaFile|MetaCopy}
+     * @return {MetaFile|MetaCopy}
      */
     get(list: any, value?: string, property?: string): any;
     updateMetaData(col: any, value: any): Promise<true | Error>;

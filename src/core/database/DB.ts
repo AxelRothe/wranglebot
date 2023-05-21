@@ -1,4 +1,3 @@
-import axios from "axios";
 import Transaction from "./Transaction";
 import LogBot from "logbotjs";
 import { io } from "socket.io-client";
@@ -9,7 +8,7 @@ import md5 from "md5";
 import { v4 as uuidv4 } from "uuid";
 
 interface DBOptions {
-  url: string;
+  url?: string;
   token: string;
 }
 
@@ -31,7 +30,7 @@ interface SyncInfoJSON {
 
 class DB extends EventEmitter {
   private readOnly: boolean = false;
-  private readonly url: string;
+  private readonly url: string | undefined;
   private key: string | undefined = undefined;
   private token: string;
 
@@ -399,6 +398,9 @@ class DB extends EventEmitter {
 
   listen() {
     return new Promise((resolve, reject) => {
+      if (!this.url) reject(new Error("No url provided, can not connect to a cloud node"));
+
+      // @ts-ignore
       this.socket = io(this.url, {
         reconnectionDelayMax: 5000,
         reconnection: true,
@@ -525,4 +527,3 @@ const getDB = (options: DBOptions | undefined = undefined) => {
   throw new Error("No database instance found");
 };
 export default getDB;
-module.exports = getDB;

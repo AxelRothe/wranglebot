@@ -2,8 +2,8 @@ import { MetaFile } from "../library/MetaFile";
 import { MetaCopy } from "../library/MetaCopy";
 
 import { v4 as uuidv4 } from "uuid";
-import { config, finder } from "../system";
-import { TranscodeBot } from "./index";
+import { finder } from "../system";
+import TranscodeBot from "./index";
 import Espresso from "../media/Espresso";
 import { TranscodeTask } from "./TranscodeTask";
 
@@ -83,6 +83,9 @@ export class TranscodeJob {
           output: pathToExportedFile, //there is a reason this needs to be here
           lut: this.task.lut,
         });
+
+        if (transcode === null) throw new Error("Could not generate transcode");
+
         await transcode.run(callback, this.cancelToken);
 
         if (this.cancelToken.cancel) return null;

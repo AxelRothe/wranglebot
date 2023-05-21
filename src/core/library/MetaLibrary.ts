@@ -1,7 +1,6 @@
 import { WrangleBot } from "../WrangleBot";
 
 import MetaLibraryData from "./MetaLibraryData";
-import { CopyBucket } from "./CopyBucket";
 import { SearchLite } from "searchlite";
 import { MetaFile } from "./MetaFile";
 import Task from "../media/Task";
@@ -13,13 +12,12 @@ import LogBot from "logbotjs";
 import { MetaCopy } from "./MetaCopy";
 import { finder } from "../system";
 import utility from "../system/utility";
-import { CopyDrive } from "./CopyDrive";
 
-import config from "../system/config";
+import config from "../system/Config";
 import Scraper from "./Scraper";
 import Espresso from "../media/Espresso";
 import { TranscodeTask } from "../transcode/TranscodeTask";
-import { Indexer } from "../media/Indexer";
+import { indexer } from "../media/Indexer";
 import Job from "../media/Job";
 import Status from "../media/Status";
 import createTaskOptions from "./createTaskOptions";
@@ -340,7 +338,7 @@ export default class MetaLibrary {
     for (let folder of folders.filter((f) => f.watch)) {
       let folderPath = finder.join(basePath, folder.name);
 
-      const r = await Indexer.index(folderPath);
+      const r = await indexer.index(folderPath);
 
       for (let indexItem of r.items) {
         let metaCopy = this.getMetaCopyByPath(indexItem.pathToFile);
@@ -456,7 +454,7 @@ export default class MetaLibrary {
    * @param {string} list
    * @param {string} value
    * @param {"_id"|"id"|"label"|string} property
-   * @return {CopyBucket|CopyDrive|MetaFile|MetaCopy}
+   * @return {MetaFile|MetaCopy}
    */
   get(list, value = "", property = "id") {
     if (this[list]) {
@@ -760,7 +758,7 @@ export default class MetaLibrary {
     options.source = options.source.replace(/\/+$/, "");
     options.destinations = options.destinations.map((d) => d.replace(/\/+$/, ""));
 
-    const index = await Indexer.index(options.source, options.types, options.matchExpression ? new RegExp(options.matchExpression) : null);
+    const index = await indexer.index(options.source, options.types, options.matchExpression ? new RegExp(options.matchExpression) : null);
 
     const jobs: { source: string; destinations: string[] | null }[] = [];
 
