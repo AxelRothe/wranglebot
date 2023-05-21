@@ -1,13 +1,7 @@
-import volumesGet from "./volumes-get";
-import foldersGet from "./folders-get";
-import utilityIndex from "./utility-index";
-import utilityLuts from "./utility-luts";
-import volumeUnmount from "./volume-unmount";
+import volumesGet from "./volumes-get.js";
+import foldersGet from "./folders-get.js";
+import utilityIndex from "./utility-index.js";
+import utilityLuts from "./utility-luts.js";
+import volumeUnmount from "./volume-unmount.js";
 
-export default [
-  volumesGet,
-  foldersGet,
-  utilityIndex,
-  utilityLuts,
-  volumeUnmount,
-]
+export default [volumesGet, foldersGet, utilityIndex, utilityLuts, volumeUnmount];

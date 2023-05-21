@@ -1,40 +1,40 @@
-import TranscodeBot from "./transcode";
+import TranscodeBot from "./transcode/index.js";
 import LogBot from "logbotjs";
-import User from "./accounts/User";
-import { Volume } from "./drives/Volume";
-import { Thumbnail } from "./library/Thumbnail";
+import User from "./accounts/User.js";
+import { Volume } from "./drives/Volume.js";
+import { Thumbnail } from "./library/Thumbnail.js";
 
-import MetaLibrary from "./library/MetaLibrary";
-import { MetaFile } from "./library/MetaFile";
-import { indexer } from "./media/Indexer";
-import Task from "./media/Task";
-import { MetaCopy } from "./library/MetaCopy";
-import { TranscodeTask } from "./transcode/TranscodeTask";
-import utility from "./system/utility";
-import api from "../api";
+import MetaLibrary from "./library/MetaLibrary.js";
+import { MetaFile } from "./library/MetaFile.js";
+import { indexer } from "./media/Indexer.js";
+import Task from "./media/Task.js";
+import { MetaCopy } from "./library/MetaCopy.js";
+import { TranscodeTask } from "./transcode/TranscodeTask.js";
+import utility from "./system/utility.js";
+import api from "../api/index.js";
 
-import AccountManager from "./accounts/AccountManager";
-import createTaskOptions from "./library/createTaskOptions";
-import { MLInterface } from "./analyse/MLInterface";
-import analyseMetaFileOptions from "./library/analyseMetaFileOptions";
+import AccountManager from "./accounts/AccountManager.js";
+import createTaskOptions from "./library/createTaskOptions.js";
+import { MLInterface } from "./analyse/MLInterface.js";
+import analyseMetaFileOptions from "./library/analyseMetaFileOptions.js";
 
-import extensions from "../extensions";
-import Extension from "./Extension";
-import MetaLibraryOptions from "./library/MetaLibraryOptions";
-import MetaLibraryUpdateOptions from "./library/MetaLibraryUpdateOptions";
-import FolderOptions from "./library/FolderOptions";
-import Transaction from "./database/Transaction";
-import CancelToken from "./library/CancelToken";
-import WrangleBotOptions from "./WrangleBotOptions";
+import extensions from "../extensions/index.js";
+import Extension from "./Extension.js";
+import MetaLibraryOptions from "./library/MetaLibraryOptions.js";
+import MetaLibraryUpdateOptions from "./library/MetaLibraryUpdateOptions.js";
+import FolderOptions from "./library/FolderOptions.js";
+import Transaction from "./database/Transaction.js";
+import CancelToken from "./library/CancelToken.js";
+import WrangleBotOptions from "./WrangleBotOptions.js";
 import EventEmitter from "events";
 
-import { config, finder } from "./system";
+import { config, finder } from "./system/index.js";
 import { SearchLite } from "searchlite";
 //load here, otherwise the config will be preloaded and the config will be overwritten
-import { driveBot, DriveBot } from "./drives/DriveBot";
+import { driveBot, DriveBot } from "./drives/DriveBot.js";
 
 import { v4 as uuidv4 } from "uuid";
-import DB from "./database/DB";
+import DB from "./database/DB.js";
 
 interface ReturnObject {
   status: 200 | 400 | 500 | 404;
@@ -313,7 +313,7 @@ class WrangleBot extends EventEmitter {
 
               for (let scriptFileName of hookFolderContent) {
                 LogBot.log(100, "Loading hook " + scriptFileName + " ... ");
-                const script = await import(pathToPluginHooks + "/" + scriptFileName);
+                const script = (await import(pathToPluginHooks + "/" + scriptFileName)).default;
 
                 if (!script.name || script.name === "") {
                   LogBot.log(404, "Plugin " + folderName + " does not have a valid name. Skipping ... ");
@@ -1257,8 +1257,5 @@ class WrangleBot extends EventEmitter {
   }
 }
 const wb = new WrangleBot();
-
-module.exports = wb;
-module.exports.config = config;
 export default wb;
-export { WrangleBot };
+export { WrangleBot, config };

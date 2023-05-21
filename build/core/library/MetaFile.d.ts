@@ -1,6 +1,6 @@
-import { MetaCopy } from "./MetaCopy";
-import { Thumbnail } from "./Thumbnail";
-import analyseMetaFileOptions from "./analyseMetaFileOptions";
+import { MetaCopy } from "./MetaCopy.js";
+import { Thumbnail } from "./Thumbnail.js";
+import analyseMetaFileOptions from "./analyseMetaFileOptions.js";
 declare class MetaFile {
     #private;
     id: any;
@@ -54,7 +54,7 @@ declare class MetaFile {
      *
      * @param {MetaCopy} metaCopy
      */
-    addCopy(metaCopy: any): 0 | 1;
+    addCopy(metaCopy: any): 1 | 0;
     dropCopy(metaCopy: any): 0 | -1;
     addCopies(copies: any): void;
     getCopiesAs(type: any): any;

@@ -1,6 +1,6 @@
-import { WrangleBot } from "../../../core/WrangleBot";
-import { SocketServer } from "../../SocketServer";
-import RouteResult from "../../RouteResult";
+import { WrangleBot } from "../../../core/WrangleBot.js";
+import { SocketServer } from "../../SocketServer.js";
+import RouteResult from "../../RouteResult.js";
 declare const _default: {
     method: string;
     requiredRole: string[];

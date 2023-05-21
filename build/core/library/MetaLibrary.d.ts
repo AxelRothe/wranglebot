@@ -1,15 +1,15 @@
-import { WrangleBot } from "../WrangleBot";
-import MetaLibraryData from "./MetaLibraryData";
-import { MetaFile } from "./MetaFile";
-import Task from "../media/Task";
-import { MetaCopy } from "./MetaCopy";
-import { TranscodeTask } from "../transcode/TranscodeTask";
-import Job from "../media/Job";
-import createTaskOptions from "./createTaskOptions";
-import Folders from "./Folders";
-import MetaLibraryOptions from "./MetaLibraryOptions";
-import MetaLibraryUpdateOptions from "./MetaLibraryUpdateOptions";
-import CancelToken from "./CancelToken";
+import { WrangleBot } from "../WrangleBot.js";
+import MetaLibraryData from "./MetaLibraryData.js";
+import { MetaFile } from "./MetaFile.js";
+import Task from "../media/Task.js";
+import { MetaCopy } from "./MetaCopy.js";
+import { TranscodeTask } from "../transcode/TranscodeTask.js";
+import Job from "../media/Job.js";
+import createTaskOptions from "./createTaskOptions.js";
+import Folders from "./Folders.js";
+import MetaLibraryOptions from "./MetaLibraryOptions.js";
+import MetaLibraryUpdateOptions from "./MetaLibraryUpdateOptions.js";
+import CancelToken from "./CancelToken.js";
 interface ReportOptions {
     format: "html" | "json" | "text" | "pdf" | "csv";
     template: object;

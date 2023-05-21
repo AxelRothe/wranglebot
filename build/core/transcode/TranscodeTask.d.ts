@@ -1,4 +1,4 @@
-import { TranscodeJob } from "./TranscodeJob";
+import { TranscodeJob } from "./TranscodeJob.js";
 export declare class TranscodeTask {
     id: string;
     label: string;

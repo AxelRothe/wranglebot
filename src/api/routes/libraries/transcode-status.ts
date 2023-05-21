@@ -1,7 +1,7 @@
-import { WrangleBot } from "../../../core/WrangleBot";
-import { SocketServer } from "../../SocketServer";
-import TranscodeTemplates from "../../../core/transcode/TranscodeTemplates";
-import RouteResult from "../../RouteResult";
+import { WrangleBot } from "../../../core/WrangleBot.js";
+import { SocketServer } from "../../SocketServer.js";
+import TranscodeTemplates from "../../../core/transcode/TranscodeTemplates.js";
+import RouteResult from "../../RouteResult.js";
 
 export default {
   method: "get",

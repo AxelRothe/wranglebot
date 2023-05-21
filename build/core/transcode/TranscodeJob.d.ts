@@ -1,6 +1,6 @@
-import { MetaFile } from "../library/MetaFile";
-import { MetaCopy } from "../library/MetaCopy";
-import { TranscodeTask } from "./TranscodeTask";
+import { MetaFile } from "../library/MetaFile.js";
+import { MetaCopy } from "../library/MetaCopy.js";
+import { TranscodeTask } from "./TranscodeTask.js";
 export declare class TranscodeJob {
     #private;
     id: string;

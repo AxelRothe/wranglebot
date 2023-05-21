@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -13,20 +12,17 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 var _Espresso_instances, _Espresso_createMediaInfoInstance;
-Object.defineProperty(exports, "__esModule", { value: true });
-const streamspeed_1 = __importDefault(require("streamspeed"));
-const path_1 = __importDefault(require("path"));
-const string_decoder_1 = require("string_decoder");
-const mediainfo_js_1 = __importDefault(require("mediainfo.js"));
-const xxhash_addon_1 = require("xxhash-addon");
-const fs_1 = __importDefault(require("fs"));
-const diskusage_ng_1 = __importDefault(require("diskusage-ng"));
-const logbotjs_1 = __importDefault(require("logbotjs"));
-const finder_1 = __importDefault(require("../system/finder"));
+import StreamSpeed from "streamspeed";
+import path from "path";
+import { StringDecoder } from "string_decoder";
+import MediaInfo from "mediainfo.js";
+import pkg from "xxhash-addon";
+const { XXHash128, XXHash3, XXHash32, XXHash64 } = pkg;
+import fs from "fs";
+import diskusage from "diskusage-ng";
+import LogBot from "logbotjs";
+import finder from "../system/finder.js";
 class Espresso {
     /**
      * Grab an Espresso Cup
@@ -38,19 +34,19 @@ class Espresso {
         this.pathToFile = "";
         switch (hashStyle) {
             case "xxhash128":
-                this.hash = new xxhash_addon_1.XXHash128(Buffer.from(Espresso.key));
+                this.hash = new XXHash128(Buffer.from(Espresso.key));
                 break;
             case "xxhash64":
-                this.hash = new xxhash_addon_1.XXHash64(Buffer.from(Espresso.key));
+                this.hash = new XXHash64(Buffer.from(Espresso.key));
                 break;
             case "xxhash32":
-                this.hash = new xxhash_addon_1.XXHash32(Buffer.from(Espresso.key));
+                this.hash = new XXHash32(Buffer.from(Espresso.key));
                 break;
             case "xxhash3":
-                this.hash = new xxhash_addon_1.XXHash3(Buffer.from(Espresso.key));
+                this.hash = new XXHash3(Buffer.from(Espresso.key));
                 break;
             default:
-                this.hash = new xxhash_addon_1.XXHash64(Buffer.from(Espresso.key));
+                this.hash = new XXHash64(Buffer.from(Espresso.key));
         }
     }
     /**
@@ -61,7 +57,7 @@ class Espresso {
      * @returns {Espresso} returns the current instance
      */
     pour(pathToFile) {
-        if (!fs_1.default.existsSync(pathToFile)) {
+        if (!fs.existsSync(pathToFile)) {
             throw new Error("File does not exist");
         }
         this.pathToFile = pathToFile;
@@ -98,17 +94,17 @@ class Espresso {
             //set options for HighWaterMarks and chunk size for MediaInfo
             const options = { highWaterMark: Math.pow(1024, 2) * 5 };
             //init streamSpeed Instance with a second interval
-            const streamSpeed = new streamspeed_1.default({ timeUnit: 1 });
+            const streamSpeed = new StreamSpeed({ timeUnit: 1 });
             let speedInBytes = 0; //current speed in bytes per second
             let totalBytesRead = 0; //total bytes read so far
             __classPrivateFieldGet(this, _Espresso_instances, "m", _Espresso_createMediaInfoInstance).call(this)
                 .then((mediaInfo) => {
                 //get size of file
-                const readStream = fs_1.default.createReadStream(this.pathToFile, options);
+                const readStream = fs.createReadStream(this.pathToFile, options);
                 let writeStreams = [];
                 if (pathToTargets.length > 0) {
                     for (let i = 0; i < pathToTargets.length; i++) {
-                        const ws = fs_1.default.createWriteStream(pathToTargets[i], options);
+                        const ws = fs.createWriteStream(pathToTargets[i], options);
                         ws.on("error", (err) => {
                             reject(new Error("Write Process Failed"));
                         });
@@ -116,7 +112,7 @@ class Espresso {
                     }
                 }
                 //get size of file
-                const stats = fs_1.default.statSync(this.pathToFile);
+                const stats = fs.statSync(this.pathToFile);
                 const fileSizeInBytes = stats.size;
                 let startTime = 0;
                 let lastTime = 0;
@@ -160,7 +156,7 @@ class Espresso {
                         const metaData = mediaInfo.inform();
                         mediaInfo.close();
                         let digest = this.hash.digest();
-                        const decoder = new string_decoder_1.StringDecoder("base64");
+                        const decoder = new StringDecoder("base64");
                         this.compareSizes(pathToTargets, fileSizeInBytes);
                         resolve({
                             metaData: JSON.parse(metaData),
@@ -186,8 +182,8 @@ class Espresso {
                         else {
                             //pipe the read stream to the writeStreams
                             for (let i = 0; i < writeStreams.length; i++) {
-                                if (!fs_1.default.existsSync(path_1.default.dirname(pathToTargets[i]))) {
-                                    fs_1.default.mkdirSync(path_1.default.dirname(pathToTargets[i]), { recursive: true });
+                                if (!fs.existsSync(path.dirname(pathToTargets[i]))) {
+                                    fs.mkdirSync(path.dirname(pathToTargets[i]), { recursive: true });
                                 }
                                 readStream.pipe(writeStreams[i]);
                             }
@@ -205,7 +201,7 @@ class Espresso {
     }
     getDiskUsage(volumePath) {
         return new Promise((resolve, reject) => {
-            (0, diskusage_ng_1.default)(volumePath, function (err, usage) {
+            diskusage(volumePath, function (err, usage) {
                 if (err)
                     reject(err);
                 resolve({ path: volumePath, freeSpace: usage.available });
@@ -217,7 +213,7 @@ class Espresso {
             const volumes = [];
             // get list of unique volumes
             for (const filePath of paths) {
-                const volumePath = finder_1.default.getVolumePath(filePath);
+                const volumePath = finder.getVolumePath(filePath);
                 if (!volumes.some((volume) => volume.path === volumePath)) {
                     volumes.push(yield this.getDiskUsage(volumePath));
                 }
@@ -225,17 +221,17 @@ class Espresso {
             // check if each volume has enough free space
             for (const volume of volumes) {
                 const requiredSpace = paths.reduce((totalSize, filePath) => {
-                    if (path_1.default.parse(filePath).root === volume.path) {
+                    if (path.parse(filePath).root === volume.path) {
                         return totalSize + fileSize;
                     }
                     return totalSize;
                 }, 0);
                 if (volume.freeSpace < requiredSpace) {
-                    logbotjs_1.default.log(400, `Volume ${volume.path} does not have enough free space`);
+                    LogBot.log(400, `Volume ${volume.path} does not have enough free space`);
                     return false;
                 }
                 else {
-                    logbotjs_1.default.log(200, `Volume ${volume.path} has enough free space with ${volume.freeSpace} bytes`);
+                    LogBot.log(200, `Volume ${volume.path} has enough free space with ${volume.freeSpace} bytes`);
                 }
             }
             return true;
@@ -249,23 +245,23 @@ class Espresso {
      */
     compareSizes(paths, fileSize) {
         for (let i = 0; i < paths.length; i++) {
-            const stats = fs_1.default.statSync(paths[i]);
+            const stats = fs.statSync(paths[i]);
             if (stats.size !== fileSize) {
                 throw new Error(`File Size of ${paths[i]} is not the same as the original file`);
             }
         }
-        logbotjs_1.default.log(200, `File Size of ${paths} is the same as the original file.`);
+        LogBot.log(200, `File Size of ${paths} is the same as the original file.`);
         return true;
     }
 }
 _Espresso_instances = new WeakSet(), _Espresso_createMediaInfoInstance = function _Espresso_createMediaInfoInstance() {
     return new Promise((resolve) => {
-        (0, mediainfo_js_1.default)({ chunkSize: Math.pow(1024, 2) * 10, coverData: false, format: "object" }, (mediaInfo) => {
+        MediaInfo({ chunkSize: Math.pow(1024, 2) * 10, coverData: false, format: "object" }, (mediaInfo) => {
             resolve(mediaInfo);
         });
     });
 };
 Espresso.key = "12345678";
 Espresso.hashStyle = "xxhash64";
-exports.default = Espresso;
+export default Espresso;
 //# sourceMappingURL=Espresso.js.map

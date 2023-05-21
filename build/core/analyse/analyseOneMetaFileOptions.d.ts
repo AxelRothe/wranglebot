@@ -1,4 +1,4 @@
-import { MetaFile } from "../library/MetaFile";
+import { MetaFile } from "../library/MetaFile.js";
 export default interface analyseOneMetaFileOptions {
     engine: string;
     frames: string[];

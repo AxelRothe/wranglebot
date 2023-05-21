@@ -3,7 +3,7 @@ import os from "os";
 import fs from "fs";
 import { ezyrnd } from "ezyrnd";
 import LogBot from "logbotjs";
-import finder from "./finder";
+import finder from "./finder.js";
 import Cryptr from "cryptr";
 import { sync as writeFileAtomicSync } from "write-file-atomic";
 

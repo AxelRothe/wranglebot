@@ -1,4 +1,3 @@
-"use strict";
 var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
     if (kind === "m") throw new TypeError("Private method is not writable");
     if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
@@ -11,10 +10,8 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
 var _MetaCopy_pathToSource, _MetaCopy_pathToBucket, _MetaCopy_hash;
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.MetaCopy = void 0;
-const uuid_1 = require("uuid");
-const system_1 = require("../system");
+import { v4 as uuidv4 } from "uuid";
+import { finder } from "../system/index.js";
 class MetaCopy {
     /**
      *
@@ -25,7 +22,7 @@ class MetaCopy {
         _MetaCopy_pathToSource.set(this, void 0);
         _MetaCopy_pathToBucket.set(this, void 0);
         _MetaCopy_hash.set(this, "");
-        this.id = options.id ? options.id : (0, uuid_1.v4)();
+        this.id = options.id ? options.id : uuidv4();
         this.label = options.label || "";
         this.metaFile = options.metaFile || undefined;
         __classPrivateFieldSet(this, _MetaCopy_pathToSource, options.pathToSource, "f");
@@ -43,7 +40,7 @@ class MetaCopy {
     }
     get pathToBucket() {
         return {
-            folder: system_1.finder.dirname(__classPrivateFieldGet(this, _MetaCopy_pathToBucket, "f")),
+            folder: finder.dirname(__classPrivateFieldGet(this, _MetaCopy_pathToBucket, "f")),
             file: __classPrivateFieldGet(this, _MetaCopy_pathToBucket, "f"),
         };
     }
@@ -62,7 +59,7 @@ class MetaCopy {
         return this.hash === this.metaFile.hash;
     }
     isReachable() {
-        return system_1.finder.existsSync(this.pathToBucket.file);
+        return finder.existsSync(this.pathToBucket.file);
     }
     toJSON(options = {
         db: false,
@@ -77,6 +74,6 @@ class MetaCopy {
         };
     }
 }
-exports.MetaCopy = MetaCopy;
 _MetaCopy_pathToSource = new WeakMap(), _MetaCopy_pathToBucket = new WeakMap(), _MetaCopy_hash = new WeakMap();
+export { MetaCopy };
 //# sourceMappingURL=MetaCopy.js.map

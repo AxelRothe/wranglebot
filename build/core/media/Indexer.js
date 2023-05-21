@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,10 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.indexer = void 0;
-const IndexItem_1 = require("./IndexItem");
-const system_1 = require("../system");
+import { IndexItem } from "./IndexItem.js";
+import { finder } from "../system/index.js";
 /**
  * media
  */
@@ -43,9 +40,9 @@ class Indexer {
                     counter[type] = 0;
                 }
                 sourcePath = sourcePath.replace(/\/$/, "");
-                if (system_1.finder.isDirectory(sourcePath)) {
+                if (finder.isDirectory(sourcePath)) {
                     try {
-                        let files = system_1.finder.readdirSync(sourcePath);
+                        let files = finder.readdirSync(sourcePath);
                         if (this.isLazy) {
                             files = files.filter((item) => !/(^|\/)\.[^\/\.]/g.test(item));
                         }
@@ -58,8 +55,8 @@ class Indexer {
                         for (let file of files) {
                             //let pathToBucketLocation = this.bucketPath + "/" + file;
                             let pathToFile = sourcePath + "/" + file;
-                            if (system_1.finder.existsSync(pathToFile)) {
-                                let indexItem = new IndexItem_1.IndexItem(pathToFile);
+                            if (finder.existsSync(pathToFile)) {
+                                let indexItem = new IndexItem(pathToFile);
                                 if (!indexItem.isDirectory()) {
                                     //await indexItem.resolveHash();
                                     let isTypeToCount = false;
@@ -113,8 +110,8 @@ class Indexer {
                         });
                     }
                 }
-                else if (system_1.finder.existsSync(sourcePath)) {
-                    const item = new IndexItem_1.IndexItem(sourcePath);
+                else if (finder.existsSync(sourcePath)) {
+                    const item = new IndexItem(sourcePath);
                     //await item.resolveHash();
                     let returnObject = {
                         path: sourcePath,
@@ -150,5 +147,5 @@ class Indexer {
     }
 }
 const indexer = new Indexer();
-exports.indexer = indexer;
+export { indexer };
 //# sourceMappingURL=Indexer.js.map

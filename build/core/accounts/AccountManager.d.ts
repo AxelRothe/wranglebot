@@ -1,5 +1,5 @@
-import User from "./User";
-import createUserOptions from "./createUserOptions";
+import User from "./User.js";
+import createUserOptions from "./createUserOptions.js";
 declare class AccountManager {
     users: Set<User>;
     salt: string;

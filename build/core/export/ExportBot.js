@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,31 +7,30 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const system_1 = require("../system");
-const pdfmake_1 = __importDefault(require("pdfmake"));
-const pretty_bytes_1 = __importDefault(require("pretty-bytes"));
-const pretty_ms_1 = __importDefault(require("pretty-ms"));
-const Scraper_1 = __importDefault(require("../library/Scraper"));
-const uuid_1 = require("uuid");
+import { finder } from "../system/index.js";
+import PdfPrinter from "pdfmake";
+import prettyBytes from "pretty-bytes";
+import prettyMilliseconds from "pretty-ms";
+import Scraper from "../library/Scraper.js";
+import { v4 as uuidv4 } from "uuid";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+const __dirname = dirname(fileURLToPath(import.meta.url));
 class ExportBot {
     constructor() {
-        this.pathToAssets = system_1.finder.join(__dirname, "../../../../assets/");
+        this.pathToAssets = finder.join(__dirname, "../../../../assets/");
         this.assets = {
             fonts: {
                 body: {
-                    normal: system_1.finder.join(this.pathToAssets, "fonts", "overpass", "regular.otf"),
-                    bold: system_1.finder.join(this.pathToAssets, "fonts", "overpass", "bold.otf"),
-                    italics: system_1.finder.join(this.pathToAssets, "fonts", "overpass", "italic.otf"),
-                    bolditalics: system_1.finder.join(this.pathToAssets, "fonts", "overpass", "bold-italic.otf"),
+                    normal: finder.join(this.pathToAssets, "fonts", "overpass", "regular.otf"),
+                    bold: finder.join(this.pathToAssets, "fonts", "overpass", "bold.otf"),
+                    italics: finder.join(this.pathToAssets, "fonts", "overpass", "italic.otf"),
+                    bolditalics: finder.join(this.pathToAssets, "fonts", "overpass", "bold-italic.otf"),
                 },
                 mono: {
-                    normal: system_1.finder.join(this.pathToAssets, "fonts", "overpass-mono", "regular.otf"),
-                    bold: system_1.finder.join(this.pathToAssets, "fonts", "overpass-mono", "bold.otf"),
-                    light: system_1.finder.join(this.pathToAssets, "fonts", "overpass-mono", "light.otf"),
+                    normal: finder.join(this.pathToAssets, "fonts", "overpass-mono", "regular.otf"),
+                    bold: finder.join(this.pathToAssets, "fonts", "overpass-mono", "bold.otf"),
+                    light: finder.join(this.pathToAssets, "fonts", "overpass-mono", "light.otf"),
                 },
             },
         };
@@ -46,12 +44,12 @@ class ExportBot {
                 throw new Error("No path to export to");
             try {
                 // Define font files
-                const printer = new pdfmake_1.default(this.assets.fonts);
+                const printer = new PdfPrinter(this.assets.fonts);
                 // Define document layout
                 // thumbnail, filename, hash, size ,[...], creation date
                 let widthCols = ["auto", "auto", "auto", "auto", "auto"];
                 // metadata columns are dynamic
-                Scraper_1.default.getColumns().forEach(() => {
+                Scraper.getColumns().forEach(() => {
                     widthCols.push("auto");
                 });
                 let lines = [];
@@ -63,10 +61,10 @@ class ExportBot {
                         let val = value;
                         //convert if needed
                         if (this.toPrettyTime.indexOf(key) >= 0) {
-                            val = (0, pretty_ms_1.default)(Number(val) * 1000);
+                            val = prettyMilliseconds(Number(val) * 1000);
                         }
                         if (this.toPrettyBytes.indexOf(key) >= 0) {
-                            val = (0, pretty_bytes_1.default)(Number(val));
+                            val = prettyBytes(Number(val));
                         }
                         //add to list
                         cells.push(val);
@@ -80,7 +78,7 @@ class ExportBot {
                         };
                     }
                     //add line
-                    lines.push([thumbnail, file.hash, file.basename, (0, pretty_bytes_1.default)(file.size), ...cells, file.creationDate.toLocaleString()]);
+                    lines.push([thumbnail, file.hash, file.basename, prettyBytes(file.size), ...cells, file.creationDate.toLocaleString()]);
                 }
                 let countOfVideoFiles = 0;
                 let countOfAudioFiles = 0;
@@ -162,7 +160,7 @@ class ExportBot {
                                         style: "header",
                                     },
                                     {
-                                        text: (0, pretty_bytes_1.default)(metaFiles.reduce((a, b) => a + b.size, 0)) + " over " + metaFiles.length + " Files",
+                                        text: prettyBytes(metaFiles.reduce((a, b) => a + b.size, 0)) + " over " + metaFiles.length + " Files",
                                     },
                                     {
                                         text: `Exported on ${new Date().toLocaleString()}`,
@@ -181,7 +179,7 @@ class ExportBot {
                                     },
                                     {
                                         text: [
-                                            `Unique ID: ${(0, uuid_1.v4)()}`, //add random id to prevent caching
+                                            `Unique ID: ${uuidv4()}`, //add random id to prevent caching
                                         ],
                                         bold: true,
                                         alignment: "right",
@@ -206,7 +204,7 @@ class ExportBot {
                                 table: {
                                     widths: widthCols,
                                     headerRows: 1,
-                                    body: [["Thumbnail", "Hash", "File Name", "Size", ...Scraper_1.default.getColumnNames(), "Creation Date"], ...lines],
+                                    body: [["Thumbnail", "Hash", "File Name", "Size", ...Scraper.getColumnNames(), "Creation Date"], ...lines],
                                 },
                                 layout: "lightHorizontalLines",
                             },
@@ -226,8 +224,8 @@ class ExportBot {
                                             body: [
                                                 ["", "Audio", "Video"],
                                                 ["Count", countOfAudioFiles, countOfVideoFiles],
-                                                ["Size", (0, pretty_bytes_1.default)(sizeOfAudioFiles), (0, pretty_bytes_1.default)(sizeOfVideoFiles)],
-                                                ["Duration", (0, pretty_ms_1.default)(durationOfAudioFiles * 1000), (0, pretty_ms_1.default)(durationOfVideoFiles * 1000)],
+                                                ["Size", prettyBytes(sizeOfAudioFiles), prettyBytes(sizeOfVideoFiles)],
+                                                ["Duration", prettyMilliseconds(durationOfAudioFiles * 1000), prettyMilliseconds(durationOfVideoFiles * 1000)],
                                             ],
                                         },
                                         layout: "lightHorizontalLines",
@@ -249,20 +247,20 @@ class ExportBot {
                                                 ...[...scenes.keys()].map((scene) => {
                                                     return [
                                                         scene,
-                                                        (0, pretty_bytes_1.default)(scenes.get(scene).size),
-                                                        (0, pretty_ms_1.default)(Number(scenes.get(scene).duration) * 1000),
+                                                        prettyBytes(scenes.get(scene).size),
+                                                        prettyMilliseconds(Number(scenes.get(scene).duration) * 1000),
                                                         scenes.get(scene).count,
-                                                        (0, pretty_ms_1.default)((Number(scenes.get(scene).duration) * 1000) / scenes.get(scene).count),
-                                                        "1m : " + (0, pretty_bytes_1.default)(Number(scenes.get(scene).size) / (Number(scenes.get(scene).duration) / 60)), //1 min : size
+                                                        prettyMilliseconds((Number(scenes.get(scene).duration) * 1000) / scenes.get(scene).count),
+                                                        "1m : " + prettyBytes(Number(scenes.get(scene).size) / (Number(scenes.get(scene).duration) / 60)), //1 min : size
                                                     ];
                                                 }),
                                                 [
                                                     "Total",
-                                                    (0, pretty_bytes_1.default)(totalScenesSize),
-                                                    (0, pretty_ms_1.default)(totalScenesDuration * 1000),
+                                                    prettyBytes(totalScenesSize),
+                                                    prettyMilliseconds(totalScenesDuration * 1000),
                                                     countOfScenes,
-                                                    (0, pretty_ms_1.default)(totalScenesAverageMinutes * 1000),
-                                                    "1m : " + (0, pretty_bytes_1.default)(totalScenesAverageMinuteToSize),
+                                                    prettyMilliseconds(totalScenesAverageMinutes * 1000),
+                                                    "1m : " + prettyBytes(totalScenesAverageMinuteToSize),
                                                 ],
                                             ],
                                         },
@@ -311,8 +309,8 @@ class ExportBot {
                 };
                 for (let path of options.paths) {
                     const pdfDoc = printer.createPdfKitDocument(docDefinition, docOptions);
-                    system_1.finder.mkdirSync(path, { recursive: true });
-                    const writeStream = system_1.finder.createWriteStream(system_1.finder.join(path, options.fileName + (options.uniqueNames ? "_" + Date.now() : "") + ".pdf"));
+                    finder.mkdirSync(path, { recursive: true });
+                    const writeStream = finder.createWriteStream(finder.join(path, options.fileName + (options.uniqueNames ? "_" + Date.now() : "") + ".pdf"));
                     writeStream.on("error", (e) => {
                         console.log(e);
                     });
@@ -334,5 +332,5 @@ class ExportBot {
         });
     }
 }
-exports.default = new ExportBot();
+export default new ExportBot();
 //# sourceMappingURL=ExportBot.js.map

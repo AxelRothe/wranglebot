@@ -1,27 +1,3 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -31,46 +7,41 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.WrangleBot = void 0;
-const transcode_1 = __importDefault(require("./transcode"));
-const logbotjs_1 = __importDefault(require("logbotjs"));
-const MetaLibrary_1 = __importDefault(require("./library/MetaLibrary"));
-const MetaFile_1 = require("./library/MetaFile");
-const Indexer_1 = require("./media/Indexer");
-const Task_1 = __importDefault(require("./media/Task"));
-const MetaCopy_1 = require("./library/MetaCopy");
-const TranscodeTask_1 = require("./transcode/TranscodeTask");
-const utility_1 = __importDefault(require("./system/utility"));
-const api_1 = __importDefault(require("../api"));
-const AccountManager_1 = __importDefault(require("./accounts/AccountManager"));
-const MLInterface_1 = require("./analyse/MLInterface");
-const extensions_1 = __importDefault(require("../extensions"));
-const events_1 = __importDefault(require("events"));
-const system_1 = require("./system");
-const searchlite_1 = require("searchlite");
+import TranscodeBot from "./transcode/index.js";
+import LogBot from "logbotjs";
+import MetaLibrary from "./library/MetaLibrary.js";
+import { MetaFile } from "./library/MetaFile.js";
+import { indexer } from "./media/Indexer.js";
+import Task from "./media/Task.js";
+import { MetaCopy } from "./library/MetaCopy.js";
+import { TranscodeTask } from "./transcode/TranscodeTask.js";
+import utility from "./system/utility.js";
+import api from "../api/index.js";
+import AccountManager from "./accounts/AccountManager.js";
+import { MLInterface } from "./analyse/MLInterface.js";
+import extensions from "../extensions/index.js";
+import EventEmitter from "events";
+import { config, finder } from "./system/index.js";
+import { SearchLite } from "searchlite";
 //load here, otherwise the config will be preloaded and the config will be overwritten
-const DriveBot_1 = require("./drives/DriveBot");
-const uuid_1 = require("uuid");
-const DB_1 = __importDefault(require("./database/DB"));
+import { driveBot } from "./drives/DriveBot.js";
+import { v4 as uuidv4 } from "uuid";
+import DB from "./database/DB.js";
 /**
  * WrangleBot Interface
  * @class WrangleBot
  */
-class WrangleBot extends events_1.default {
+class WrangleBot extends EventEmitter {
     constructor() {
         super();
         // libraries: Array<MetaLibrary> = [];
         /**
          * @type {DriveBot}
          */
-        this.driveBot = DriveBot_1.driveBot;
-        this.accountManager = AccountManager_1.default;
-        this.finder = system_1.finder;
-        this.config = system_1.config;
+        this.driveBot = driveBot;
+        this.accountManager = AccountManager;
+        this.finder = finder;
+        this.config = config;
         this.status = WrangleBot.CLOSED;
         /**
          * index
@@ -86,38 +57,38 @@ class WrangleBot extends events_1.default {
     }
     open(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            logbotjs_1.default.log(100, "Opening WrangleBot instance ... ");
+            LogBot.log(100, "Opening WrangleBot instance ... ");
             this.$emit("notification", {
                 title: "Opening WrangleBot",
                 message: "WrangleBot is starting up",
             });
-            if (!system_1.config)
+            if (!config)
                 throw new Error("Config failed to load. Aborting. Delete the config file and restart the bot.");
             if (!options.port)
-                options.port = system_1.config.get("port");
+                options.port = config.get("port");
             this.pingInterval = this.config.get("pingInterval") || 5000;
             try {
                 yield this.loadExtensions();
                 let db;
                 if (options.vault.sync_url && options.vault.token) {
                     //CLOUD SYNC DB
-                    logbotjs_1.default.log(100, "User supplied cloud database credentials. Attempting to connect to cloud database.");
+                    LogBot.log(100, "User supplied cloud database credentials. Attempting to connect to cloud database.");
                     if (!options.vault.sync_url)
                         throw new Error("No databaseURL provided");
                     if (!options.vault.token)
                         throw new Error("No token provided");
                     //init db interface
-                    db = (0, DB_1.default)({
+                    db = DB({
                         url: options.vault.sync_url,
                         token: options.vault.token,
                     });
                     //rebuild local model
-                    yield (0, DB_1.default)().rebuildLocalModel();
+                    yield DB().rebuildLocalModel();
                     //connect to db websocket
                     yield db.connect(options.vault.token);
                     if (options.vault.ai_url) {
                         //init machine learning interface
-                        this.ML = (0, MLInterface_1.MLInterface)({
+                        this.ML = MLInterface({
                             url: options.vault.ai_url,
                             token: options.vault.token,
                         });
@@ -125,23 +96,23 @@ class WrangleBot extends events_1.default {
                 }
                 else if (options.vault.key) {
                     //LOCAL DB
-                    logbotjs_1.default.log(100, "User supplied local database credentials. Attempting to connect to local database.");
+                    LogBot.log(100, "User supplied local database credentials. Attempting to connect to local database.");
                     //init db interface for local use
-                    db = (0, DB_1.default)({
+                    db = DB({
                         token: options.vault.key,
                     });
                     //rebuild local model
-                    yield (0, DB_1.default)().rebuildLocalModel();
+                    yield DB().rebuildLocalModel();
                 }
                 if (db) {
-                    (0, DB_1.default)().on("transaction", (transaction) => {
+                    DB().on("transaction", (transaction) => {
                         this.applyTransaction(transaction);
                     });
                     db.on("notification", (notification) => {
                         this.$emit("notification", notification);
                     });
                     //start Account Manager
-                    yield AccountManager_1.default.init();
+                    yield AccountManager.init();
                     //start Socket and REST API
                     yield this.startServer({
                         port: options.port || this.config.get("port"),
@@ -160,7 +131,7 @@ class WrangleBot extends events_1.default {
                                 title: str,
                                 message: `Loading library ${libraryName}`,
                             });
-                            logbotjs_1.default.log(100, str);
+                            LogBot.log(100, str);
                             const r = yield this.loadOneLibrary(libraryName);
                             if (r.status !== 200) {
                                 this.error(new Error("Could not load library: " + r.message));
@@ -175,7 +146,7 @@ class WrangleBot extends events_1.default {
                                     title: str,
                                     message: "Library " + libraryName + " loaded",
                                 });
-                                logbotjs_1.default.log(200, str);
+                                LogBot.log(200, str);
                             }
                         }
                         catch (e) {
@@ -204,7 +175,7 @@ class WrangleBot extends events_1.default {
                 }
             }
             catch (e) {
-                logbotjs_1.default.log(500, e.message);
+                LogBot.log(500, e.message);
                 this.status = WrangleBot.CLOSED;
                 this.$emit("error", e);
                 this.$emit("notification", {
@@ -227,7 +198,7 @@ class WrangleBot extends events_1.default {
     }
     startServer(options) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.servers = yield api_1.default.init(this, options);
+            this.servers = yield api.init(this, options);
         });
     }
     /**
@@ -241,14 +212,14 @@ class WrangleBot extends events_1.default {
                 resolve(true);
             })
                 .catch((err) => {
-                logbotjs_1.default.log(500, err);
+                LogBot.log(500, err);
                 resolve(false);
             });
         });
     }
     runCustomScript(event, ...args) {
         return __awaiter(this, void 0, void 0, function* () {
-            for (let extension of extensions_1.default) {
+            for (let extension of extensions) {
                 if (extension.events.includes(event)) {
                     yield extension.handler(event, args, this);
                 }
@@ -263,42 +234,42 @@ class WrangleBot extends events_1.default {
     loadExtensions() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                logbotjs_1.default.log(100, "Loading extensions ... ");
+                LogBot.log(100, "Loading extensions ... ");
                 //scan the plugins folder in the wranglebot directory
                 //and load the routes from the plugins
-                const pathToPlugins = system_1.finder.getPathToUserData("wranglebot/custom/");
-                const thirdPartyPluginsRAW = system_1.finder.getContentOfFolder(pathToPlugins);
-                logbotjs_1.default.log(100, "Found " + thirdPartyPluginsRAW.length + " third party plugins.");
+                const pathToPlugins = finder.getPathToUserData("wranglebot/custom/");
+                const thirdPartyPluginsRAW = finder.getContentOfFolder(pathToPlugins);
+                LogBot.log(100, "Found " + thirdPartyPluginsRAW.length + " third party plugins.");
                 if (thirdPartyPluginsRAW.length > 0) {
                     for (let folderName of thirdPartyPluginsRAW) {
-                        logbotjs_1.default.log(100, "Loading plugin " + folderName + " ... ");
-                        const pathToPlugin = system_1.finder.getPathToUserData("wranglebot/custom/" + folderName);
-                        const folderContents = system_1.finder.getContentOfFolder(pathToPlugin);
+                        LogBot.log(100, "Loading plugin " + folderName + " ... ");
+                        const pathToPlugin = finder.getPathToUserData("wranglebot/custom/" + folderName);
+                        const folderContents = finder.getContentOfFolder(pathToPlugin);
                         for (let pluginFolder of folderContents) {
                             if (pluginFolder === "hooks") {
-                                const pathToPluginHooks = system_1.finder.getPathToUserData("wranglebot/custom/" + folderName + "/" + pluginFolder);
-                                const hookFolderContent = system_1.finder.getContentOfFolder(pathToPluginHooks);
+                                const pathToPluginHooks = finder.getPathToUserData("wranglebot/custom/" + folderName + "/" + pluginFolder);
+                                const hookFolderContent = finder.getContentOfFolder(pathToPluginHooks);
                                 for (let scriptFileName of hookFolderContent) {
-                                    logbotjs_1.default.log(100, "Loading hook " + scriptFileName + " ... ");
-                                    const script = yield Promise.resolve(`${pathToPluginHooks + "/" + scriptFileName}`).then(s => __importStar(require(s)));
+                                    LogBot.log(100, "Loading hook " + scriptFileName + " ... ");
+                                    const script = (yield import(pathToPluginHooks + "/" + scriptFileName)).default;
                                     if (!script.name || script.name === "") {
-                                        logbotjs_1.default.log(404, "Plugin " + folderName + " does not have a valid name. Skipping ... ");
+                                        LogBot.log(404, "Plugin " + folderName + " does not have a valid name. Skipping ... ");
                                         continue;
                                     }
                                     if (!script.description || script.description === "") {
-                                        logbotjs_1.default.log(404, "Plugin " + folderName + " does not have a valid description. Skipping ... ");
+                                        LogBot.log(404, "Plugin " + folderName + " does not have a valid description. Skipping ... ");
                                         continue;
                                     }
                                     if (!script.version || script.version.match(/^[0-9]+\.[0-9]+\.[0-9]+$/) === null) {
-                                        logbotjs_1.default.log(404, "Plugin " + folderName + " does not have a valid version (/^[0-9]+\\.[0-9]+\\.[0-9]+$/). Skipping ... ");
+                                        LogBot.log(404, "Plugin " + folderName + " does not have a valid version (/^[0-9]+\\.[0-9]+\\.[0-9]+$/). Skipping ... ");
                                         continue;
                                     }
                                     if (!script.handler || !(script.handler instanceof Function)) {
-                                        logbotjs_1.default.log(404, "Plugin " + folderName + " does not have a valid handler. Skipping ... ");
+                                        LogBot.log(404, "Plugin " + folderName + " does not have a valid handler. Skipping ... ");
                                         continue;
                                     }
                                     if (!script.events || script.events.length === 0) {
-                                        logbotjs_1.default.log(404, "Plugin " + folderName + " does not have any events. Skipping ... ");
+                                        LogBot.log(404, "Plugin " + folderName + " does not have any events. Skipping ... ");
                                         continue;
                                     }
                                     this.thirdPartyExtensions.push(script);
@@ -309,12 +280,12 @@ class WrangleBot extends events_1.default {
                 }
             }
             catch (e) {
-                logbotjs_1.default.log(500, e.message);
+                LogBot.log(500, e.message);
             }
         });
     }
     getAvailableLibraries() {
-        return (0, DB_1.default)().getMany("libraries", {});
+        return DB().getMany("libraries", {});
     }
     addOneLibrary(options) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -343,11 +314,11 @@ class WrangleBot extends events_1.default {
             if (this.index.libraries.find((l) => path.startsWith(l.pathToLibrary.toLowerCase()))) {
                 throw new Error("Library in path already exists");
             }
-            const metaLibrary = new MetaLibrary_1.default(this, options);
+            const metaLibrary = new MetaLibrary(this, options);
             //add library to runtime
             this.index.libraries.unshift(metaLibrary);
             //add metaLibrary in database
-            yield (0, DB_1.default)().updateOne("libraries", { name: metaLibrary.name }, metaLibrary.toJSON({ db: true }));
+            yield DB().updateOne("libraries", { name: metaLibrary.name }, metaLibrary.toJSON({ db: true }));
             metaLibrary.createFoldersOnDiskFromTemplate();
             this.$emit("metalibrary-new", metaLibrary);
             return metaLibrary;
@@ -362,7 +333,7 @@ class WrangleBot extends events_1.default {
         }
         this.unloadOneLibrary(name);
         if (save) {
-            return (0, DB_1.default)().removeOne("libraries", { name });
+            return DB().removeOne("libraries", { name });
         }
         this.$emit("metalibrary-remove", name);
         return true;
@@ -371,7 +342,7 @@ class WrangleBot extends events_1.default {
         const lib = this.index.libraries.find((l) => l.name === name);
         if (lib)
             return lib;
-        return (0, DB_1.default)().getOne("libraries", { name });
+        return DB().getOne("libraries", { name });
     }
     loadOneLibrary(name) {
         return new Promise((resolve, reject) => {
@@ -384,9 +355,9 @@ class WrangleBot extends events_1.default {
             else {
                 const lib = this.getOneLibrary(name);
                 if (lib) {
-                    const newMetaLibrary = new MetaLibrary_1.default(this, null);
+                    const newMetaLibrary = new MetaLibrary(this, null);
                     let readOnly = false;
-                    if (!system_1.finder.isReachable(lib.pathToLibrary)) {
+                    if (!finder.isReachable(lib.pathToLibrary)) {
                         readOnly = true;
                     }
                     newMetaLibrary
@@ -417,7 +388,7 @@ class WrangleBot extends events_1.default {
         });
     }
     unloadOneLibrary(name) {
-        const search = searchlite_1.SearchLite.find(this.index.libraries, "name", name);
+        const search = SearchLite.find(this.index.libraries, "name", name);
         if (search.wasSuccess()) {
             this.index.libraries.splice(search.count, 1);
             this.config.set("libraries", this.index.libraries.map((lib) => lib.name));
@@ -471,7 +442,7 @@ class WrangleBot extends events_1.default {
                         finishCallback(file.id);
                     }
                     catch (e) {
-                        logbotjs_1.default.log(500, "Error while generating thumbnail for file " + file.id + ": " + e.message);
+                        LogBot.log(500, "Error while generating thumbnail for file " + file.id + ": " + e.message);
                         throw e;
                     }
                 }
@@ -496,32 +467,32 @@ class WrangleBot extends events_1.default {
             if (metaFile.fileType === "photo" || metaFile.fileType === "video") {
                 //find the first copy that is has a reachable path
                 let reachableMetaCopy;
-                if (metaCopy && system_1.finder.existsSync(metaCopy.pathToBucket.file)) {
+                if (metaCopy && finder.existsSync(metaCopy.pathToBucket.file)) {
                     reachableMetaCopy = metaCopy;
                 }
                 else {
                     reachableMetaCopy = metaFile.copies.find((copy) => {
-                        return system_1.finder.existsSync(copy.pathToBucket.file);
+                        return finder.existsSync(copy.pathToBucket.file);
                     });
                 }
                 if (reachableMetaCopy) {
-                    const thumbnails = yield transcode_1.default.generateThumbnails(reachableMetaCopy.pathToBucket.file, {
+                    const thumbnails = yield TranscodeBot.generateThumbnails(reachableMetaCopy.pathToBucket.file, {
                         callback,
                         metaFile,
                     });
                     if (thumbnails) {
-                        logbotjs_1.default.log(200, "Generated Thumbnails for <" + metaFile.name + ">");
+                        LogBot.log(200, "Generated Thumbnails for <" + metaFile.name + ">");
                         if (metaFile.thumbnails.length > 0) {
-                            logbotjs_1.default.log(200, "Deleting old Thumbnails <" + metaFile.thumbnails.length + "> for <" + metaFile.name + ">");
+                            LogBot.log(200, "Deleting old Thumbnails <" + metaFile.thumbnails.length + "> for <" + metaFile.name + ">");
                             let thumbs = Object.values(metaFile.thumbnails);
                             for (let thumb of thumbs) {
                                 metaFile.removeOneThumbnail(thumb.id);
                             }
-                            yield (0, DB_1.default)().removeMany("thumbnails", { metafile: metaFile.id, library });
-                            yield utility_1.default.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
-                            logbotjs_1.default.log(200, "Deleted old Thumbnails now <" + metaFile.thumbnails.length + "> for <" + metaFile.name + ">");
+                            yield DB().removeMany("thumbnails", { metafile: metaFile.id, library });
+                            yield utility.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
+                            LogBot.log(200, "Deleted old Thumbnails now <" + metaFile.thumbnails.length + "> for <" + metaFile.name + ">");
                         }
-                        logbotjs_1.default.log(200, "Saving Thumbnails <" + thumbnails.length + "> for <" + metaFile.name + ">");
+                        LogBot.log(200, "Saving Thumbnails <" + thumbnails.length + "> for <" + metaFile.name + ">");
                         for (let thumbnail of thumbnails) {
                             metaFile.addThumbnail(thumbnail);
                         }
@@ -529,14 +500,14 @@ class WrangleBot extends events_1.default {
                         for (let thumb of metaFile.getThumbnails()) {
                             thumbData.push(thumb.toJSON());
                         }
-                        yield (0, DB_1.default)().insertMany("thumbnails", { metaFile: metaFile.id, library }, thumbData);
-                        yield utility_1.default.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
-                        yield (0, DB_1.default)().updateOne("metafiles", { id: metaFile.id, library }, {
+                        yield DB().insertMany("thumbnails", { metaFile: metaFile.id, library }, thumbData);
+                        yield utility.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
+                        yield DB().updateOne("metafiles", { id: metaFile.id, library }, {
                             thumbnails: metaFile.getThumbnails().map((t) => t.id),
                         });
                         this.$emit("thumbnail-new", metaFile.getThumbnails());
                         this.$emit("metafile-edit", metaFile);
-                        logbotjs_1.default.log(200, "Saved Thumbnails <" + thumbnails.length + "> for <" + metaFile.name + "> in DB");
+                        LogBot.log(200, "Saved Thumbnails <" + thumbnails.length + "> for <" + metaFile.name + "> in DB");
                         return true;
                     }
                 }
@@ -548,7 +519,7 @@ class WrangleBot extends events_1.default {
         });
     }
     getManyTransactions(filter) {
-        return (0, DB_1.default)().getTransactions(filter);
+        return DB().getTransactions(filter);
     }
     /**
      * Removes an Object from the runtime
@@ -597,7 +568,7 @@ class WrangleBot extends events_1.default {
     }
     /* LOGGING & DEBUGGING */
     error(message) {
-        return logbotjs_1.default.log(500, message, true);
+        return LogBot.log(500, message, true);
     }
     notify(title, message) {
         this.$emit("notification", { title, message });
@@ -857,7 +828,7 @@ class WrangleBot extends events_1.default {
                 one: (options) => {
                     if (!options.id)
                         throw new Error("No id provided");
-                    const user = AccountManager_1.default.getOneUser(options.id);
+                    const user = AccountManager.getOneUser(options.id);
                     if (!user)
                         throw new Error("No user found with that " + options.id);
                     return {
@@ -866,28 +837,28 @@ class WrangleBot extends events_1.default {
                             return user;
                         },
                         put: (options) => {
-                            return AccountManager_1.default.updateUser(user, options);
+                            return AccountManager.updateUser(user, options);
                         },
                         allow: (libraryName) => {
-                            return AccountManager_1.default.allowAccess(user, libraryName);
+                            return AccountManager.allowAccess(user, libraryName);
                         },
                         revoke: (libraryName) => {
-                            return AccountManager_1.default.revokeAccess(user, libraryName);
+                            return AccountManager.revokeAccess(user, libraryName);
                         },
                         reset: () => {
-                            return AccountManager_1.default.resetPassword(user);
+                            return AccountManager.resetPassword(user);
                         },
                     };
                 },
                 many: (filters = {}) => {
                     return {
                         fetch() {
-                            return AccountManager_1.default.getAllUsers(filters);
+                            return AccountManager.getAllUsers(filters);
                         },
                     };
                 },
                 post: (options) => __awaiter(this, void 0, void 0, function* () {
-                    return AccountManager_1.default.addOneUser(Object.assign(Object.assign({}, options), { create: true }));
+                    return AccountManager.addOneUser(Object.assign(Object.assign({}, options), { create: true }));
                 }),
             },
             volumes: {
@@ -931,7 +902,7 @@ class WrangleBot extends events_1.default {
     get utility() {
         return {
             index: (pathToFolder, types) => __awaiter(this, void 0, void 0, function* () {
-                return yield Indexer_1.indexer.index(pathToFolder, types);
+                return yield indexer.index(pathToFolder, types);
             }),
             list: (pathToFolder, options) => {
                 if (!pathToFolder)
@@ -946,15 +917,15 @@ class WrangleBot extends events_1.default {
                         depth: 0,
                     };
                 }
-                return system_1.finder.getContentOfFolder(pathToFolder, options);
+                return finder.getContentOfFolder(pathToFolder, options);
             },
             uuid() {
-                return (0, uuid_1.v4)();
+                return uuidv4();
             },
             luts() {
-                const pathToLuts = system_1.config.getPathToUserData() + "/LUTs";
-                if (system_1.finder.existsSync(pathToLuts)) {
-                    const files = system_1.finder.getContentOfFolder(pathToLuts).filter((f) => !f.startsWith("."));
+                const pathToLuts = config.getPathToUserData() + "/LUTs";
+                if (finder.existsSync(pathToLuts)) {
+                    const files = finder.getContentOfFolder(pathToLuts).filter((f) => !f.startsWith("."));
                     return files;
                 }
                 else {
@@ -975,24 +946,24 @@ class WrangleBot extends events_1.default {
             }
             catch (e) {
                 console.error(e);
-                logbotjs_1.default.log(500, "Error applying transaction", e);
+                LogBot.log(500, "Error applying transaction", e);
             }
         });
     }
     applyTransactionUpdateOne(transaction) {
         return __awaiter(this, void 0, void 0, function* () {
-            logbotjs_1.default.log(100, "applying transaction: " + transaction.id);
+            LogBot.log(100, "applying transaction: " + transaction.id);
             //LIBRARY ADDED/UPDATED
             if (transaction.$collection === "libraries") {
                 let lib = this.index.libraries.find((l) => l.name === transaction.$query.name);
                 if (lib) {
                     yield lib.update(transaction.$set, false);
-                    logbotjs_1.default.log(200, `Library ${lib.name} updated.`);
+                    LogBot.log(200, `Library ${lib.name} updated.`);
                 }
                 else {
-                    const newMetaLibrary = new MetaLibrary_1.default(this, Object.assign(Object.assign({}, transaction.$set), transaction.$query));
+                    const newMetaLibrary = new MetaLibrary(this, Object.assign(Object.assign({}, transaction.$set), transaction.$query));
                     this.addToRuntime("libraries", newMetaLibrary);
-                    logbotjs_1.default.log(200, `Library ${newMetaLibrary.name} added.`);
+                    LogBot.log(200, `Library ${newMetaLibrary.name} added.`);
                 }
                 this.servers.socketServer.inform("database", "libraries", "change");
             }
@@ -1007,20 +978,20 @@ class WrangleBot extends events_1.default {
                         file
                             .update(transaction.$set, false)
                             .then(() => {
-                            logbotjs_1.default.log(200, "MetaFile updated");
+                            LogBot.log(200, "MetaFile updated");
                             this.servers.socketServer.inform("database", "metafiles", "change");
                         })
                             .catch((e) => {
                             console.error(e);
-                            logbotjs_1.default.log(500, "Error updating metaFile", e);
+                            LogBot.log(500, "Error updating metaFile", e);
                         });
                     }
                     else {
-                        const newMetaFile = new MetaFile_1.MetaFile(Object.assign(Object.assign({}, transaction.$set), transaction.$query));
+                        const newMetaFile = new MetaFile(Object.assign(Object.assign({}, transaction.$set), transaction.$query));
                         lib.metaFiles.push(newMetaFile);
                         this.addToRuntime("metaFiles", newMetaFile);
                         this.servers.socketServer.inform("database", "metafiles", "change");
-                        logbotjs_1.default.log(200, "MetaFile created");
+                        LogBot.log(200, "MetaFile created");
                     }
                 }
                 else {
@@ -1036,21 +1007,21 @@ class WrangleBot extends events_1.default {
                     let copy = this.index.metaCopies[transaction.$query.id];
                     if (copy) {
                         copy.update(transaction.$set, false);
-                        logbotjs_1.default.log(200, "MetaCopy updated", copy);
+                        LogBot.log(200, "MetaCopy updated", copy);
                         this.servers.socketServer.inform("database", "metafiles", "change");
                     }
                     else {
                         //find the file that this copy belongs to
                         let file = lib.metaFiles.find((f) => f.id === transaction.$query.metaFile);
                         if (!file) {
-                            logbotjs_1.default.log(404, "MetaFile for MetaCopy not found");
+                            LogBot.log(404, "MetaFile for MetaCopy not found");
                             return;
                         }
-                        const newMetaCopy = new MetaCopy_1.MetaCopy(Object.assign(Object.assign({}, transaction.$set), transaction.$query));
+                        const newMetaCopy = new MetaCopy(Object.assign(Object.assign({}, transaction.$set), transaction.$query));
                         file.addCopy(newMetaCopy);
                         this.addToRuntime("metaCopies", newMetaCopy);
                         this.servers.socketServer.inform("database", "metafiles", "change");
-                        logbotjs_1.default.log(200, "MetaCopy created", newMetaCopy);
+                        LogBot.log(200, "MetaCopy created", newMetaCopy);
                     }
                 }
                 else {
@@ -1067,14 +1038,14 @@ class WrangleBot extends events_1.default {
                     if (task) {
                         task.update(transaction.$set, false);
                         this.servers.socketServer.inform("database", "tasks", "change");
-                        logbotjs_1.default.log(200, "Task updated", task);
+                        LogBot.log(200, "Task updated", task);
                     }
                     else {
-                        const newTask = new Task_1.default(Object.assign(Object.assign({}, transaction.$set), transaction.$query));
+                        const newTask = new Task(Object.assign(Object.assign({}, transaction.$set), transaction.$query));
                         lib.tasks.push(newTask);
                         this.addToRuntime("copyTasks", newTask);
                         this.servers.socketServer.inform("database", "tasks", "change");
-                        logbotjs_1.default.log(200, "Task created", newTask);
+                        LogBot.log(200, "Task created", newTask);
                     }
                 }
                 else {
@@ -1091,14 +1062,14 @@ class WrangleBot extends events_1.default {
                     if (transcode) {
                         transcode.update(transaction.$set);
                         this.servers.socketServer.inform("database", "transcodes", "change");
-                        logbotjs_1.default.log(200, "Transcode updated", transcode);
+                        LogBot.log(200, "Transcode updated", transcode);
                     }
                     else {
-                        const newTranscode = new TranscodeTask_1.TranscodeTask(null, Object.assign(Object.assign({}, transaction.$set), transaction.$query));
+                        const newTranscode = new TranscodeTask(null, Object.assign(Object.assign({}, transaction.$set), transaction.$query));
                         lib.transcodes.push(newTranscode);
                         this.addToRuntime("transcodes", newTranscode);
                         this.servers.socketServer.inform("database", "transcodes", "change");
-                        logbotjs_1.default.log(200, "Transcode created", newTranscode);
+                        LogBot.log(200, "Transcode created", newTranscode);
                     }
                 }
                 else {
@@ -1126,7 +1097,7 @@ class WrangleBot extends events_1.default {
                 if (lib) {
                     this.removeOneLibrary(lib, false);
                     this.servers.socketServer.inform("database", "libraries", "change");
-                    logbotjs_1.default.log(200, `Library ${lib.name} removed.`);
+                    LogBot.log(200, `Library ${lib.name} removed.`);
                 }
             }
             else if (transaction.$collection === "metafiles") {
@@ -1138,7 +1109,7 @@ class WrangleBot extends events_1.default {
                     if (file) {
                         lib.removeOneMetaFile(file, false);
                         this.servers.socketServer.inform("database", "metafiles", "change");
-                        logbotjs_1.default.log(200, "MetaFile removed", file);
+                        LogBot.log(200, "MetaFile removed", file);
                     }
                 }
                 else {
@@ -1154,7 +1125,7 @@ class WrangleBot extends events_1.default {
                     if (copy) {
                         lib.removeOneMetaCopy(copy, { deleteFile: false }, false);
                         this.servers.socketServer.inform("database", "metafiles", "change");
-                        logbotjs_1.default.log(200, "MetaCopy removed", copy);
+                        LogBot.log(200, "MetaCopy removed", copy);
                     }
                 }
                 else {
@@ -1170,7 +1141,7 @@ class WrangleBot extends events_1.default {
                     if (task) {
                         lib.removeOneTask(task.id, "id", false);
                         this.servers.socketServer.inform("database", "tasks", "change");
-                        logbotjs_1.default.log(200, "Task removed", task);
+                        LogBot.log(200, "Task removed", task);
                     }
                 }
                 else {
@@ -1186,7 +1157,7 @@ class WrangleBot extends events_1.default {
                     if (transcode) {
                         lib.removeOneTranscodeTask(transcode.id, false);
                         this.servers.socketServer.inform("database", "transcodes", "change");
-                        logbotjs_1.default.log(200, "Transcode removed", transcode);
+                        LogBot.log(200, "Transcode removed", transcode);
                     }
                 }
                 else {
@@ -1196,11 +1167,9 @@ class WrangleBot extends events_1.default {
         });
     }
 }
-exports.WrangleBot = WrangleBot;
 WrangleBot.OPEN = "open";
 WrangleBot.CLOSED = "closed";
 const wb = new WrangleBot();
-module.exports = wb;
-module.exports.config = system_1.config;
-exports.default = wb;
+export default wb;
+export { WrangleBot, config };
 //# sourceMappingURL=WrangleBot.js.map

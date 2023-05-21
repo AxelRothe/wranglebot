@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,12 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const RouteResult_1 = __importDefault(require("../../RouteResult"));
-exports.default = {
+import RouteResult from "../../RouteResult.js";
+export default {
     method: "post",
     url: "/social/metafile",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
@@ -23,12 +18,12 @@ exports.default = {
         const { library, metafile, metacopy, username } = req.body;
         const user = yield bot.getOneUser(username);
         if (!user) {
-            return new RouteResult_1.default(404, "User Not Found");
+            return new RouteResult(404, "User Not Found");
         }
         const shareUrl = "wranglebot://open/" + library + "/" + metafile + "/" + metacopy;
         const file = yield bot.query.libraries(library).metafiles.one(metafile).fetch();
         if (!file) {
-            return new RouteResult_1.default(404, "MetaFile Not Found");
+            return new RouteResult(404, "MetaFile Not Found");
         }
         const thumbnailData = yield file.query.thumbnails.center.fetch();
         yield server.sendMail({
@@ -40,7 +35,7 @@ exports.default = {
              <p>${requestingUser.firstName} ${requestingUser.lastName} has shared a Metafile with you <a href="${shareUrl}">${file.basename}</a>
              <p>You are receiving this E-Mail as you are a registered user of a WrangleBot instance.</p>`,
         });
-        return new RouteResult_1.default(200, {
+        return new RouteResult(200, {
             success: true,
         });
     }),

@@ -23,8 +23,9 @@
     "type": "donate",
     "url": "https://wranglebot.io/donate"
   },
-  "main": "./build/core/WrangleBot.js",
-  "types": "./build/core/WrangleBot.d.ts",
+  "type": "module",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
   "homepage": "https://github.com/AxelRothe/wranglebot",
   "repository": {
     "type": "git",

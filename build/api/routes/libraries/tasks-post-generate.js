@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,12 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const RouteResult_1 = __importDefault(require("../../RouteResult"));
-exports.default = {
+import RouteResult from "../../RouteResult.js";
+export default {
     method: "post",
     requiredRole: ["admin", "maintainer", "contributor"],
     url: "/library/:id/tasks/generate",
@@ -29,10 +24,10 @@ exports.default = {
             settings,
         });
         if (task) {
-            return new RouteResult_1.default(200, task.toJSON());
+            return new RouteResult(200, task.toJSON());
         }
         else {
-            return new RouteResult_1.default(400, {
+            return new RouteResult(400, {
                 status: "error",
                 message: `No task generated`,
             });

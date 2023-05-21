@@ -1,9 +1,9 @@
 import express from "express";
-import RouteResult from "../../RouteResult";
+import RouteResult from "../../RouteResult.js";
+import { WrangleBot } from "../../../core/WrangleBot.js";
+import { SocketServer } from "../../SocketServer.js";
 
-const LogBot = require("logbotjs");
-import { WrangleBot } from "../../../core/WrangleBot";
-import { SocketServer } from "../../SocketServer";
+import LogBot from "logbotjs";
 
 export default {
   method: "post",

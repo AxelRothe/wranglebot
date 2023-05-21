@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,12 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const RouteResult_1 = __importDefault(require("../../RouteResult"));
-exports.default = {
+import RouteResult from "../../RouteResult.js";
+export default {
     method: "get",
     url: "/library/:id/metafiles/:file/thumbnails/:grab",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
@@ -36,23 +31,23 @@ exports.default = {
                             throw new Error("Missing pagination parameters");
                         t = t.slice(paginationStart, paginationEnd);
                     }
-                    return new RouteResult_1.default(200, t);
+                    return new RouteResult(200, t);
                 case "first":
                     const tFirst = yield metaFile.query.thumbnails.first.fetch();
-                    return new RouteResult_1.default(200, tFirst.toJSON());
+                    return new RouteResult(200, tFirst.toJSON());
                 case "last":
                     const tLast = yield metaFile.query.thumbnails.last.fetch();
-                    return new RouteResult_1.default(200, tLast.toJSON());
+                    return new RouteResult(200, tLast.toJSON());
                 case "center":
                     const tCenter = yield metaFile.query.thumbnails.center.fetch();
-                    return new RouteResult_1.default(200, tCenter.toJSON());
+                    return new RouteResult(200, tCenter.toJSON());
                 default:
                     const thumbnail = yield metaFile.query.thumbnails.one(grab).fetch();
-                    return new RouteResult_1.default(200, thumbnail.toJSON());
+                    return new RouteResult(200, thumbnail.toJSON());
             }
         }
         catch (e) {
-            return new RouteResult_1.default(404, { success: false, message: "thumbnail not found" });
+            return new RouteResult(404, { success: false, message: "thumbnail not found" });
         }
     }),
 };

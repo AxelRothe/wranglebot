@@ -1,8 +1,7 @@
 import express from "express";
-import { WrangleBot } from "../core/WrangleBot";
-import { SocketServer } from "./SocketServer";
-import User from "../core/accounts/User";
-const LogBot = require("logbotjs");
+import { WrangleBot } from "../core/WrangleBot.js";
+import { SocketServer } from "./SocketServer.js";
+import LogBot from "logbotjs";
 
 interface RouteOptions {
   method: string; //"get" | "post" | "put" | "delete"

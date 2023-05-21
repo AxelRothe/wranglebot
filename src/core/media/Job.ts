@@ -1,6 +1,6 @@
-import Espresso from "./Espresso";
+import Espresso from "./Espresso.js";
 import { v4 as uuidv4 } from "uuid";
-import Status from "./Status";
+import Status from "./Status.js";
 
 export default class Job {
   id: string;

@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.MetaData = void 0;
 class MetaData {
     /**
      * @typedef {Object<string, string>} MetaDataTemplate
@@ -90,5 +87,5 @@ class MetaData {
         return obj;
     }
 }
-exports.MetaData = MetaData;
+export { MetaData };
 //# sourceMappingURL=MetaData.js.map

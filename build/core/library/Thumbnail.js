@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Thumbnail = void 0;
 class Thumbnail {
     constructor(thumb) {
         this.data = undefined;
@@ -17,5 +14,5 @@ class Thumbnail {
         };
     }
 }
-exports.Thumbnail = Thumbnail;
+export { Thumbnail };
 //# sourceMappingURL=Thumbnail.js.map

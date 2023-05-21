@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,14 +7,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const system_1 = require("../system");
-const jimp_compact_1 = __importDefault(require("jimp-compact"));
-const uuid_1 = require("uuid");
-class ThumbnailFromImageFactory {
+import { config, finder } from "../system/index.js";
+import Jimp from "jimp-compact";
+import { v4 as uuidv4 } from "uuid";
+export default class ThumbnailFromImageFactory {
     constructor(pathToFile, options) {
         this.pathToFile = pathToFile;
         this.options = options;
@@ -28,16 +23,16 @@ class ThumbnailFromImageFactory {
     generate(type = "jpg") {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const thumbId = (0, uuid_1.v4)();
-                const thumbnailFolder = system_1.finder.join(system_1.config.getPathToUserData(), "thumbnails");
+                const thumbId = uuidv4();
+                const thumbnailFolder = finder.join(config.getPathToUserData(), "thumbnails");
                 //create thumbnail dir if it does not exist
-                system_1.finder.mkdirSync(thumbnailFolder, { recursive: true });
-                const outputPath = system_1.finder.join(thumbnailFolder, thumbId + ".jpg");
-                const image = yield jimp_compact_1.default.read(this.pathToFile);
+                finder.mkdirSync(thumbnailFolder, { recursive: true });
+                const outputPath = finder.join(thumbnailFolder, thumbId + ".jpg");
+                const image = yield Jimp.read(this.pathToFile);
                 yield image.contain(640, 360);
                 yield image.quality(70);
                 yield image.write(outputPath);
-                const imageData = yield image.getBase64Async(jimp_compact_1.default.AUTO);
+                const imageData = yield image.getBase64Async(Jimp.AUTO);
                 //strip base64 header
                 const data = String(imageData.split(",")[1]);
                 return [
@@ -54,5 +49,4 @@ class ThumbnailFromImageFactory {
         });
     }
 }
-exports.default = ThumbnailFromImageFactory;
 //# sourceMappingURL=ThumbnailFromImageFactory.js.map

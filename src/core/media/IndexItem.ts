@@ -1,7 +1,6 @@
 import { Stats } from "fs";
-
-const { finder } = require("../system");
-const { v4: uuidv4 } = require("uuid");
+import { finder } from "../system/index.js";
+import { v4 as uuidv4 } from "uuid";
 
 class IndexItem {
   pathToFile;

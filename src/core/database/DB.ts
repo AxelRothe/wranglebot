@@ -1,7 +1,7 @@
-import Transaction from "./Transaction";
+import Transaction from "./Transaction.js";
 import LogBot from "logbotjs";
 import { io } from "socket.io-client";
-import { config, finder } from "../system";
+import { config, finder } from "../system/index.js";
 import EventEmitter from "events";
 import { clearTimeout } from "timers";
 import md5 from "md5";

@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
-import { TranscodeJob } from "./TranscodeJob";
-import { finder } from "../system";
+import { TranscodeJob } from "./TranscodeJob.js";
+import { finder } from "../system/index.js";
 
 export class TranscodeTask {
   id: string;

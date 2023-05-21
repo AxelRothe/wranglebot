@@ -1,5 +1,5 @@
-import ThumbnailFactoryOptions from "./ThumbnailFactoryOptions";
-import { config, finder } from "../system";
+import ThumbnailFactoryOptions from "./ThumbnailFactoryOptions.js";
+import { config, finder } from "../system/index.js";
 import { v4 as uuidv4 } from "uuid";
 import ffmpeg, { FfmpegCommand } from "fluent-ffmpeg";
 

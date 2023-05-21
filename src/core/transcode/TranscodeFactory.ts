@@ -1,5 +1,5 @@
-import TranscodeFactoryOptions from "./TranscodeFactoryOptions";
-import { config, finder } from "../system";
+import TranscodeFactoryOptions from "./TranscodeFactoryOptions.js";
+import { config, finder } from "../system/index.js";
 import ffmpeg, { FfmpegCommand } from "fluent-ffmpeg";
 
 export default class TranscodeFactory {

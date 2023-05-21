@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,14 +7,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const Espresso_1 = __importDefault(require("./Espresso"));
-const uuid_1 = require("uuid");
-const Status_1 = __importDefault(require("./Status"));
-class Job {
+import Espresso from "./Espresso.js";
+import { v4 as uuidv4 } from "uuid";
+import Status from "./Status.js";
+export default class Job {
     /**
      * Creates a Copy Job
      *
@@ -26,8 +21,8 @@ class Job {
         this.stats = {
             size: 0,
         };
-        this.id = options.id || (0, uuid_1.v4)();
-        this.status = options.status || Status_1.default.PENDING;
+        this.id = options.id || uuidv4();
+        this.status = options.status || Status.PENDING;
         this.source = options.source ? options.source : null;
         this.destinations = options.destinations ? options.destinations : null;
         this.result = options.result || {};
@@ -43,14 +38,14 @@ class Job {
     run(callback, cancelToken) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                if (this.status !== Status_1.default.DONE || !this.result) {
-                    this.status = Status_1.default.RUNNING;
-                    const cup = new Espresso_1.default();
+                if (this.status !== Status.DONE || !this.result) {
+                    this.status = Status.RUNNING;
+                    const cup = new Espresso();
                     try {
                         cup.pour(this.source);
                     }
                     catch (e) {
-                        this.status = Status_1.default.FAILED;
+                        this.status = Status.FAILED;
                         reject(e);
                         return;
                     }
@@ -61,15 +56,15 @@ class Job {
                             .then((result) => {
                             if (result) {
                                 this.result = result;
-                                this.status = Status_1.default.DONE;
+                                this.status = Status.DONE;
                             }
                             else {
-                                this.status = Status_1.default.PENDING;
+                                this.status = Status.PENDING;
                             }
                             resolve(this);
                         })
                             .catch((e) => {
-                            this.status = Status_1.default.FAILED;
+                            this.status = Status.FAILED;
                             reject(e);
                         });
                     }
@@ -80,15 +75,15 @@ class Job {
                             .then((result) => {
                             if (result) {
                                 this.result = result;
-                                this.status = Status_1.default.DONE;
+                                this.status = Status.DONE;
                             }
                             else {
-                                this.status = Status_1.default.PENDING;
+                                this.status = Status.PENDING;
                             }
                             resolve(this);
                         })
                             .catch((e) => {
-                            this.status = Status_1.default.FAILED;
+                            this.status = Status.FAILED;
                             reject(e);
                         });
                     }
@@ -114,5 +109,4 @@ class Job {
         };
     }
 }
-exports.default = Job;
 //# sourceMappingURL=Job.js.map

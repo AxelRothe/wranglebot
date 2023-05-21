@@ -1,7 +1,7 @@
-import { finder } from "../system";
+import { finder } from "../system/index.js";
 import { SearchLite } from "searchlite";
-import ReturnObject from "../utility/SendBack";
-import { Volume } from "./Volume";
+import ReturnObject from "../utility/SendBack.js";
+import { Volume } from "./Volume.js";
 import LogBot from "logbotjs";
 import EventEmitter from "events";
 import { FSWatcher } from "fs";

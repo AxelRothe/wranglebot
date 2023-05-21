@@ -1,4 +1,4 @@
-import { MetaFile } from "./MetaFile";
+import { MetaFile } from "./MetaFile.js";
 
 class Thumbnail {
   id: string;

@@ -1,10 +1,10 @@
-import User from "./User";
+import User from "./User.js";
 declare const _default: {
     AccountManager: {
         users: Set<User>;
         salt: string;
         init(): Promise<void>;
-        addOneUser(options: import("./createUserOptions").default): User;
+        addOneUser(options: import("./createUserOptions.js").default): User;
         updateUserConfig(user: User, config: any): void;
         removeOneUser(user: any): boolean;
         getAllUsers(filters?: {}): User[];

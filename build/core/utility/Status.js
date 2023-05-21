@@ -1,9 +1,6 @@
-"use strict";
 /**
  * @typedef {"waiting"|"doing"|"done"|"failed"} StatusStrings
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Status = void 0;
 class Status {
     constructor(value = "waiting") {
         this.status2 = value;
@@ -22,5 +19,5 @@ class Status {
         return this.status2;
     }
 }
-exports.Status = Status;
+export { Status };
 //# sourceMappingURL=Status.js.map

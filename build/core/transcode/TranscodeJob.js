@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -13,21 +12,16 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 var _TranscodeJob_instances, _TranscodeJob_transcodeOneMetaFile;
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.TranscodeJob = void 0;
-const MetaCopy_1 = require("../library/MetaCopy");
-const uuid_1 = require("uuid");
-const system_1 = require("../system");
-const index_1 = __importDefault(require("./index"));
-const Espresso_1 = __importDefault(require("../media/Espresso"));
-class TranscodeJob {
+import { MetaCopy } from "../library/MetaCopy.js";
+import { v4 as uuidv4 } from "uuid";
+import { finder } from "../system/index.js";
+import TranscodeBot from "./index.js";
+import Espresso from "../media/Espresso.js";
+export class TranscodeJob {
     constructor(task, options) {
         _TranscodeJob_instances.add(this);
-        this.id = (0, uuid_1.v4)();
+        this.id = uuidv4();
         this.status = 1; // 1 = pending, 2 = running, 3 = done, 4 = error
         this.cancelToken = { cancel: false };
         this.id = options.id || this.id;
@@ -79,30 +73,29 @@ class TranscodeJob {
         };
     }
 }
-exports.TranscodeJob = TranscodeJob;
 _TranscodeJob_instances = new WeakSet(), _TranscodeJob_transcodeOneMetaFile = function _TranscodeJob_transcodeOneMetaFile(metaFile, callback) {
     return __awaiter(this, void 0, void 0, function* () {
         //find reachable meta copy
         const reachableMetaCopy = metaFile.copies.find((copy) => {
-            return system_1.finder.existsSync(copy.pathToBucket.file);
+            return finder.existsSync(copy.pathToBucket.file);
         });
         if (reachableMetaCopy) {
             const pathToExport = this.pathToExport;
             const pathToExportedFile = pathToExport + "/" + (this.customName || metaFile.name) + "." + this.task.template.extension;
-            if (system_1.finder.existsSync(pathToExportedFile) && !this.task.overwrite) {
+            if (finder.existsSync(pathToExportedFile) && !this.task.overwrite) {
                 throw new Error("File already exists.");
             }
             //transcode the meta file
             try {
-                const transcode = index_1.default.generateTranscode(reachableMetaCopy.pathToBucket.file, Object.assign(Object.assign({}, this.task.template), { output: pathToExportedFile, lut: this.task.lut }));
+                const transcode = TranscodeBot.generateTranscode(reachableMetaCopy.pathToBucket.file, Object.assign(Object.assign({}, this.task.template), { output: pathToExportedFile, lut: this.task.lut }));
                 if (transcode === null)
                     throw new Error("Could not generate transcode");
                 yield transcode.run(callback, this.cancelToken);
                 if (this.cancelToken.cancel)
                     return null;
-                const cup = new Espresso_1.default();
+                const cup = new Espresso();
                 const analyzedFile = yield cup.pour(pathToExportedFile).analyse(this.cancelToken, () => { });
-                const newMetaCopy = new MetaCopy_1.MetaCopy({
+                const newMetaCopy = new MetaCopy({
                     hash: analyzedFile.hash,
                     pathToSource: reachableMetaCopy.pathToBucket.file,
                     pathToBucket: pathToExportedFile,

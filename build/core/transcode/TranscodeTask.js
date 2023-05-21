@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,15 +7,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.TranscodeTask = void 0;
-const uuid_1 = require("uuid");
-const TranscodeJob_1 = require("./TranscodeJob");
-const system_1 = require("../system");
-class TranscodeTask {
+import { v4 as uuidv4 } from "uuid";
+import { TranscodeJob } from "./TranscodeJob.js";
+import { finder } from "../system/index.js";
+export class TranscodeTask {
     constructor(files, options) {
         this.jobs = [];
-        this.id = options.id || (0, uuid_1.v4)();
+        this.id = options.id || uuidv4();
         this.label = options.label;
         this.template = options.template;
         this.status = options.status || 1;
@@ -24,10 +21,10 @@ class TranscodeTask {
         this.lut = options.lut || undefined;
         this.creationDate = options.creationDate ? new Date(options.creationDate) : new Date();
         if (options.jobs) {
-            this.jobs = options.jobs.map((job) => new TranscodeJob_1.TranscodeJob(this, job));
+            this.jobs = options.jobs.map((job) => new TranscodeJob(this, job));
         }
         else if (files) {
-            this.jobs = files.map((metaFile) => new TranscodeJob_1.TranscodeJob(this, { metaFile: metaFile, pathToExport: options.pathToExport }));
+            this.jobs = files.map((metaFile) => new TranscodeJob(this, { metaFile: metaFile, pathToExport: options.pathToExport }));
         }
     }
     run(library, callback, cancelToken, jobCallback) {
@@ -41,7 +38,7 @@ class TranscodeTask {
                 });
             };
             for (let job of this.jobs) {
-                if (!system_1.finder.isReachable(job.pathToExport))
+                if (!finder.isReachable(job.pathToExport))
                     throw new Error("Path to export is not reachable. Connect the volume first.");
                 yield job.run(cancelToken, cb);
                 jobCallback(job);
@@ -73,7 +70,7 @@ class TranscodeTask {
         if (document.status)
             this.status = document.status;
         if (document.jobs) {
-            this.jobs = document.jobs.map((job) => new TranscodeJob_1.TranscodeJob(this, job));
+            this.jobs = document.jobs.map((job) => new TranscodeJob(this, job));
         }
     }
     cancel() {
@@ -94,5 +91,4 @@ class TranscodeTask {
         };
     }
 }
-exports.TranscodeTask = TranscodeTask;
 //# sourceMappingURL=TranscodeTask.js.map

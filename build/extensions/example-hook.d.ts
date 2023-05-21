@@ -1,4 +1,4 @@
-import { WrangleBot } from "../core/WrangleBot";
+import { WrangleBot } from "../core/WrangleBot.js";
 declare const _default: {
     name: string;
     description: string;

@@ -1,2 +1,2 @@
-import TranscodeBot from "./TranscodeBot";
+import TranscodeBot from "./TranscodeBot.js";
 export default TranscodeBot;

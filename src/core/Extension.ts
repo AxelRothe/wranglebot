@@ -1,4 +1,4 @@
-import { WrangleBot } from "./WrangleBot";
+import { WrangleBot } from "./WrangleBot.js";
 
 export default interface Extension {
   name: string;

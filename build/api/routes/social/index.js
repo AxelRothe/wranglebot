@@ -1,10 +1,3 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const share_mail_1 = __importDefault(require("./share-mail"));
-exports.default = [
-    share_mail_1.default,
-];
+import shareMail from "./share-mail.js";
+export default [shareMail];
 //# sourceMappingURL=index.js.map

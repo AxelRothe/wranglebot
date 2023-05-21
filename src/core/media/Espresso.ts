@@ -2,12 +2,13 @@ import StreamSpeed from "streamspeed";
 import path from "path";
 import { StringDecoder } from "string_decoder";
 import MediaInfo from "mediainfo.js";
-import { XXHash128, XXHash3, XXHash32, XXHash64 } from "xxhash-addon";
+import pkg from "xxhash-addon";
+const { XXHash128, XXHash3, XXHash32, XXHash64 } = pkg;
 import fs from "fs";
 import diskusage from "diskusage-ng";
 
 import LogBot from "logbotjs";
-import finder from "../system/finder";
+import finder from "../system/finder.js";
 
 interface Volume {
   path: string;

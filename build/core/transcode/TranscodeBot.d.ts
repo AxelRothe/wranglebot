@@ -1,5 +1,5 @@
-import TranscodeFactory from "./TranscodeFactory";
-import TranscodeSetFactory from "./TranscodeSetFactory";
+import TranscodeFactory from "./TranscodeFactory.js";
+import TranscodeSetFactory from "./TranscodeSetFactory.js";
 declare class TranscodeBot {
     constructor();
     /**

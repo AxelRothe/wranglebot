@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -13,28 +12,24 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 var _MetaLibrary_instances, _MetaLibrary_removeFromRunTime, _MetaLibrary_addToRuntime;
-Object.defineProperty(exports, "__esModule", { value: true });
-const MetaLibraryData_1 = __importDefault(require("./MetaLibraryData"));
-const searchlite_1 = require("searchlite");
-const MetaFile_1 = require("./MetaFile");
-const Task_1 = __importDefault(require("../media/Task"));
-const export_1 = __importDefault(require("../export"));
-const DB_1 = __importDefault(require("../database/DB"));
-const logbotjs_1 = __importDefault(require("logbotjs"));
-const MetaCopy_1 = require("./MetaCopy");
-const system_1 = require("../system");
-const utility_1 = __importDefault(require("../system/utility"));
-const Config_1 = __importDefault(require("../system/Config"));
-const Scraper_1 = __importDefault(require("./Scraper"));
-const Espresso_1 = __importDefault(require("../media/Espresso"));
-const TranscodeTask_1 = require("../transcode/TranscodeTask");
-const Indexer_1 = require("../media/Indexer");
-const Status_1 = __importDefault(require("../media/Status"));
-class MetaLibrary {
+import MetaLibraryData from "./MetaLibraryData.js";
+import { SearchLite } from "searchlite";
+import { MetaFile } from "./MetaFile.js";
+import Task from "../media/Task.js";
+import ExportBot from "../export/index.js";
+import DB from "../database/DB.js";
+import LogBot from "logbotjs";
+import { MetaCopy } from "./MetaCopy.js";
+import { finder } from "../system/index.js";
+import utility from "../system/utility.js";
+import config from "../system/Config.js";
+import Scraper from "./Scraper.js";
+import Espresso from "../media/Espresso.js";
+import { TranscodeTask } from "../transcode/TranscodeTask.js";
+import { indexer } from "../media/Indexer.js";
+import Status from "../media/Status.js";
+export default class MetaLibrary {
     constructor(wb, options) {
         _MetaLibrary_instances.add(this);
         this.name = "UNNAMED";
@@ -43,7 +38,7 @@ class MetaLibrary {
          * The metadata of the library, this is info that can be saved and used in the handlebars
          * @type {MetaLibraryData}
          */
-        this.drops = new MetaLibraryData_1.default();
+        this.drops = new MetaLibraryData();
         this.metaFiles = [];
         this.tasks = [];
         this.transcodes = [];
@@ -63,7 +58,7 @@ class MetaLibrary {
                 throw new Error("new MetaLibrary must have a option .pathToLibrary");
             this.name = options.name;
             this.pathToLibrary = options.pathToLibrary;
-            this.drops = new MetaLibraryData_1.default(options.drops || null);
+            this.drops = new MetaLibraryData(options.drops || null);
             this.folders = options.folders || [];
         }
         return this;
@@ -76,7 +71,7 @@ class MetaLibrary {
      */
     update(options, save = true) {
         if (options.pathToLibrary) {
-            if (!system_1.finder.isReachable(options.pathToLibrary) && save && !this.readOnly) {
+            if (!finder.isReachable(options.pathToLibrary) && save && !this.readOnly) {
                 throw new Error(options.pathToLibrary + " is not reachable and can not be updated.");
             }
             this.pathToLibrary = options.pathToLibrary;
@@ -84,8 +79,8 @@ class MetaLibrary {
         if (options.folders)
             this.folders = options.folders;
         if (options.drops)
-            this.drops = new MetaLibraryData_1.default(options.drops);
-        if (system_1.finder.existsSync(this.pathToLibrary)) {
+            this.drops = new MetaLibraryData(options.drops);
+        if (finder.existsSync(this.pathToLibrary)) {
             this.readOnly = false;
             this.createFoldersOnDiskFromTemplate();
         }
@@ -106,10 +101,10 @@ class MetaLibrary {
                 }
                 if (overwriteOptions.name && overwriteOptions.name !== folder.name) {
                     //check if folder is empty
-                    if (system_1.finder.readdirSync(system_1.finder.join(this.pathToLibrary, folderPath)).length > 0) {
+                    if (finder.readdirSync(finder.join(this.pathToLibrary, folderPath)).length > 0) {
                         throw new Error(`Folder ${folderPath} is not empty, can not rename`);
                     }
-                    system_1.finder.rename(system_1.finder.join(this.pathToLibrary, folderPath), overwriteOptions.name);
+                    finder.rename(finder.join(this.pathToLibrary, folderPath), overwriteOptions.name);
                     folder.name = overwriteOptions.name;
                 }
                 if (overwriteOptions.watch !== undefined) {
@@ -156,7 +151,7 @@ class MetaLibrary {
         return null;
     }
     save(options = {}) {
-        return (0, DB_1.default)().updateOne("libraries", { name: this.name }, options);
+        return DB().updateOne("libraries", { name: this.name }, options);
     }
     /**
      * REBUILD
@@ -184,14 +179,14 @@ class MetaLibrary {
                 this.name = metaLibraryProto.name;
                 this.folders = metaLibraryProto.folders;
                 this.pathToLibrary = metaLibraryProto.pathToLibrary;
-                this.drops = new MetaLibraryData_1.default(metaLibraryProto.drops);
+                this.drops = new MetaLibraryData(metaLibraryProto.drops);
                 this.creationDate = new Date(metaLibraryProto.creationDate);
                 /* METAFILES */
-                const metaFilesRaw = (0, DB_1.default)().getMany("metafiles", { library: this.name });
-                const allMetaCopiesRaw = (0, DB_1.default)().getMany("metacopies", { library: this.name });
+                const metaFilesRaw = DB().getMany("metafiles", { library: this.name });
+                const allMetaCopiesRaw = DB().getMany("metacopies", { library: this.name });
                 for (let metaFileRaw of metaFilesRaw) {
-                    const thumbnailsRaw = (0, DB_1.default)().getMany("thumbnails", { metaFile: metaFileRaw.id });
-                    const newMetaFile = new MetaFile_1.MetaFile(Object.assign(Object.assign({}, metaFileRaw), { thumbnails: thumbnailsRaw }));
+                    const thumbnailsRaw = DB().getMany("thumbnails", { metaFile: metaFileRaw.id });
+                    const newMetaFile = new MetaFile(Object.assign(Object.assign({}, metaFileRaw), { thumbnails: thumbnailsRaw }));
                     if (metaFileRaw.copies) {
                         const metaCopiesRaw = metaFileRaw.copies.map((copy) => {
                             const copyRaw = allMetaCopiesRaw.find((c) => c.id === copy);
@@ -202,7 +197,7 @@ class MetaLibrary {
                         if (metaCopiesRaw.length > 0) {
                             for (let metaCopyRaw of metaCopiesRaw) {
                                 metaCopyRaw.metaFile = newMetaFile;
-                                const metaCopy = new MetaCopy_1.MetaCopy(metaCopyRaw);
+                                const metaCopy = new MetaCopy(metaCopyRaw);
                                 this.wb.addToRuntime("metaCopies", metaCopy);
                                 newMetaFile.addCopy(metaCopy);
                             }
@@ -212,7 +207,7 @@ class MetaLibrary {
                     this.wb.addToRuntime("metaFiles", newMetaFile);
                 }
                 /* REBUILD TASKS */
-                const tasks = (0, DB_1.default)().getMany("tasks", { library: this.name });
+                const tasks = DB().getMany("tasks", { library: this.name });
                 for (let task of tasks) {
                     for (let job of task.jobs) {
                         if (this.wb.index.metaCopies[job.metaCopy]) {
@@ -222,12 +217,12 @@ class MetaLibrary {
                             task.status = -1;
                         }
                     }
-                    const newTask = new Task_1.default(task);
+                    const newTask = new Task(task);
                     this.tasks.push(newTask);
                     this.wb.addToRuntime("copyTasks", newTask);
                 }
                 /* REBUILD TRANSCODES */
-                const transcodes = (0, DB_1.default)().getMany("transcodes", { library: this.name });
+                const transcodes = DB().getMany("transcodes", { library: this.name });
                 for (let transcode of transcodes) {
                     try {
                         for (let job of transcode.jobs) {
@@ -241,12 +236,12 @@ class MetaLibrary {
                                 transcode.status = -1;
                             }
                         }
-                        const t = new TranscodeTask_1.TranscodeTask(null, transcode);
+                        const t = new TranscodeTask(null, transcode);
                         this.transcodes.push(t);
                         __classPrivateFieldGet(this, _MetaLibrary_instances, "m", _MetaLibrary_addToRuntime).call(this, "transcodes", t);
                     }
                     catch (e) {
-                        logbotjs_1.default.log(500, "Failed to rebuild transcode. Reason: " + e.message);
+                        LogBot.log(500, "Failed to rebuild transcode. Reason: " + e.message);
                     }
                 }
                 if (!this.readOnly) {
@@ -264,16 +259,16 @@ class MetaLibrary {
      * Iterates over the given folders and creates them on the disk relative to pathToLibrary
      */
     createFoldersOnDiskFromTemplate(folders = this.folders, basePath = this.pathToLibrary, jobs = []) {
-        if (!system_1.finder.existsSync(this.pathToLibrary)) {
-            system_1.finder.mkdirSync(this.pathToLibrary, { recursive: true });
+        if (!finder.existsSync(this.pathToLibrary)) {
+            finder.mkdirSync(this.pathToLibrary, { recursive: true });
         }
         for (let folder of folders) {
-            let folderPath = system_1.finder.join(basePath, folder.name);
+            let folderPath = finder.join(basePath, folder.name);
             if (folder.folders) {
                 this.createFoldersOnDiskFromTemplate(folder.folders, folderPath, jobs);
             }
-            if (!system_1.finder.existsSync(folderPath)) {
-                system_1.finder.mkdirSync(folderPath, { recursive: true });
+            if (!finder.existsSync(folderPath)) {
+                finder.mkdirSync(folderPath, { recursive: true });
             }
             /*if (folder.watch) {
               watch(folderPath, { recursive: false }, (eventType, path) => {
@@ -287,7 +282,7 @@ class MetaLibrary {
         return __awaiter(this, void 0, void 0, function* () {
             const jobs = yield this.scanLibraryForNewFiles();
             if (jobs.length > 0) {
-                logbotjs_1.default.log(100, `Found ${jobs.length} new files to add to the library`);
+                LogBot.log(100, `Found ${jobs.length} new files to add to the library`);
                 const r = yield this.addOneTask({
                     label: "Delta Detection " + new Date().toLocaleString(),
                     jobs,
@@ -302,8 +297,8 @@ class MetaLibrary {
     scanLibraryForNewFiles(folders = this.folders, basePath = this.pathToLibrary, jobs = []) {
         return __awaiter(this, void 0, void 0, function* () {
             for (let folder of folders.filter((f) => f.watch)) {
-                let folderPath = system_1.finder.join(basePath, folder.name);
-                const r = yield Indexer_1.indexer.index(folderPath);
+                let folderPath = finder.join(basePath, folder.name);
+                const r = yield indexer.index(folderPath);
                 for (let indexItem of r.items) {
                     let metaCopy = this.getMetaCopyByPath(indexItem.pathToFile);
                     let f = jobs.find((j) => j.source === indexItem.pathToFile);
@@ -338,7 +333,7 @@ class MetaLibrary {
     }
     handleFileChange(event, path) {
         return __awaiter(this, void 0, void 0, function* () {
-            let basename = system_1.finder.basename(path);
+            let basename = finder.basename(path);
             if (event === "update") {
                 //check if this a file of an existing job
                 for (const task of Object.values(this.wb.index.copyTasks)) {
@@ -358,12 +353,12 @@ class MetaLibrary {
                     }
                 }
                 //check if new or moved file
-                const cup = new Espresso_1.default();
+                const cup = new Espresso();
                 const result = yield cup.pour(path).analyse({ cancel: false }, (progress) => { });
                 const mf = this.findMetaFileByHash(result.hash);
                 if (mf) {
                     //found new copy of existing metafile
-                    const mc = new MetaCopy_1.MetaCopy({
+                    const mc = new MetaCopy({
                         metaFile: mf,
                         hash: result.hash,
                         pathToSource: path,
@@ -373,25 +368,25 @@ class MetaLibrary {
                 }
                 else {
                     //create new metafile
-                    const newMF = new MetaFile_1.MetaFile({
+                    const newMF = new MetaFile({
                         hash: result.hash,
-                        metaData: Scraper_1.default.parse(result.metaData),
+                        metaData: Scraper.parse(result.metaData),
                         basename: basename,
                         name: basename.substring(0, basename.lastIndexOf(".")),
                         size: result.size,
-                        fileType: system_1.finder.getFileType(basename),
-                        extension: system_1.finder.extname(basename),
+                        fileType: finder.getFileType(basename),
+                        extension: finder.extname(basename),
                     });
                     yield this.addOneMetaFile(newMF);
-                    const newMC = new MetaCopy_1.MetaCopy({
+                    const newMC = new MetaCopy({
                         metaFile: newMF,
                         hash: result.hash,
                         pathToSource: path,
                         label: "watched",
                     });
-                    yield utility_1.default.twiddleThumbs(5); //wait 5 milliseconds to make sure the timestamp is incremented, yes lazy I know; sue me, it works; worthy of a test though if we can reduce to 1ms
+                    yield utility.twiddleThumbs(5); //wait 5 milliseconds to make sure the timestamp is incremented, yes lazy I know; sue me, it works; worthy of a test though if we can reduce to 1ms
                     yield this.addOneMetaCopy(newMC, newMF);
-                    logbotjs_1.default.log(200, `Added new MetaFile ${newMF.name} with hash ${newMF.hash}`);
+                    LogBot.log(200, `Added new MetaFile ${newMF.name} with hash ${newMF.hash}`);
                 }
             }
             else if (event === "remove") {
@@ -400,7 +395,7 @@ class MetaLibrary {
         });
     }
     log(message, type) {
-        logbotjs_1.default.log(`${this.name}:${type}`, message);
+        LogBot.log(`${this.name}:${type}`, message);
     }
     /**
      *
@@ -411,7 +406,7 @@ class MetaLibrary {
      */
     get(list, value = "", property = "id") {
         if (this[list]) {
-            return searchlite_1.SearchLite.find(this[list], property, value).result;
+            return SearchLite.find(this[list], property, value).result;
         }
         else {
             return undefined;
@@ -421,7 +416,7 @@ class MetaLibrary {
     updateMetaData(col, value) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.drops.updateCol(col, value)) {
-                const result = yield (0, DB_1.default)().updateOne("libraries", { name: this.name }, {
+                const result = yield DB().updateOne("libraries", { name: this.name }, {
                     drops: this.drops,
                 });
                 return true;
@@ -432,7 +427,7 @@ class MetaLibrary {
     removeMetaData(col) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.drops.removeCol(col)) {
-                const result = yield (0, DB_1.default)().updateOne("libraries", { name: this.name }, {
+                const result = yield DB().updateOne("libraries", { name: this.name }, {
                     drops: this.drops,
                 });
                 return true;
@@ -451,7 +446,7 @@ class MetaLibrary {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.readOnly)
                 throw new Error("Library is read only");
-            yield (0, DB_1.default)().updateOne("metafiles", { id: metaFile.id, library: this.name }, metaFile.toJSON({ db: true }));
+            yield DB().updateOne("metafiles", { id: metaFile.id, library: this.name }, metaFile.toJSON({ db: true }));
             this.metaFiles.push(metaFile);
             this.wb.addToRuntime("metaFiles", metaFile);
             this.wb.emit("metafile-new", metaFile);
@@ -464,7 +459,7 @@ class MetaLibrary {
      * @return {MetaFile}
      */
     findMetaFileByHash(hash) {
-        const search = searchlite_1.SearchLite.find(this.metaFiles, "_hash", hash);
+        const search = SearchLite.find(this.metaFiles, "_hash", hash);
         if (search.wasSuccess()) {
             return search.result;
         }
@@ -517,7 +512,7 @@ class MetaLibrary {
                     this.wb.removeFromRuntime("metaCopies", copy);
                 }
                 for (let thumbnail of file.thumbnails) {
-                    system_1.finder.rmSync(system_1.finder.join(Config_1.default.getPathToUserData(), "thumbnails", thumbnail.id + ".jpg"));
+                    finder.rmSync(finder.join(config.getPathToUserData(), "thumbnails", thumbnail.id + ".jpg"));
                 }
                 listOfIdsToRemove.push(file.id);
                 this.wb.removeFromRuntime("metaFiles", file);
@@ -526,9 +521,9 @@ class MetaLibrary {
             for (let f of this.metaFiles) {
                 if (listOfIdsToRemove.includes(f.id)) {
                     if (save) {
-                        (0, DB_1.default)().removeOne("metafiles", { id: f.id, library: this.name });
-                        (0, DB_1.default)().removeMany("metacopies", { metafile: f.id, library: this.name });
-                        (0, DB_1.default)().removeMany("thumbnails", { metafile: f.id, library: this.name });
+                        DB().removeOne("metafiles", { id: f.id, library: this.name });
+                        DB().removeMany("metacopies", { metafile: f.id, library: this.name });
+                        DB().removeMany("thumbnails", { metafile: f.id, library: this.name });
                     }
                     this.wb.emit("metafile-removed", f.id);
                     this.metaFiles.splice(this.metaFiles.indexOf(f), 1);
@@ -548,12 +543,12 @@ class MetaLibrary {
                 throw new Error("Library is read only");
             metaFile.addCopy(metaCopy);
             this.wb.addToRuntime("metaCopies", metaCopy);
-            (0, DB_1.default)().updateOne("metafiles", { id: metaFile.id, library: this.name }, {
+            DB().updateOne("metafiles", { id: metaFile.id, library: this.name }, {
                 copies: metaFile.copies.map((c) => c.id),
             });
-            yield utility_1.default.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
+            yield utility.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
             this.wb.emit("metacopy-new", metaCopy);
-            return (0, DB_1.default)().updateOne("metacopies", { id: metaCopy.id, library: this.name, metaFile: metaFile.id }, metaCopy.toJSON({ db: true }));
+            return DB().updateOne("metacopies", { id: metaCopy.id, library: this.name, metaFile: metaFile.id }, metaCopy.toJSON({ db: true }));
         });
     }
     getOneMetaCopy(metaFileId, metaCopyId) {
@@ -574,19 +569,19 @@ class MetaLibrary {
         if (this.readOnly && save)
             throw new Error("Library is read only");
         if (save) {
-            const result = (0, DB_1.default)().removeOne("metacopies", { id: metaCopy.id, library: this.name });
+            const result = DB().removeOne("metacopies", { id: metaCopy.id, library: this.name });
         }
         if (options.deleteFile) {
             try {
-                system_1.finder.rmSync(metaCopy.pathToBucket.file);
+                finder.rmSync(metaCopy.pathToBucket.file);
             }
             catch (e) {
-                logbotjs_1.default.log(404, "Could not delete file <" + metaCopy.pathToBucket.file + ">");
+                LogBot.log(404, "Could not delete file <" + metaCopy.pathToBucket.file + ">");
             }
         }
         metaCopy.metaFile.dropCopy(metaCopy);
         if (save) {
-            const updateResult = (0, DB_1.default)().updateOne("metafiles", { id: metaCopy.metaFile.id, library: this.name }, {
+            const updateResult = DB().updateOne("metafiles", { id: metaCopy.metaFile.id, library: this.name }, {
                 copies: metaCopy.metaFile.copies.map((c) => c.id),
             });
             this.wb.emit("metacopy-remove", metaCopy.id);
@@ -599,7 +594,7 @@ class MetaLibrary {
             metafile.metaData.updateEntry(key, value);
             const set = { metaData: {} };
             set.metaData[key] = value;
-            (0, DB_1.default)().updateOne("metafiles", { id: metafile.id, library: this.name }, set);
+            DB().updateOne("metafiles", { id: metafile.id, library: this.name }, set);
             this.wb.emit("metafile-metadata-edit", {
                 id: metafile.id,
                 key: key,
@@ -613,12 +608,12 @@ class MetaLibrary {
     downloadOneThumbnail(thumb) {
         return __awaiter(this, void 0, void 0, function* () {
             //if the thumbnail doesn't exist, try to get it from the database and save it to the thumbnail folder
-            const thumbnailInDB = yield (0, DB_1.default)().getOne("thumbnails", { id: thumb.id });
+            const thumbnailInDB = yield DB().getOne("thumbnails", { id: thumb.id });
             if (thumbnailInDB) {
-                system_1.finder.mkdirSync(system_1.finder.join(Config_1.default.getPathToUserData(), "thumbnails"));
-                const newPath = system_1.finder.join(Config_1.default.getPathToUserData(), "thumbnails", thumb.id + ".jpg");
+                finder.mkdirSync(finder.join(config.getPathToUserData(), "thumbnails"));
+                const newPath = finder.join(config.getPathToUserData(), "thumbnails", thumb.id + ".jpg");
                 let buff = Buffer.from(thumbnailInDB.data, "base64");
-                system_1.finder.writeFileSync(newPath, buff);
+                finder.writeFileSync(newPath, buff);
             }
         });
     }
@@ -632,7 +627,7 @@ class MetaLibrary {
             //remove trailing slashes from source and destinations
             options.source = options.source.replace(/\/+$/, "");
             options.destinations = options.destinations.map((d) => d.replace(/\/+$/, ""));
-            const index = yield Indexer_1.indexer.index(options.source, options.types, options.matchExpression ? new RegExp(options.matchExpression) : null);
+            const index = yield indexer.index(options.source, options.types, options.matchExpression ? new RegExp(options.matchExpression) : null);
             const jobs = [];
             if (index) {
                 for (let item of index.items) {
@@ -701,7 +696,7 @@ class MetaLibrary {
                 throw new Error("No jobs provided");
             }
             //check if task with label already exists
-            const search = searchlite_1.SearchLite.find(Object.values(this.tasks), "label", options.label);
+            const search = SearchLite.find(Object.values(this.tasks), "label", options.label);
             if (search.wasFailure()) {
                 for (let job of options.jobs) {
                     if (!job.source) {
@@ -710,10 +705,10 @@ class MetaLibrary {
                     if (job.destinations !== null && job.destinations instanceof Array && job.destinations.length === 0) {
                         throw new Error("No destinations provided. Arrays must not be empty, use null instead.");
                     }
-                    if (!system_1.finder.existsSync(job.source)) {
+                    if (!finder.existsSync(job.source)) {
                         throw new Error("Source file does not exist: " + job.source);
                     }
-                    let stats = system_1.finder.statSync(job.source);
+                    let stats = finder.statSync(job.source);
                     if (!stats.isFile()) {
                         throw new Error("Source is not a file: " + job.source);
                     }
@@ -721,9 +716,9 @@ class MetaLibrary {
                         size: stats.size,
                     };
                 }
-                const task = new Task_1.default(options);
+                const task = new Task(options);
                 this.tasks.push(task);
-                yield (0, DB_1.default)().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+                yield DB().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
                 this.wb.addToRuntime("copyTasks", task);
                 this.wb.emit("copytask-new", task);
                 return task;
@@ -762,7 +757,7 @@ class MetaLibrary {
             const addMetaCopy = (executedJob, task, metaFile) => __awaiter(this, void 0, void 0, function* () {
                 if (executedJob.destinations === null) {
                     //add metacopy that is in place
-                    const newMetaCopy = new MetaCopy_1.MetaCopy({
+                    const newMetaCopy = new MetaCopy({
                         hash: executedJob.result.hash,
                         pathToSource: executedJob.source,
                         pathToBucket: executedJob.source,
@@ -771,12 +766,12 @@ class MetaLibrary {
                     });
                     //push changes to the database
                     yield this.addOneMetaCopy(newMetaCopy, metaFile);
-                    yield utility_1.default.twiddleThumbs(5); //wait 5 milliseconds to make sure the timestamp is incremented
+                    yield utility.twiddleThumbs(5); //wait 5 milliseconds to make sure the timestamp is incremented
                     return;
                 }
                 for (let destination of executedJob.destinations) {
                     //add metacopy to the metafile
-                    const newMetaCopy = new MetaCopy_1.MetaCopy({
+                    const newMetaCopy = new MetaCopy({
                         hash: executedJob.result.hash,
                         pathToSource: executedJob.source,
                         pathToBucket: destination,
@@ -785,13 +780,13 @@ class MetaLibrary {
                     });
                     //push changes to the database
                     yield this.addOneMetaCopy(newMetaCopy, metaFile);
-                    yield utility_1.default.twiddleThumbs(5); //wait 5 milliseconds to make sure the timestamp is incremented
+                    yield utility.twiddleThumbs(5); //wait 5 milliseconds to make sure the timestamp is incremented
                 }
             });
             try {
                 //iterate over all jobs
                 for (let job of task.jobs) {
-                    if (job.status === Status_1.default.DONE) {
+                    if (job.status === Status.DONE) {
                         continue;
                     }
                     let executedJob;
@@ -808,28 +803,28 @@ class MetaLibrary {
                     }
                     else {
                         //create new metafile
-                        const basename = system_1.finder.basename(executedJob.source).toString();
-                        const newMetaFile = new MetaFile_1.MetaFile({
+                        const basename = finder.basename(executedJob.source).toString();
+                        const newMetaFile = new MetaFile({
                             hash: executedJob.result.hash,
-                            metaData: Scraper_1.default.parse(executedJob.result.metaData),
+                            metaData: Scraper.parse(executedJob.result.metaData),
                             basename: basename,
                             name: basename.substring(0, basename.lastIndexOf(".")),
                             size: executedJob.result.size,
-                            fileType: system_1.finder.getFileType(basename),
-                            extension: system_1.finder.extname(basename),
+                            fileType: finder.getFileType(basename),
+                            extension: finder.extname(basename),
                         });
                         yield this.addOneMetaFile(newMetaFile);
-                        yield utility_1.default.twiddleThumbs(5); //wait a few ms to make sure the timestamp is different
+                        yield utility.twiddleThumbs(5); //wait a few ms to make sure the timestamp is different
                         yield addMetaCopy(executedJob, task, newMetaFile);
                     }
                 }
-                (0, DB_1.default)().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+                DB().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
                 this.wb.emit("copytask-edit", task);
                 return task;
             }
             catch (e) {
-                (0, DB_1.default)().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
-                logbotjs_1.default.log(500, "Task failed or cancelled");
+                DB().updateOne("tasks", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+                LogBot.log(500, "Task failed or cancelled");
                 this.wb.emit("copytask-edit", task);
                 throw e;
             }
@@ -855,7 +850,7 @@ class MetaLibrary {
             const copyTask = this.getOneTask(options.id);
             if (copyTask) {
                 copyTask.label = options.label;
-                const result = yield (0, DB_1.default)().updateOne("tasks", { id: copyTask.id, library: this.name }, copyTask.toJSON({ db: true }));
+                const result = yield DB().updateOne("tasks", { id: copyTask.id, library: this.name }, copyTask.toJSON({ db: true }));
                 this.wb.emit("copytask-edit", copyTask);
                 return true;
             }
@@ -876,7 +871,7 @@ class MetaLibrary {
         const task = this.getManyTasks().find((t) => t[by] === key);
         if (task) {
             if (save) {
-                (0, DB_1.default)().removeOne("tasks", { id: task.id, library: this.name });
+                DB().removeOne("tasks", { id: task.id, library: this.name });
                 this.wb.emit("copytask-remove", task);
             }
             this.tasks = this.tasks.filter((t) => t.id !== task.id);
@@ -900,12 +895,12 @@ class MetaLibrary {
                     if (task[key] !== filters[key])
                         continue;
                     this.removeOneTask(filters[key], key);
-                    yield utility_1.default.twiddleThumbs(5); //wait a few ms to make sure the timestamp is different
+                    yield utility.twiddleThumbs(5); //wait a few ms to make sure the timestamp is different
                 }
             }
             resolve(tasks);
         })).catch((e) => {
-            logbotjs_1.default.log(500, e);
+            LogBot.log(500, e);
         });
     }
     getOneTranscodeTask(id) {
@@ -921,11 +916,11 @@ class MetaLibrary {
         return __awaiter(this, void 0, void 0, function* () {
             if (!options.pathToExport)
                 throw new Error("No path to export set");
-            if (!system_1.finder.isReachable(options.pathToExport))
+            if (!finder.isReachable(options.pathToExport))
                 throw new Error("Path to export is not reachable");
-            const newTask = new TranscodeTask_1.TranscodeTask(files, options);
+            const newTask = new TranscodeTask(files, options);
             this.transcodes.push(newTask);
-            yield (0, DB_1.default)().updateOne("transcodes", { library: this.name, id: newTask.id }, newTask.toJSON({ db: true }));
+            yield DB().updateOne("transcodes", { library: this.name, id: newTask.id }, newTask.toJSON({ db: true }));
             this.wb.addToRuntime("transcodes", newTask);
             this.wb.emit("transcode-new", newTask);
             return newTask;
@@ -938,7 +933,7 @@ class MetaLibrary {
         if (task && task.status !== 2) {
             this.transcodes = this.transcodes.filter((j) => j.id !== id);
             if (save) {
-                (0, DB_1.default)().removeOne("transcodes", { id: task.id, library: this.name });
+                DB().removeOne("transcodes", { id: task.id, library: this.name });
                 this.wb.emit("transcode-remove", task);
             }
             this.wb.removeFromRuntime("transcodes", task);
@@ -954,12 +949,12 @@ class MetaLibrary {
                     yield task.run(this, cb, cancelToken, (job) => {
                         //DB().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
                     });
-                    (0, DB_1.default)().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+                    DB().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
                     this.wb.emit("transcode-edit", task);
                     return true;
                 }
                 catch (e) {
-                    (0, DB_1.default)().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
+                    DB().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
                     throw e;
                 }
             }
@@ -975,7 +970,7 @@ class MetaLibrary {
             }
             if (options.format === "pdf") {
                 try {
-                    return yield export_1.default.exportPDF(metaFiles, {
+                    return yield ExportBot.exportPDF(metaFiles, {
                         paths: [options.pathToExport || this.pathToLibrary + "/_reports"],
                         fileName: options.reportName,
                         logo: options.logoPath,
@@ -1029,7 +1024,6 @@ class MetaLibrary {
         };
     }
 }
-exports.default = MetaLibrary;
 _MetaLibrary_instances = new WeakSet(), _MetaLibrary_removeFromRunTime = function _MetaLibrary_removeFromRunTime(list, item) {
     try {
         if (this.wb.index[list]) {

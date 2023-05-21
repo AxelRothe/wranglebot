@@ -1,63 +1,58 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const path_1 = __importDefault(require("path"));
-const os_1 = __importDefault(require("os"));
-const fs_1 = __importDefault(require("fs"));
-const ezyrnd_1 = require("ezyrnd");
-const logbotjs_1 = __importDefault(require("logbotjs"));
-const finder_1 = __importDefault(require("./finder"));
-const cryptr_1 = __importDefault(require("cryptr"));
-const write_file_atomic_1 = require("write-file-atomic");
+import path from "path";
+import os from "os";
+import fs from "fs";
+import { ezyrnd } from "ezyrnd";
+import LogBot from "logbotjs";
+import finder from "./finder.js";
+import Cryptr from "cryptr";
+import { sync as writeFileAtomicSync } from "write-file-atomic";
 class Config {
     constructor() {
         this.appName = "wranglebot";
         this.versionNumber = "9";
-        this.cryptr = new cryptr_1.default("c9b7fd52-e1c7-4c23-9e7f-75639b91f276");
+        this.cryptr = new Cryptr("c9b7fd52-e1c7-4c23-9e7f-75639b91f276");
         /**
          * Build
          */
         const build = () => {
-            if (!finder_1.default.existsSync(finder_1.default.getPathToUserData(this.appName))) {
-                finder_1.default.mkdirSync(finder_1.default.getPathToUserData(this.appName));
-                if (!finder_1.default.existsSync(finder_1.default.getPathToUserData(this.appName))) {
-                    logbotjs_1.default.log(500, "Unable to create config directory. No permissions?");
+            if (!finder.existsSync(finder.getPathToUserData(this.appName))) {
+                finder.mkdirSync(finder.getPathToUserData(this.appName));
+                if (!finder.existsSync(finder.getPathToUserData(this.appName))) {
+                    LogBot.log(500, "Unable to create config directory. No permissions?");
                     process.exit(1);
                 }
                 else {
-                    logbotjs_1.default.log(100, "Creating new config in homedir...");
+                    LogBot.log(100, "Creating new config in homedir...");
                 }
             }
             else {
-                logbotjs_1.default.log(100, "Loading config from homedir...");
+                LogBot.log(100, "Loading config from homedir...");
             }
         };
         build();
         //copy luts to homedir
         let pathToLUTs = this.getPathToUserData() + "/LUTs";
         //set logfile path
-        logbotjs_1.default.setPathToLogFile(this.getPathToUserData() + "/log.txt");
-        this.pathToConfigFile = path_1.default.join(this.getPathToUserData(), "config.json");
-        if (fs_1.default.existsSync(this.pathToConfigFile)) {
-            this.config = JSON.parse(fs_1.default.readFileSync(this.pathToConfigFile).toString());
+        LogBot.setPathToLogFile(this.getPathToUserData() + "/log.txt");
+        this.pathToConfigFile = path.join(this.getPathToUserData(), "config.json");
+        if (fs.existsSync(this.pathToConfigFile)) {
+            this.config = JSON.parse(fs.readFileSync(this.pathToConfigFile).toString());
             if (!this.config["wb-version"] || this.config["wb-version"] !== this.versionNumber) {
-                logbotjs_1.default.log(409, "Upgrading config from " + this.config.version + " to version " + this.versionNumber);
+                LogBot.log(409, "Upgrading config from " + this.config.version + " to version " + this.versionNumber);
                 this.set("wb-version", this.versionNumber);
                 this.set("app-name", this.appName);
                 this.set("auth-server", "https://wranglebot.io");
                 this.set("ml-server", "https://ai.wranglebot.io");
                 this.set("database", "https://db2.wranglebot.io");
                 this.set("luts", pathToLUTs);
-                this.set("jwt-secret", this.cryptr.encrypt(ezyrnd_1.ezyrnd.randomString(128)));
+                this.set("jwt-secret", this.cryptr.encrypt(ezyrnd.randomString(128)));
                 this.set("port", 3300);
             }
         }
         else {
-            logbotjs_1.default.log(100, "Creating config version " + this.versionNumber);
+            LogBot.log(100, "Creating config version " + this.versionNumber);
             this.config = {
-                "jwt-secret": this.cryptr.encrypt(ezyrnd_1.ezyrnd.randomString(128)),
+                "jwt-secret": this.cryptr.encrypt(ezyrnd.randomString(128)),
                 "app-name": this.appName,
                 "wb-version": this.versionNumber,
                 "auth-server": "https://wranglebot.io",
@@ -70,7 +65,7 @@ class Config {
         }
     }
     getPathToUserData() {
-        return path_1.default.join(os_1.default.homedir(), this.appName);
+        return path.join(os.homedir(), this.appName);
     }
     set(key, value, encrypt = false) {
         if (encrypt) {
@@ -99,9 +94,9 @@ class Config {
         return this.config[key];
     }
     save() {
-        (0, write_file_atomic_1.sync)(this.pathToConfigFile, JSON.stringify(this.config, null, 2));
+        writeFileAtomicSync(this.pathToConfigFile, JSON.stringify(this.config, null, 2));
     }
 }
 const config = new Config();
-exports.default = config;
+export default config;
 //# sourceMappingURL=Config.js.map

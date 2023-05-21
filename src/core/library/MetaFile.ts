@@ -2,18 +2,18 @@ import { v4 as uuidv4 } from "uuid";
 
 import { SearchLite } from "searchlite";
 
-import { MetaCopy } from "./MetaCopy";
+import { MetaCopy } from "./MetaCopy.js";
 
-import { MetaData } from "./MetaData";
+import { MetaData } from "./MetaData.js";
 
-import { Thumbnail } from "./Thumbnail";
+import { Thumbnail } from "./Thumbnail.js";
 
-import { finder } from "../system";
+import { finder } from "../system/index.js";
 
-import DB from "../database/DB";
+import DB from "../database/DB.js";
 
-import analyseMetaFileOptions from "./analyseMetaFileOptions";
-import { MLInterface } from "../analyse/MLInterface";
+import analyseMetaFileOptions from "./analyseMetaFileOptions.js";
+import { MLInterface } from "../analyse/MLInterface.js";
 
 class MetaFile {
   id;

@@ -1,1 +1,1 @@
-{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../../src/api/routes/social/index.ts"],"names":[],"mappings":";;;;;AAAA,8DAAqC;AACrC,kBAAe;IACb,oBAAS;CACV,CAAA"}
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../../src/api/routes/social/index.ts"],"names":[],"mappings":"AAAA,OAAO,SAAS,MAAM,iBAAiB,CAAC;AACxC,eAAe,CAAC,SAAS,CAAC,CAAC"}

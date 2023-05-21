@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,14 +7,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const User_1 = __importDefault(require("./User"));
-const DB_1 = __importDefault(require("../database/DB"));
-const md5_1 = __importDefault(require("md5"));
-const uuid_1 = require("uuid");
+import User from "./User.js";
+import DB from "../database/DB.js";
+import md5 from "md5";
+import { v4 as uuidv4 } from "uuid";
 class AccountManager {
     constructor() {
         this.users = new Set();
@@ -24,7 +19,7 @@ class AccountManager {
     init() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const fetchedUsers = (0, DB_1.default)().getMany("users", {});
+                const fetchedUsers = DB().getMany("users", {});
                 if (fetchedUsers.length > 0) {
                     for (const user of fetchedUsers) {
                         yield this.addOneUser({
@@ -53,8 +48,8 @@ class AccountManager {
             if (user) {
                 throw new Error("User already exists");
             }
-            let p = (0, md5_1.default)(options.password + this.salt);
-            user = new User_1.default({
+            let p = md5(options.password + this.salt);
+            user = new User({
                 username: options.username,
                 password: p,
                 email: options.email,
@@ -64,7 +59,7 @@ class AccountManager {
                 lastName: options.lastName,
                 config: options.config,
             });
-            (0, DB_1.default)().updateOne("users", { id: user.id }, user.toJSON({ db: true }));
+            DB().updateOne("users", { id: user.id }, user.toJSON({ db: true }));
             this.users.add(user);
         }
         else {
@@ -81,7 +76,7 @@ class AccountManager {
                 });
             }
             else {
-                user = new User_1.default({
+                user = new User({
                     id: options.id,
                     username: options.username,
                     password: options.password,
@@ -99,10 +94,10 @@ class AccountManager {
     }
     updateUserConfig(user, config) {
         user.setConfig(config);
-        (0, DB_1.default)().updateOne("users", { id: user.id }, user.toJSON({ db: true }));
+        DB().updateOne("users", { id: user.id }, user.toJSON({ db: true }));
     }
     removeOneUser(user) {
-        const removed = (0, DB_1.default)().removeOne("users", { id: user.id });
+        const removed = DB().removeOne("users", { id: user.id });
         if (removed) {
             this.users.delete(user);
             return true;
@@ -137,7 +132,7 @@ class AccountManager {
     addRole(user, role) {
         if (!user.roles.includes(role)) {
             user.roles.push(role);
-            const res = (0, DB_1.default)().updateOne("users", { id: user.id }, {
+            const res = DB().updateOne("users", { id: user.id }, {
                 roles: user.roles,
             });
             if (res)
@@ -149,7 +144,7 @@ class AccountManager {
     }
     setRoles(user, roles) {
         user.roles = roles;
-        const res = (0, DB_1.default)().updateOne("users", { id: user.id }, {
+        const res = DB().updateOne("users", { id: user.id }, {
             roles: user.roles,
         });
         return !!res;
@@ -157,7 +152,7 @@ class AccountManager {
     removeRole(user, role) {
         if (user.roles.indexOf(role) > -1) {
             user.roles.splice(user.roles.indexOf(role), 1);
-            const res = (0, DB_1.default)().updateOne("users", { id: user.id }, {
+            const res = DB().updateOne("users", { id: user.id }, {
                 roles: user.roles,
             });
             if (res)
@@ -183,26 +178,26 @@ class AccountManager {
         return false;
     }
     changePassword(user, password) {
-        user.password = (0, md5_1.default)(password + this.salt);
-        return (0, DB_1.default)().updateOne("users", { id: user.id }, {
+        user.password = md5(password + this.salt);
+        return DB().updateOne("users", { id: user.id }, {
             password: user.password,
         });
     }
     changeEmail(user, email) {
         user.email = email;
-        return (0, DB_1.default)().updateOne("users", { id: user.id }, {
+        return DB().updateOne("users", { id: user.id }, {
             email: user.email,
         });
     }
     changeFirstName(user, firstName) {
         user.firstName = firstName;
-        return (0, DB_1.default)().updateOne("users", { id: user.id }, {
+        return DB().updateOne("users", { id: user.id }, {
             firstName: user.firstName,
         });
     }
     changeLastName(user, lastName) {
         user.lastName = lastName;
-        return (0, DB_1.default)().updateOne("users", { id: user.id }, {
+        return DB().updateOne("users", { id: user.id }, {
             lastName: user.lastName,
         });
     }
@@ -216,7 +211,7 @@ class AccountManager {
         }
         let email = options.email;
         let roles = options.roles;
-        let password = options.password ? (0, md5_1.default)(options.password + this.salt) : undefined;
+        let password = options.password ? md5(options.password + this.salt) : undefined;
         let libraries = options.libraries;
         let firstName = options.firstName;
         let lastName = options.lastName;
@@ -231,12 +226,12 @@ class AccountManager {
             config,
         };
         user.update(updatedOptions);
-        return (0, DB_1.default)().updateOne("users", { id: user.id }, updatedOptions);
+        return DB().updateOne("users", { id: user.id }, updatedOptions);
     }
     allowAccess(user, library) {
         if (!user.libraries.includes(library)) {
             user.libraries.push(library);
-            const res = (0, DB_1.default)().updateOne("users", { id: user.id }, {
+            const res = DB().updateOne("users", { id: user.id }, {
                 libraries: user.libraries,
             });
             if (res)
@@ -250,7 +245,7 @@ class AccountManager {
         const s = user.libraries.length;
         user.libraries.splice(user.libraries.indexOf(library), 1);
         if (user.libraries.length !== s) {
-            const res = (0, DB_1.default)().updateOne("users", { id: user.id }, {
+            const res = DB().updateOne("users", { id: user.id }, {
                 libraries: user.libraries,
             });
             if (res)
@@ -261,7 +256,7 @@ class AccountManager {
         return false;
     }
     resetPassword(user) {
-        const password = (0, uuid_1.v4)();
+        const password = uuidv4();
         const res = this.changePassword(user, password);
         if (res)
             return password;
@@ -271,8 +266,8 @@ class AccountManager {
         const user = this.getOneUser(username);
         if (!user)
             return false;
-        return (0, md5_1.default)(password + this.salt) === user.password;
+        return md5(password + this.salt) === user.password;
     }
 }
-exports.default = new AccountManager();
+export default new AccountManager();
 //# sourceMappingURL=AccountManager.js.map

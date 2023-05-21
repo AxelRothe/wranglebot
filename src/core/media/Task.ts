@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
-import Job from "./Job";
-import Status from "./Status";
-import TaskStatusReturn from "./TaskStatusReturn";
+import Job from "./Job.js";
+import Status from "./Status.js";
+import TaskStatusReturn from "./TaskStatusReturn.js";
 
 export default class Task {
   id;

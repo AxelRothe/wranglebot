@@ -1,4 +1,4 @@
-import { Status } from "./Status";
-import SendBack from "./SendBack";
+import { Status } from "./Status.js";
+import SendBack from "./SendBack.js";
 export { SendBack, Status };
 //# sourceMappingURL=index.d.ts.map

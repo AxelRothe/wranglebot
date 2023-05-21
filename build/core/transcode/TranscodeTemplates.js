@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 class TranscodeTemplates {
     /**
      * Returns a usable template for transcoding
@@ -285,7 +283,7 @@ TranscodeTemplates.audioChannels = [
         channels: 12,
     },
 ];
-exports.default = TranscodeTemplates;
+export default TranscodeTemplates;
 /**
  * LEGAL DNxHD FFMPEG Settings
  *

@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 class FilterMask {
     constructor(...args) {
         this.filters = args;
@@ -198,5 +196,5 @@ Scraper.availableColumns = {
         },
     ],
 };
-exports.default = new Scraper();
+export default new Scraper();
 //# sourceMappingURL=Scraper.js.map

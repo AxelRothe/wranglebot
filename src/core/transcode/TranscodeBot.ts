@@ -1,11 +1,11 @@
 import ffmpeg from "fluent-ffmpeg";
-import { finder } from "../system";
-import TranscodeFactory from "./TranscodeFactory";
-import TranscodeSetFactory from "./TranscodeSetFactory";
-import ThumbnailFromImageFactory from "./ThumbnailFromImageFactory";
-import ThumbnailFactory from "./ThumbnailFactory";
-const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
-const ffprobePath = require("@ffprobe-installer/ffprobe").path;
+import { finder } from "../system/index.js";
+import TranscodeFactory from "./TranscodeFactory.js";
+import TranscodeSetFactory from "./TranscodeSetFactory.js";
+import ThumbnailFromImageFactory from "./ThumbnailFromImageFactory.js";
+import ThumbnailFactory from "./ThumbnailFactory.js";
+import { path as ffmpegPath } from "@ffmpeg-installer/ffmpeg";
+import { path as ffprobePath } from "@ffprobe-installer/ffprobe";
 
 ffmpeg.setFfmpegPath(ffmpegPath);
 ffmpeg.setFfprobePath(ffprobePath);

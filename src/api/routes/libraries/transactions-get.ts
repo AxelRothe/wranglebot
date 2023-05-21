@@ -1,7 +1,7 @@
-import Transaction from "../../../core/database/Transaction";
-import { WrangleBot } from "../../../core/WrangleBot";
-import { SocketServer } from "../../SocketServer";
-import RouteResult from "../../RouteResult";
+import Transaction from "../../../core/database/Transaction.js";
+import { WrangleBot } from "../../../core/WrangleBot.js";
+import { SocketServer } from "../../SocketServer.js";
+import RouteResult from "../../RouteResult.js";
 
 export default {
   method: "get",

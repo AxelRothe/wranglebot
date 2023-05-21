@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-class Client {
+export default class Client {
     constructor(socket, username) {
         this.callbacks = [];
         this.subscriptions = {};
@@ -44,5 +42,4 @@ class Client {
         }
     }
 }
-exports.default = Client;
 //# sourceMappingURL=Client.js.map

@@ -1,4 +1,4 @@
-import TranscodeFactoryOptions from "./TranscodeFactoryOptions";
+import TranscodeFactoryOptions from "./TranscodeFactoryOptions.js";
 export default class TranscodeFactory {
     private command;
     private output;

@@ -1,4 +1,4 @@
-import User from "../core/accounts/User";
+import User from "../core/accounts/User.js";
 interface EmailTemplateOptions {
     from: User;
     to: User;

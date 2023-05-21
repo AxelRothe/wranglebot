@@ -7,6 +7,7 @@ import checkDiskSpace from "check-disk-space";
 import { sync as writeFileAtomicSync } from "write-file-atomic";
 import LogBot from "logbotjs";
 import Cryptr from "cryptr";
+import { exec } from "child_process";
 
 class Finder {
   cryptr = new Cryptr("b2909139-4cdc-46d6-985c-3726ede95335"); //this is just for obfuscation
@@ -58,13 +59,10 @@ class Finder {
 
   openInFinder(path, callback) {
     if (this.isMac()) {
-      const { exec } = require("child_process");
       exec("open '" + path + "'", callback);
     } else if (this.isWindows()) {
-      const { exec } = require("child_process");
       exec("explorer '" + path + "'", callback);
     } else if (this.isLinux()) {
-      const { exec } = require("child_process");
       exec("xdg-open  '" + path + "'", callback);
     }
   }

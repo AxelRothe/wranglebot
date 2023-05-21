@@ -1,7 +1,7 @@
-import { WrangleBot } from "../../../core/WrangleBot";
-import { SocketServer } from "../../SocketServer";
+import { WrangleBot } from "../../../core/WrangleBot.js";
+import { SocketServer } from "../../SocketServer.js";
 import LogBot from "logbotjs";
-import RouteResult from "../../RouteResult";
+import RouteResult from "../../RouteResult.js";
 
 export default {
   method: "post",

@@ -1,7 +1,10 @@
-const LogBot = require("logbotjs");
-const wb = require("../build/");
+import LogBot from "logbotjs";
+import wb from "../build/index.js";
+
+import { config } from "dotenv";
+
 LogBot.verbose = true;
-const { config } = require("dotenv");
+
 config();
 
 LogBot.addSpinner("load", "Loading...");

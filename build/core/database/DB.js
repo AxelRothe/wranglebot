@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,19 +7,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const Transaction_1 = __importDefault(require("./Transaction"));
-const logbotjs_1 = __importDefault(require("logbotjs"));
-const socket_io_client_1 = require("socket.io-client");
-const system_1 = require("../system");
-const events_1 = __importDefault(require("events"));
-const timers_1 = require("timers");
-const md5_1 = __importDefault(require("md5"));
-const uuid_1 = require("uuid");
-class DB extends events_1.default {
+import Transaction from "./Transaction.js";
+import LogBot from "logbotjs";
+import { io } from "socket.io-client";
+import { config, finder } from "../system/index.js";
+import EventEmitter from "events";
+import { clearTimeout } from "timers";
+import md5 from "md5";
+import { v4 as uuidv4 } from "uuid";
+class DB extends EventEmitter {
     constructor(options) {
         super();
         this.readOnly = false;
@@ -37,9 +32,9 @@ class DB extends events_1.default {
         this.url = options.url;
         this.token = options.token;
         //this is not a good solution but it obfuscates the key a bit
-        this.pathToTransactions = system_1.config.getPathToUserData() + "/transactions/" + `${(0, md5_1.default)(this.token + this.keySalt)}`;
-        if (!system_1.finder.existsSync(this.pathToTransactions)) {
-            system_1.finder.mkdirSync(this.pathToTransactions, { recursive: true });
+        this.pathToTransactions = config.getPathToUserData() + "/transactions/" + `${md5(this.token + this.keySalt)}`;
+        if (!finder.existsSync(this.pathToTransactions)) {
+            finder.mkdirSync(this.pathToTransactions, { recursive: true });
         }
     }
     rebuildLocalModel() {
@@ -47,20 +42,20 @@ class DB extends events_1.default {
             //check if offline mode
             if (!this.url && this.token) {
                 let skip = false;
-                if (!system_1.finder.existsSync(this.pathToTransactions)) {
-                    system_1.finder.mkdirSync(this.pathToTransactions, { recursive: true });
+                if (!finder.existsSync(this.pathToTransactions)) {
+                    finder.mkdirSync(this.pathToTransactions, { recursive: true });
                     skip = true;
                 }
-                if (system_1.finder.getContentOfFolder(this.pathToTransactions).length === 0) {
+                if (finder.getContentOfFolder(this.pathToTransactions).length === 0) {
                     //create and save the initial transaction
-                    yield this.saveTransaction(new Transaction_1.default({
+                    yield this.saveTransaction(new Transaction({
                         $collection: "users",
                         $query: {
-                            id: (0, uuid_1.v4)(),
+                            id: uuidv4(),
                         },
                         $set: {
                             username: "admin",
-                            password: (0, md5_1.default)("admin" + this.keySalt),
+                            password: md5("admin" + this.keySalt),
                             roles: ["admin"],
                             firstName: "Admin",
                             lastName: "Admin",
@@ -70,17 +65,17 @@ class DB extends events_1.default {
                     }));
                 }
             }
-            if (system_1.finder.exists("transactions")) {
-                let folderContents = system_1.finder.getContentOfFolder(this.pathToTransactions);
+            if (finder.exists("transactions")) {
+                let folderContents = finder.getContentOfFolder(this.pathToTransactions);
                 const transactions = [];
                 for (let file of folderContents) {
                     try {
-                        const parsedData = JSON.parse(system_1.finder.parseFileSync(system_1.finder.join(this.pathToTransactions, file)));
-                        transactions.push(new Transaction_1.default(parsedData));
+                        const parsedData = JSON.parse(finder.parseFileSync(finder.join(this.pathToTransactions, file)));
+                        transactions.push(new Transaction(parsedData));
                     }
                     catch (e) {
-                        logbotjs_1.default.log(500, "Could not parse transaction file " + file + " Deleting File.");
-                        system_1.finder.rmSync(system_1.finder.join(this.pathToTransactions, file));
+                        LogBot.log(500, "Could not parse transaction file " + file + " Deleting File.");
+                        finder.rmSync(finder.join(this.pathToTransactions, file));
                     }
                 }
                 //sort transactions by timestamp
@@ -98,11 +93,11 @@ class DB extends events_1.default {
                     this.apply(transaction);
                     transactionCounts[transaction.getStatus()]++;
                 }
-                logbotjs_1.default.log(200, "Loaded " + this.transactions.length + " transactions from disk");
+                LogBot.log(200, "Loaded " + this.transactions.length + " transactions from disk");
                 if (transactionCounts.rejected > 0)
-                    logbotjs_1.default.log(200, "Rejected: " + transactionCounts.rejected);
+                    LogBot.log(200, "Rejected: " + transactionCounts.rejected);
                 if (transactionCounts.pending > 0)
-                    logbotjs_1.default.log(200, "Pending: " + transactionCounts.pending);
+                    LogBot.log(200, "Pending: " + transactionCounts.pending);
             }
         });
     }
@@ -113,7 +108,7 @@ class DB extends events_1.default {
      */
     connect(token = this.token) {
         return __awaiter(this, void 0, void 0, function* () {
-            (0, timers_1.clearTimeout)(this.connectTimeout);
+            clearTimeout(this.connectTimeout);
             if (!token)
                 throw new Error("No token provided. Aborting.");
             this.token = token;
@@ -124,7 +119,7 @@ class DB extends events_1.default {
                     throw new Error("Socket not connected");
             }
             catch (e) {
-                logbotjs_1.default.log(600, "Could not connect to database. Trying again in 5 seconds.");
+                LogBot.log(600, "Could not connect to database. Trying again in 5 seconds.");
                 this.connectTimeout = setTimeout(() => {
                     this.connect(token);
                 }, 5000);
@@ -136,7 +131,7 @@ class DB extends events_1.default {
         return new Promise((resolve) => {
             this.socket.emit("fetchTransactions", this.transactions.map((t) => t.uuid));
             this.socket.once("sync-start", (syncInfo) => {
-                logbotjs_1.default.log(200, "Syncing " + syncInfo.totalTransactions + " transactions");
+                LogBot.log(200, "Syncing " + syncInfo.totalTransactions + " transactions");
                 this.$emit("notification", {
                     title: "Syncing",
                     message: "Syncing " + syncInfo.totalTransactions + " transactions",
@@ -144,7 +139,7 @@ class DB extends events_1.default {
                 let syncedTransactions = 0;
                 let blockIndex = 0;
                 if (syncInfo.status === "synced") {
-                    logbotjs_1.default.log(200, "Already synced. Skipping.");
+                    LogBot.log(200, "Already synced. Skipping.");
                     this.$emit("notification", {
                         title: "Synced",
                         message: "Already synced. Skipping.",
@@ -154,12 +149,12 @@ class DB extends events_1.default {
                 }
                 this.socket.on("sync-block", (transactions) => {
                     for (let transaction of transactions) {
-                        logbotjs_1.default.log(200, "Received transaction " + transaction.uuid + " from server (" + syncedTransactions + "/" + syncInfo.totalTransactions + ")");
+                        LogBot.log(200, "Received transaction " + transaction.uuid + " from server (" + syncedTransactions + "/" + syncInfo.totalTransactions + ")");
                         this.$emit("notification", {
                             title: "Syncing",
                             message: "Transaction ... " + syncedTransactions + "/" + syncInfo.totalTransactions,
                         });
-                        this.addTransactionToQueue(new Transaction_1.default({
+                        this.addTransactionToQueue(new Transaction({
                             $collection: transaction.$collection,
                             $method: transaction.$method,
                             $query: transaction.$query,
@@ -174,7 +169,7 @@ class DB extends events_1.default {
                     blockIndex++; //increment block index
                 });
                 this.socket.once("sync-end", () => {
-                    logbotjs_1.default.log(200, "Finished Syncing " + syncedTransactions + " transactions");
+                    LogBot.log(200, "Finished Syncing " + syncedTransactions + " transactions");
                     this.$emit("notification", {
                         title: "Synced",
                         message: "Finished Syncing " + syncedTransactions + " transactions",
@@ -279,7 +274,7 @@ class DB extends events_1.default {
     addTransaction(method, collection, query, set, save = true) {
         if (this.readOnly)
             throw new Error("Database is in read-only mode. Aborting.");
-        const transaction = new Transaction_1.default({
+        const transaction = new Transaction({
             $method: method,
             $collection: collection,
             $query: query,
@@ -314,7 +309,7 @@ class DB extends events_1.default {
             return true;
         }
         else {
-            logbotjs_1.default.log(409, "Transaction already exists in ledger");
+            LogBot.log(409, "Transaction already exists in ledger");
             return false;
         }
     }
@@ -331,12 +326,12 @@ class DB extends events_1.default {
                     this.saveTransaction(transaction);
                 }
                 catch (e) {
-                    logbotjs_1.default.log(500, e.message);
+                    LogBot.log(500, e.message);
                 }
             }
             if (toCommit.length > 0) {
                 //this.saveTransactions();
-                logbotjs_1.default.log(200, "Committed a total of " +
+                LogBot.log(200, "Committed a total of " +
                     toCommit.length +
                     " transactions. Successful: " +
                     toCommit.filter((t) => t.isCommitted()).length +
@@ -354,7 +349,7 @@ class DB extends events_1.default {
             if (!this.url)
                 reject(new Error("No url provided, can not connect to a cloud node"));
             // @ts-ignore
-            this.socket = (0, socket_io_client_1.io)(this.url, {
+            this.socket = io(this.url, {
                 reconnectionDelayMax: 5000,
                 reconnection: true,
                 reconnectionAttempts: Infinity,
@@ -377,21 +372,21 @@ class DB extends events_1.default {
              * receive transactions from server and apply them to local database
              */
             this.socket.on("transaction", (data) => {
-                const t = new Transaction_1.default(Object.assign(Object.assign({}, data), { status: "success" }));
-                logbotjs_1.default.log(100, `Received transaction ${t.uuid} from peer`);
+                const t = new Transaction(Object.assign(Object.assign({}, data), { status: "success" }));
+                LogBot.log(100, `Received transaction ${t.uuid} from peer`);
                 if (this.addTransactionToQueue(t, true)) {
                     this.emit("transaction", t);
                 }
             });
             this.socket.on("disconnect", () => {
                 this.offline = true; //going offline
-                (0, timers_1.clearTimeout)(this.commitInterval);
-                logbotjs_1.default.log(100, "Disconnected from peer");
+                clearTimeout(this.commitInterval);
+                LogBot.log(100, "Disconnected from peer");
             });
             this.socket.on("connect", () => {
-                (0, timers_1.clearTimeout)(timer);
+                clearTimeout(timer);
                 this.offline = false;
-                logbotjs_1.default.log(100, "Connected to peer");
+                LogBot.log(100, "Connected to peer");
                 this.offline = false; //back online
                 this.fetchTransactions().then(() => {
                     this.commit().then(() => {
@@ -441,10 +436,10 @@ class DB extends events_1.default {
     }
     saveTransaction(transaction) {
         return new Promise((resolve, reject) => {
-            system_1.finder
-                .saveAsync(`/transactions/${(0, md5_1.default)(this.token + this.keySalt)}/${transaction.uuid}`, JSON.stringify(transaction))
+            finder
+                .saveAsync(`/transactions/${md5(this.token + this.keySalt)}/${transaction.uuid}`, JSON.stringify(transaction))
                 .then(() => {
-                logbotjs_1.default.log(200, "Saved transaction " + transaction.uuid + " to disk");
+                LogBot.log(200, "Saved transaction " + transaction.uuid + " to disk");
                 resolve(true);
             })
                 .catch((e) => {
@@ -466,5 +461,5 @@ const getDB = (options = undefined) => {
     }
     throw new Error("No database instance found");
 };
-exports.default = getDB;
+export default getDB;
 //# sourceMappingURL=DB.js.map

@@ -1,19 +1,19 @@
-import Client from "./Client";
-import { WrangleBot } from "../core/WrangleBot";
+import Client from "./Client.js";
+import { WrangleBot } from "../core/WrangleBot.js";
 import express from "express";
-import Betweeny from "./Betweeny";
-import { EmailTemplate, EmailTemplateOptions } from "./EmailTemplate";
+import Betweeny from "./Betweeny.js";
+import { EmailTemplate, EmailTemplateOptions } from "./EmailTemplate.js";
 
 import { Server, Socket } from "socket.io";
 import LogBot from "logbotjs";
 import jwt from "jsonwebtoken";
-import User from "../core/accounts/User";
-import { config, finder } from "../core/system";
+import User from "../core/accounts/User.js";
+import { config, finder } from "../core/system/index.js";
 
 /* IMPORT ROUTES */
 
-import routes from "./routes";
-import RouteFactory from "./RouteFactory";
+import routes from "./routes/index.js";
+import RouteFactory from "./RouteFactory.js";
 
 /* INTERFACES */
 
@@ -67,7 +67,7 @@ class SocketServer {
     delete this.cache[key];
   }
 
-  start() {
+  async start() {
     this.server.on("connection", (socket) => {
       //Send back the client that it has connected
       this.response(200).tween(socket, "connected", {
@@ -174,7 +174,10 @@ class SocketServer {
           const pluginRoutes = finder.getContentOfFolder(pathToPlugins + plugin + "/endpoints");
           for (let r of pluginRoutes) {
             LogBot.log(100, "Loading third party endpoint " + r + " of " + plugin);
-            routeFactory.build(require(pathToPlugins + plugin + "/endpoints/" + r));
+
+            const template = await import(pathToPlugins + plugin + "/endpoints/" + r);
+
+            routeFactory.build(template.default);
           }
         }
       }
@@ -502,7 +505,7 @@ class SocketServer {
 export default async function (http, app, bot, mail, secret) {
   try {
     const socketServer = new SocketServer(http, app, bot, mail, secret);
-    socketServer.start();
+    await socketServer.start();
     LogBot.log(200, `Socket server started.`);
 
     return socketServer;

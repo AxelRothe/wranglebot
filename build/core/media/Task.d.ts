@@ -1,5 +1,5 @@
-import Job from "./Job";
-import TaskStatusReturn from "./TaskStatusReturn";
+import Job from "./Job.js";
+import TaskStatusReturn from "./TaskStatusReturn.js";
 export default class Task {
     id: any;
     label: any;

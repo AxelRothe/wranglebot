@@ -1,11 +1,11 @@
-import { MetaFile } from "../library/MetaFile";
-import { MetaCopy } from "../library/MetaCopy";
+import { MetaFile } from "../library/MetaFile.js";
+import { MetaCopy } from "../library/MetaCopy.js";
 
 import { v4 as uuidv4 } from "uuid";
-import { finder } from "../system";
-import TranscodeBot from "./index";
-import Espresso from "../media/Espresso";
-import { TranscodeTask } from "./TranscodeTask";
+import { finder } from "../system/index.js";
+import TranscodeBot from "./index.js";
+import Espresso from "../media/Espresso.js";
+import { TranscodeTask } from "./TranscodeTask.js";
 
 export class TranscodeJob {
   id: string = uuidv4();

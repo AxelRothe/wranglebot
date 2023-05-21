@@ -1,14 +1,9 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const system_1 = require("../system");
-const fluent_ffmpeg_1 = __importDefault(require("fluent-ffmpeg"));
-class TranscodeFactory {
+import { config, finder } from "../system/index.js";
+import ffmpeg from "fluent-ffmpeg";
+export default class TranscodeFactory {
     constructor(inputPath, options) {
         this.output = options.output;
-        this.command = (0, fluent_ffmpeg_1.default)({
+        this.command = ffmpeg({
             logger: console,
         });
         //set path to input file
@@ -29,12 +24,12 @@ class TranscodeFactory {
             .output(options.output);
         //LUTs
         if (options.lut) {
-            if (system_1.finder.existsSync(options.lut) && !system_1.finder.isDirectory(options.lut)) {
+            if (finder.existsSync(options.lut) && !finder.isDirectory(options.lut)) {
                 this.command.videoFilter("lut3d=" + options.lut);
             }
             else {
-                const defaultPathToLuts = system_1.finder.join(system_1.config.getPathToUserData(), "LUTs", options.lut);
-                if (system_1.finder.existsSync(defaultPathToLuts)) {
+                const defaultPathToLuts = finder.join(config.getPathToUserData(), "LUTs", options.lut);
+                if (finder.existsSync(defaultPathToLuts)) {
                     options.lut = defaultPathToLuts;
                     this.command.videoFilter("lut3d=" + options.lut);
                 }
@@ -46,8 +41,8 @@ class TranscodeFactory {
     }
     run(callback, cancelToken) {
         return new Promise((resolve, reject) => {
-            if (!system_1.finder.existsSync(this.output)) {
-                system_1.finder.mkdirSync(system_1.finder.dirname(this.output), { recursive: true });
+            if (!finder.existsSync(this.output)) {
+                finder.mkdirSync(finder.dirname(this.output), { recursive: true });
             }
             this.command.on("error", (err, stdout, stderr) => {
                 console.log(err, stdout, stderr);
@@ -67,5 +62,4 @@ class TranscodeFactory {
         });
     }
 }
-exports.default = TranscodeFactory;
 //# sourceMappingURL=TranscodeFactory.js.map

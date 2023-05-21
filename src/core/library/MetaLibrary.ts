@@ -1,30 +1,30 @@
-import { WrangleBot } from "../WrangleBot";
+import { WrangleBot } from "../WrangleBot.js";
 
-import MetaLibraryData from "./MetaLibraryData";
+import MetaLibraryData from "./MetaLibraryData.js";
 import { SearchLite } from "searchlite";
-import { MetaFile } from "./MetaFile";
-import Task from "../media/Task";
-import ExportBot from "../export";
+import { MetaFile } from "./MetaFile.js";
+import Task from "../media/Task.js";
+import ExportBot from "../export/index.js";
 
-import DB from "../database/DB";
+import DB from "../database/DB.js";
 
 import LogBot from "logbotjs";
-import { MetaCopy } from "./MetaCopy";
-import { finder } from "../system";
-import utility from "../system/utility";
+import { MetaCopy } from "./MetaCopy.js";
+import { finder } from "../system/index.js";
+import utility from "../system/utility.js";
 
-import config from "../system/Config";
-import Scraper from "./Scraper";
-import Espresso from "../media/Espresso";
-import { TranscodeTask } from "../transcode/TranscodeTask";
-import { indexer } from "../media/Indexer";
-import Job from "../media/Job";
-import Status from "../media/Status";
-import createTaskOptions from "./createTaskOptions";
-import Folders from "./Folders";
-import MetaLibraryOptions from "./MetaLibraryOptions";
-import MetaLibraryUpdateOptions from "./MetaLibraryUpdateOptions";
-import CancelToken from "./CancelToken";
+import config from "../system/Config.js";
+import Scraper from "./Scraper.js";
+import Espresso from "../media/Espresso.js";
+import { TranscodeTask } from "../transcode/TranscodeTask.js";
+import { indexer } from "../media/Indexer.js";
+import Job from "../media/Job.js";
+import Status from "../media/Status.js";
+import createTaskOptions from "./createTaskOptions.js";
+import Folders from "./Folders.js";
+import MetaLibraryOptions from "./MetaLibraryOptions.js";
+import MetaLibraryUpdateOptions from "./MetaLibraryUpdateOptions.js";
+import CancelToken from "./CancelToken.js";
 
 interface ReportOptions {
   format: "html" | "json" | "text" | "pdf" | "csv";

@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.EmailTemplate = void 0;
 class EmailTemplate {
     constructor(email) {
         this.email = email;
@@ -197,5 +194,5 @@ class EmailTemplate {
     `;
     }
 }
-exports.EmailTemplate = EmailTemplate;
+export { EmailTemplate };
 //# sourceMappingURL=EmailTemplate.js.map

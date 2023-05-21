@@ -1,7 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const events_1 = require("events");
-class TranscodeSetFactory extends events_1.EventEmitter {
+import { EventEmitter } from "events";
+export default class TranscodeSetFactory extends EventEmitter {
     constructor(transcodes) {
         super();
         this.transcodes = transcodes;
@@ -41,5 +39,4 @@ class TranscodeSetFactory extends events_1.EventEmitter {
         });
     }
 }
-exports.default = TranscodeSetFactory;
 //# sourceMappingURL=TranscodeSetFactory.js.map

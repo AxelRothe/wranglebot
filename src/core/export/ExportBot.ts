@@ -1,9 +1,13 @@
-import { finder } from "../system";
+import { finder } from "../system/index.js";
 import PdfPrinter from "pdfmake";
 import prettyBytes from "pretty-bytes";
 import prettyMilliseconds from "pretty-ms";
-import Scraper from "../library/Scraper";
+import Scraper from "../library/Scraper.js";
 import { v4 as uuidv4 } from "uuid";
+
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 class ExportBot {
   pathToAssets = finder.join(__dirname, "../../../../assets/");

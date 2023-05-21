@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,18 +7,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DriveBot = exports.driveBot = void 0;
-const system_1 = require("../system");
-const searchlite_1 = require("searchlite");
-const SendBack_1 = __importDefault(require("../utility/SendBack"));
-const Volume_1 = require("./Volume");
-const logbotjs_1 = __importDefault(require("logbotjs"));
-const events_1 = __importDefault(require("events"));
-class DriveBot extends events_1.default {
+import { finder } from "../system/index.js";
+import { SearchLite } from "searchlite";
+import ReturnObject from "../utility/SendBack.js";
+import { Volume } from "./Volume.js";
+import LogBot from "logbotjs";
+import EventEmitter from "events";
+class DriveBot extends EventEmitter {
     constructor() {
         super();
         /**
@@ -40,22 +34,22 @@ class DriveBot extends events_1.default {
      *
      */
     watch() {
-        this.watcher = system_1.finder.watch(system_1.finder.pathToVolumes, (eventType, volumeName) => {
+        this.watcher = finder.watch(finder.pathToVolumes, (eventType, volumeName) => {
             if (eventType === "rename") {
                 this.getDrive(volumeName).then((drive) => {
                     if (drive) {
                         const oldDrive = drive;
                         this.drives.splice(this.drives.indexOf(drive), 1);
-                        logbotjs_1.default.log(200, "Volume removed: " + volumeName);
+                        LogBot.log(200, "Volume removed: " + volumeName);
                         this.emit("removed", oldDrive);
                     }
                     else {
                         this.scan()
                             .then((allDrives) => {
-                            const search = searchlite_1.SearchLite.find(allDrives, "label", volumeName);
+                            const search = SearchLite.find(allDrives, "label", volumeName);
                             if (search.wasSuccess()) {
                                 this.drives.push(search.result);
-                                logbotjs_1.default.log(200, "Volume added: " + volumeName);
+                                LogBot.log(200, "Volume added: " + volumeName);
                                 this.emit("added", search.result);
                             }
                         })
@@ -84,9 +78,9 @@ class DriveBot extends events_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve) => {
                 let newDrives = [];
-                system_1.finder.getDisks().then((drives) => __awaiter(this, void 0, void 0, function* () {
+                finder.getDisks().then((drives) => __awaiter(this, void 0, void 0, function* () {
                     for (let drive of drives) {
-                        const newDrive = new Volume_1.Volume(drive);
+                        const newDrive = new Volume(drive);
                         newDrives.push(newDrive);
                     }
                     resolve(newDrives);
@@ -111,13 +105,13 @@ class DriveBot extends events_1.default {
             return new Promise((resolve) => {
                 this.getDriveById(id).then((vol) => {
                     if (vol) {
-                        system_1.finder.eject(vol.mountpoint, (error) => {
+                        finder.eject(vol.mountpoint, (error) => {
                             if (!error) {
-                                logbotjs_1.default.log(200, "Ejected " + vol.label);
+                                LogBot.log(200, "Ejected " + vol.label);
                                 resolve(true);
                             }
                             else {
-                                logbotjs_1.default.log(500, "Error ejecting drive: " + error);
+                                LogBot.log(500, "Error ejecting drive: " + error);
                                 resolve(false);
                             }
                         });
@@ -129,26 +123,26 @@ class DriveBot extends events_1.default {
     ejectDevice(deviceName) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve) => {
-                let search = searchlite_1.SearchLite.find(this.drives, "label", deviceName);
+                let search = SearchLite.find(this.drives, "label", deviceName);
                 if (search.wasSuccess()) {
                     if (search.result.status === "offline") {
                         this.drives.splice(search.count, 1);
-                        resolve(new SendBack_1.default({
+                        resolve(new ReturnObject({
                             status: 200,
                             message: deviceName + " was offline, so I removed it.",
                         }));
                     }
                     else {
-                        system_1.finder.eject(search.result.mountpoint, (error) => {
+                        finder.eject(search.result.mountpoint, (error) => {
                             if (!error) {
                                 this.drives.splice(search.count, 1);
-                                resolve(new SendBack_1.default({
+                                resolve(new ReturnObject({
                                     status: 200,
                                     message: "I have successfully ejected the drive " + deviceName,
                                 }));
                             }
                             else {
-                                resolve(new SendBack_1.default({
+                                resolve(new ReturnObject({
                                     status: 500,
                                     message: "I was unable to eject the drive " + deviceName,
                                 }));
@@ -162,7 +156,7 @@ class DriveBot extends events_1.default {
     getDrive(driveName) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.updateDrives();
-            let search = searchlite_1.SearchLite.find(this.drives, "label", driveName);
+            let search = SearchLite.find(this.drives, "label", driveName);
             if (search.wasSuccess()) {
                 return search.result;
             }
@@ -172,7 +166,7 @@ class DriveBot extends events_1.default {
     getDriveByMountpoint(mountpoint) {
         if (this.drives.length === 0)
             throw new Error("No drives found");
-        let search = searchlite_1.SearchLite.find(this.drives, "mountpoint", mountpoint);
+        let search = SearchLite.find(this.drives, "mountpoint", mountpoint);
         if (search.wasSuccess()) {
             return search.result;
         }
@@ -181,7 +175,7 @@ class DriveBot extends events_1.default {
     getDriveBySerial(serialNumber) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.updateDrives();
-            let search = searchlite_1.SearchLite.find(this.drives, "serialNumber", serialNumber);
+            let search = SearchLite.find(this.drives, "serialNumber", serialNumber);
             if (search.wasSuccess()) {
                 return search.result;
             }
@@ -197,7 +191,7 @@ class DriveBot extends events_1.default {
     getMountPoint(mountpoint) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.updateDrives();
-            let search = searchlite_1.SearchLite.find(this.drives, "mountpoint", mountpoint);
+            let search = SearchLite.find(this.drives, "mountpoint", mountpoint);
             if (search.wasSuccess()) {
                 return search.result.mountpoint;
             }
@@ -214,10 +208,9 @@ class DriveBot extends events_1.default {
         });
     }
     log(message, type) {
-        logbotjs_1.default.log(`DriveBot:${type}`, message, this.verbose);
+        LogBot.log(`DriveBot:${type}`, message, this.verbose);
     }
 }
-exports.DriveBot = DriveBot;
 const driveBot = new DriveBot();
-exports.driveBot = driveBot;
+export { driveBot, DriveBot };
 //# sourceMappingURL=DriveBot.js.map

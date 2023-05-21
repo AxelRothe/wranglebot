@@ -1,2 +1,2 @@
-import exampleHook from "./example-hook";
+import exampleHook from "./example-hook.js";
 export default [exampleHook];

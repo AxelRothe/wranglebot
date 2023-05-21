@@ -1,8 +1,3 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const ExportBot_1 = __importDefault(require("./ExportBot"));
-exports.default = ExportBot_1.default;
+import ExportBot from "./ExportBot.js";
+export default ExportBot;
 //# sourceMappingURL=index.js.map

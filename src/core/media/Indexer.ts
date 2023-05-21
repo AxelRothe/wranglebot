@@ -1,6 +1,6 @@
-import { IndexItem } from "./IndexItem";
-import { finder } from "../system";
-import Index from "./Index";
+import { IndexItem } from "./IndexItem.js";
+import { finder } from "../system/index.js";
+import Index from "./Index.js";
 
 /**
  * media

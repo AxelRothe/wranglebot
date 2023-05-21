@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-class MetaLibraryData {
+export default class MetaLibraryData {
     constructor(rebuild = null) {
         if (rebuild !== null) {
             for (let [key, value] of Object.entries(rebuild)) {
@@ -25,5 +23,4 @@ class MetaLibraryData {
         return true;
     }
 }
-exports.default = MetaLibraryData;
 //# sourceMappingURL=MetaLibraryData.js.map

@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,19 +7,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const RouteResult_1 = __importDefault(require("../../RouteResult"));
-exports.default = {
+import RouteResult from "../../RouteResult.js";
+export default {
     method: "post",
     requiredParams: ["libraryId", "metafileId"],
     requiredBody: ["engine", "frames"],
     url: "/library/:libraryId/metafiles/:metafileId/thumbnails/analyse",
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         if (!bot.ML) {
-            return new RouteResult_1.default(404, "Machine Learning module not loaded");
+            return new RouteResult(404, "Machine Learning module not loaded");
         }
         const libraryId = req.params.libraryId;
         const metafileId = req.params.metafileId;
@@ -52,10 +47,10 @@ exports.default = {
             }
             const metafile = yield bot.query.library.one(libraryId).metafiles.one(metafileId).fetch();
             server.inform("database", "metafiles", metafile.toJSON());
-            return new RouteResult_1.default(200, result);
+            return new RouteResult(200, result);
         }
         else {
-            return new RouteResult_1.default(404, {
+            return new RouteResult(404, {
                 status: "error",
                 message: `No metafile found with id ${metafileId}`,
             });

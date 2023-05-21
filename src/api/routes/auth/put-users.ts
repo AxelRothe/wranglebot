@@ -1,5 +1,5 @@
 import LogBot from "logbotjs";
-import RouteResult from "../../RouteResult";
+import RouteResult from "../../RouteResult.js";
 
 export default {
   method: "put",

@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 class SendBack {
     /**
      * @typedef {Object} SendBackOptions
@@ -19,5 +17,5 @@ class SendBack {
         this.error = options.error ? options.error : false;
     }
 }
-exports.default = SendBack;
+export default SendBack;
 //# sourceMappingURL=SendBack.js.map

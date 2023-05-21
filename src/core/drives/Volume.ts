@@ -1,4 +1,4 @@
-import { finder } from "../system";
+import { finder } from "../system/index.js";
 import md5 from "md5";
 
 class Volume {

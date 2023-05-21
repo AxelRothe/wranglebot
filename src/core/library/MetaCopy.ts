@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { finder } from "../system";
+import { finder } from "../system/index.js";
 
 class MetaCopy {
   id;

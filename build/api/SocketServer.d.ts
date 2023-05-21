@@ -1,10 +1,10 @@
-import Client from "./Client";
-import { WrangleBot } from "../core/WrangleBot";
+import Client from "./Client.js";
+import { WrangleBot } from "../core/WrangleBot.js";
 import express from "express";
-import Betweeny from "./Betweeny";
-import { EmailTemplate, EmailTemplateOptions } from "./EmailTemplate";
+import Betweeny from "./Betweeny.js";
+import { EmailTemplate, EmailTemplateOptions } from "./EmailTemplate.js";
 import { Server, Socket } from "socket.io";
-import User from "../core/accounts/User";
+import User from "../core/accounts/User.js";
 interface SocketHook {
     event: string;
     callback: (data: any) => void;
@@ -25,7 +25,7 @@ declare class SocketServer {
     addToCache(key: any, value: any): any;
     getFromCache(key: any): any;
     removeFromCache(key: any): void;
-    start(): this;
+    start(): Promise<this>;
     close(): void;
     /**
      * Signs in a client with a given username and password

@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const uuid_1 = require("uuid");
+import { v4 as uuidv4 } from "uuid";
 class TransactionStatus {
 }
 TransactionStatus.PENDING = "pending";
@@ -8,11 +6,11 @@ TransactionStatus.SUCCESS = "success";
 TransactionStatus.ROLLBACK = "rollback";
 TransactionStatus.REJECTED = "failed";
 TransactionStatus.EXISTS = "exists";
-class Transaction {
+export default class Transaction {
     constructor(options) {
         if (!options.$method)
             throw new Error("Transaction method is required");
-        this.uuid = options.uuid || (0, uuid_1.v4)();
+        this.uuid = options.uuid || uuidv4();
         this.$collection = options.$collection;
         this.$query = options.$query;
         this.$set = options.$set;
@@ -81,5 +79,4 @@ class Transaction {
         };
     }
 }
-exports.default = Transaction;
 //# sourceMappingURL=Transaction.js.map

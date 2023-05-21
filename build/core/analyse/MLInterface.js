@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,14 +7,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.MLInterface = void 0;
-const axios_1 = __importDefault(require("axios"));
-const jimp_compact_1 = __importDefault(require("jimp-compact"));
-const logbotjs_1 = __importDefault(require("logbotjs"));
+import axios from "axios";
+import Jimp from "jimp-compact";
+import LogBot from "logbotjs";
 class MLInterfaceSingleton {
     constructor(options) {
         this.token = options.token;
@@ -24,7 +18,7 @@ class MLInterfaceSingleton {
     checkAuth() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield axios_1.default.get(`${this.url}/api/auth`, {
+                const response = yield axios.get(`${this.url}/api/auth`, {
                     headers: {
                         Authorization: `Bearer ${this.token}`,
                     },
@@ -39,7 +33,7 @@ class MLInterfaceSingleton {
     getBalance() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield axios_1.default.get(`${this.url}/api/balance`, {
+                const response = yield axios.get(`${this.url}/api/balance`, {
                     headers: {
                         Authorization: `Bearer ${this.token}`,
                     },
@@ -47,7 +41,7 @@ class MLInterfaceSingleton {
                 return response.data.balance;
             }
             catch (e) {
-                logbotjs_1.default.log(400, "Error getting balance");
+                LogBot.log(400, "Error getting balance");
                 return -1;
             }
         });
@@ -76,14 +70,14 @@ class MLInterfaceSingleton {
             let cost = 0;
             const renderedFrames = [];
             for (let thumbnail of thumbnails) {
-                const image = jimp_compact_1.default.read(Buffer.from(thumbnail.data, "base64"));
+                const image = Jimp.read(Buffer.from(thumbnail.data, "base64"));
                 const waitForResizedImage = () => {
                     return new Promise((resolve) => {
                         image.then((image) => {
                             image
                                 .background(0x000000)
                                 .resize(512, 512)
-                                .getBase64(jimp_compact_1.default.MIME_JPEG, (err, data) => {
+                                .getBase64(Jimp.MIME_JPEG, (err, data) => {
                                 resolve(data);
                             });
                         });
@@ -113,7 +107,7 @@ class MLInterfaceSingleton {
                         temperature: options.temperature || 0.5,
                     };
                     try {
-                        const result = yield axios_1.default.post(this.url + "/api/prompt/aleph-alpha", requestData, {
+                        const result = yield axios.post(this.url + "/api/prompt/aleph-alpha", requestData, {
                             headers: {
                                 Authorization: `Bearer ${this.token}`,
                             },
@@ -131,7 +125,7 @@ class MLInterfaceSingleton {
                     frames: renderedFrames,
                 };
                 try {
-                    const result = yield axios_1.default.post(this.url + "/api/prompt/deepva", requestData, {
+                    const result = yield axios.post(this.url + "/api/prompt/deepva", requestData, {
                         headers: {
                             Authorization: `Bearer ${this.token}`,
                         },
@@ -164,5 +158,5 @@ const MLInterface = function (options = undefined) {
     }
     throw new Error("Can not create MLInterface. No options provided");
 };
-exports.MLInterface = MLInterface;
+export { MLInterface };
 //# sourceMappingURL=MLInterface.js.map

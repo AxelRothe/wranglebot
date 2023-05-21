@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-class Betweeny {
+export default class Betweeny {
     /**
      * Creates a new Betweeny
      *
@@ -22,5 +20,4 @@ class Betweeny {
         };
     }
 }
-exports.default = Betweeny;
 //# sourceMappingURL=Betweeny.js.map

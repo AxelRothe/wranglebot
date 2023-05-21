@@ -1,4 +1,4 @@
-import { IndexItem } from "./IndexItem";
+import { IndexItem } from "./IndexItem.js";
 
 export default interface Index {
   path: string;

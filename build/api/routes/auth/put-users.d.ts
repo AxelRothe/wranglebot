@@ -1,4 +1,4 @@
-import RouteResult from "../../RouteResult";
+import RouteResult from "../../RouteResult.js";
 declare const _default: {
     method: string;
     requiredParams: string[];

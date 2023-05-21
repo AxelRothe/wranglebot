@@ -1,7 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const uuid_1 = require("uuid");
-class User {
+import { v4 as uuidv4 } from "uuid";
+export default class User {
     constructor(options) {
         this.roles = []; // ["admin", "maintainer", "contributor", "curator"]
         this.libraries = []; //@deprecated
@@ -11,7 +9,7 @@ class User {
             throw new Error("Username is required");
         if (!options.password)
             throw new Error("Password is required");
-        this.id = options.id || (0, uuid_1.v4)();
+        this.id = options.id || uuidv4();
         this.firstName = options.firstName;
         this.lastName = options.lastName;
         this.username = options.username;
@@ -65,5 +63,4 @@ class User {
         };
     }
 }
-exports.default = User;
 //# sourceMappingURL=User.js.map

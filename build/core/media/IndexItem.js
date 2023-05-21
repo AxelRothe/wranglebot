@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.IndexItem = void 0;
-const { finder } = require("../system");
-const { v4: uuidv4 } = require("uuid");
+import { finder } from "../system/index.js";
+import { v4 as uuidv4 } from "uuid";
 class IndexItem {
     constructor(pathToFile) {
         this.stat = finder.lstatSync(pathToFile);
@@ -32,5 +29,5 @@ class IndexItem {
         };
     }
 }
-exports.IndexItem = IndexItem;
+export { IndexItem };
 //# sourceMappingURL=IndexItem.js.map

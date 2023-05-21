@@ -1,9 +1,9 @@
-import User from "./User";
-import DB from "../database/DB";
+import User from "./User.js";
+import DB from "../database/DB.js";
 import md5 from "md5";
 
 import { v4 as uuidv4 } from "uuid";
-import createUserOptions from "./createUserOptions";
+import createUserOptions from "./createUserOptions.js";
 
 class AccountManager {
   users: Set<User> = new Set();

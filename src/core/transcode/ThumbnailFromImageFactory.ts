@@ -1,4 +1,4 @@
-import { config, finder } from "../system";
+import { config, finder } from "../system/index.js";
 import Jimp from "jimp-compact";
 import { v4 as uuidv4 } from "uuid";
 

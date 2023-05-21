@@ -2,24 +2,25 @@
 /// <reference types="node" />
 /// <reference types="node" />
 /// <reference types="node" />
-import User from "./accounts/User";
-import { Volume } from "./drives/Volume";
-import { Thumbnail } from "./library/Thumbnail";
-import MetaLibrary from "./library/MetaLibrary";
-import { MetaFile } from "./library/MetaFile";
-import Task from "./media/Task";
-import { MetaCopy } from "./library/MetaCopy";
-import { TranscodeTask } from "./transcode/TranscodeTask";
-import createTaskOptions from "./library/createTaskOptions";
-import analyseMetaFileOptions from "./library/analyseMetaFileOptions";
-import MetaLibraryOptions from "./library/MetaLibraryOptions";
-import MetaLibraryUpdateOptions from "./library/MetaLibraryUpdateOptions";
-import FolderOptions from "./library/FolderOptions";
-import Transaction from "./database/Transaction";
-import CancelToken from "./library/CancelToken";
-import WrangleBotOptions from "./WrangleBotOptions";
+import User from "./accounts/User.js";
+import { Volume } from "./drives/Volume.js";
+import { Thumbnail } from "./library/Thumbnail.js";
+import MetaLibrary from "./library/MetaLibrary.js";
+import { MetaFile } from "./library/MetaFile.js";
+import Task from "./media/Task.js";
+import { MetaCopy } from "./library/MetaCopy.js";
+import { TranscodeTask } from "./transcode/TranscodeTask.js";
+import createTaskOptions from "./library/createTaskOptions.js";
+import analyseMetaFileOptions from "./library/analyseMetaFileOptions.js";
+import MetaLibraryOptions from "./library/MetaLibraryOptions.js";
+import MetaLibraryUpdateOptions from "./library/MetaLibraryUpdateOptions.js";
+import FolderOptions from "./library/FolderOptions.js";
+import Transaction from "./database/Transaction.js";
+import CancelToken from "./library/CancelToken.js";
+import WrangleBotOptions from "./WrangleBotOptions.js";
 import EventEmitter from "events";
-import { DriveBot } from "./drives/DriveBot";
+import { config } from "./system/index.js";
+import { DriveBot } from "./drives/DriveBot.js";
 interface ReturnObject {
     status: 200 | 400 | 500 | 404;
     message?: string;
@@ -42,7 +43,7 @@ declare class WrangleBot extends EventEmitter {
         users: Set<User>;
         salt: string;
         init(): Promise<void>;
-        addOneUser(options: import("./accounts/createUserOptions").default): User;
+        addOneUser(options: import("./accounts/createUserOptions.js").default): User;
         updateUserConfig(user: User, config: any): void;
         removeOneUser(user: any): boolean;
         getAllUsers(filters?: {}): User[];
@@ -218,7 +219,7 @@ declare class WrangleBot extends EventEmitter {
      * @param {{id:string}} item the object to add
      * @return {0|1|-1} 0 if the item was overwritten, 1 if it was added, -1 if the list does not exist
      */
-    addToRuntime(list: any, item: any): 0 | 1 | -1;
+    addToRuntime(list: any, item: any): 1 | 0 | -1;
     error(message: any): any;
     notify(title: any, message: any): void;
     get query(): {
@@ -364,7 +365,7 @@ declare class WrangleBot extends EventEmitter {
         };
     };
     get utility(): {
-        index: (pathToFolder: any, types: any) => Promise<import("./media/Index").default>;
+        index: (pathToFolder: any, types: any) => Promise<import("./media/Index.js").default>;
         list: (pathToFolder: any, options: {
             showHidden: boolean;
             filters: "both" | "files" | "folders";
@@ -381,5 +382,5 @@ declare class WrangleBot extends EventEmitter {
 }
 declare const wb: WrangleBot;
 export default wb;
-export { WrangleBot };
+export { WrangleBot, config };
 //# sourceMappingURL=WrangleBot.d.ts.map
