@@ -163,7 +163,7 @@ declare class Finder {
      * @param filename {string} the path to the file
      * @returns {'photo'|'video'|'audio'|'sidecar'}
      */
-    getFileType(filename: any): "photo" | "video" | "video-raw" | "audio" | "sidecar";
+    getFileType(filename: any): "video" | "video-raw" | "audio" | "photo" | "sidecar";
     /**
      * Returns the items of a folder
      * @param {String} pathToFolder Absolute Path to Folder

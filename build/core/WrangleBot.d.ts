@@ -112,7 +112,7 @@ declare class WrangleBot extends EventEmitter {
         eject(pathToDevice: any, callback: any): void;
         getVolumeMountpoint(stringToParse: any): string;
         getVolumeName(pathToElement: any): any;
-        getFileType(filename: any): "photo" | "video" | "video-raw" | "audio" | "sidecar";
+        getFileType(filename: any): "video" | "video-raw" | "audio" | "photo" | "sidecar";
         getContentOfFolder(pathToFolder: any, options?: {
             showHidden: boolean;
             filters: "both" | "files" | "folders";
@@ -218,7 +218,7 @@ declare class WrangleBot extends EventEmitter {
      * @param {{id:string}} item the object to add
      * @return {0|1|-1} 0 if the item was overwritten, 1 if it was added, -1 if the list does not exist
      */
-    addToRuntime(list: any, item: any): 1 | 0 | -1;
+    addToRuntime(list: any, item: any): 0 | 1 | -1;
     error(message: any): any;
     notify(title: any, message: any): void;
     get query(): {

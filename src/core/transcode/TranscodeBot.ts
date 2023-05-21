@@ -1,14 +1,14 @@
-import pathToFfmpeg from "ffmpeg-static";
-import { path as pathToFfprobe } from "ffprobe-static";
 import ffmpeg from "fluent-ffmpeg";
 import { finder } from "../system";
 import TranscodeFactory from "./TranscodeFactory";
 import TranscodeSetFactory from "./TranscodeSetFactory";
 import ThumbnailFromImageFactory from "./ThumbnailFromImageFactory";
 import ThumbnailFactory from "./ThumbnailFactory";
+const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
+const ffprobePath = require("@ffprobe-installer/ffprobe").path;
 
-ffmpeg.setFfmpegPath(pathToFfmpeg);
-ffmpeg.setFfprobePath(pathToFfprobe);
+ffmpeg.setFfmpegPath(ffmpegPath);
+ffmpeg.setFfprobePath(ffprobePath);
 
 class TranscodeBot {
   constructor() {}

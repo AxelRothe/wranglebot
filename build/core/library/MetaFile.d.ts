@@ -54,7 +54,7 @@ declare class MetaFile {
      *
      * @param {MetaCopy} metaCopy
      */
-    addCopy(metaCopy: any): 1 | 0;
+    addCopy(metaCopy: any): 0 | 1;
     dropCopy(metaCopy: any): 0 | -1;
     addCopies(copies: any): void;
     getCopiesAs(type: any): any;

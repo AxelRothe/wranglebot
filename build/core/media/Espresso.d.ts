@@ -47,7 +47,11 @@ export default class Espresso {
         bytesRead: number;
         size: number;
     }>;
-    calculateRequiredSpace(paths: string[], fileSize: number): void;
+    getDiskUsage(volumePath: any): Promise<{
+        path: string;
+        freeSpace: number;
+    }>;
+    calculateRequiredSpace(paths: string[], fileSize: number): Promise<boolean>;
     /**
      * Checks if the size of the file is the same as the size of the file that was read
      * @param paths

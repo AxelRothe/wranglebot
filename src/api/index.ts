@@ -1,9 +1,9 @@
 import express from "express";
-import http from "http";
+const http = require("http");
 import LogBot from "logbotjs";
 
 import nodemailer from "nodemailer";
-import cors from "cors";
+const cors = require("cors");
 import SocketServer from "./SocketServer";
 
 export default {

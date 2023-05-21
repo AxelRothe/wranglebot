@@ -1259,5 +1259,6 @@ class WrangleBot extends EventEmitter {
 const wb = new WrangleBot();
 
 module.exports = wb;
+module.exports.config = config;
 export default wb;
 export { WrangleBot };

@@ -1,1 +1,1 @@
-{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["file:///Users/axelrothe/Documents/Development/__npm/wranglebot/src/core/export/index.ts"],"names":[],"mappings":"AAAA,OAAO,SAAS,MAAM,aAAa,CAAC;AACpC,eAAe,SAAS,CAAC"}
+{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/core/export/index.ts"],"names":[],"mappings":"AAAA,OAAO,SAAS,MAAM,aAAa,CAAC;AACpC,eAAe,SAAS,CAAC"}

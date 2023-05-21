@@ -1,1 +1,1 @@
-{"version":3,"file":"share-mail.d.ts","sourceRoot":"","sources":["file:///Users/axelrothe/Documents/Development/__npm/wranglebot/src/api/routes/social/share-mail.ts"],"names":[],"mappings":"AACA,OAAO,WAAW,MAAM,mBAAmB,CAAC;;;;;;AAE5C,wBAqCE"}
+{"version":3,"file":"share-mail.d.ts","sourceRoot":"","sources":["../../../../src/api/routes/social/share-mail.ts"],"names":[],"mappings":"AACA,OAAO,WAAW,MAAM,mBAAmB,CAAC;;;;;;AAE5C,wBAqCE"}

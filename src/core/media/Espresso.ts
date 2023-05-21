@@ -4,7 +4,8 @@ import { StringDecoder } from "string_decoder";
 import MediaInfo from "mediainfo.js";
 import { XXHash128, XXHash3, XXHash32, XXHash64 } from "xxhash-addon";
 import fs from "fs";
-import diskusage from "diskusage";
+import diskusage from "diskusage-ng";
+
 import LogBot from "logbotjs";
 import finder from "../system/finder";
 
@@ -204,20 +205,24 @@ export default class Espresso {
 
           if (pathToTargets.length > 0) {
             //check if there is enough space on the disk to write the file
-            try {
-              this.calculateRequiredSpace(pathToTargets, fileSizeInBytes);
-            } catch (e) {
-              reject(e);
-              return;
-            }
-
-            //pipe the read stream to the writeStreams
-            for (let i = 0; i < writeStreams.length; i++) {
-              if (!fs.existsSync(path.dirname(pathToTargets[i]))) {
-                fs.mkdirSync(path.dirname(pathToTargets[i]), { recursive: true });
-              }
-              readStream.pipe(writeStreams[i]);
-            }
+            this.calculateRequiredSpace(pathToTargets, fileSizeInBytes)
+              .then((result) => {
+                if (result) {
+                  reject(new Error("Not enough space on disk"));
+                  return;
+                } else {
+                  //pipe the read stream to the writeStreams
+                  for (let i = 0; i < writeStreams.length; i++) {
+                    if (!fs.existsSync(path.dirname(pathToTargets[i]))) {
+                      fs.mkdirSync(path.dirname(pathToTargets[i]), { recursive: true });
+                    }
+                    readStream.pipe(writeStreams[i]);
+                  }
+                }
+              })
+              .catch((e) => {
+                reject(e);
+              });
           }
         })
         .catch((e) => {
@@ -226,32 +231,44 @@ export default class Espresso {
     });
   }
 
-  calculateRequiredSpace(paths: string[], fileSize: number): void {
+  getDiskUsage(volumePath): Promise<{ path: string; freeSpace: number }> {
+    return new Promise((resolve, reject) => {
+      diskusage(volumePath, function (err, usage) {
+        if (err) reject(err);
+        resolve({ path: volumePath, freeSpace: usage.available });
+      });
+    });
+  }
+
+  async calculateRequiredSpace(paths: string[], fileSize: number): Promise<boolean> {
     const volumes: Volume[] = [];
 
     // get list of unique volumes
-    paths.forEach((filePath) => {
+    for (const filePath of paths) {
       const volumePath = finder.getVolumePath(filePath);
       if (!volumes.some((volume) => volume.path === volumePath)) {
-        const freeSpace = diskusage.checkSync(volumePath).free;
-        volumes.push({ path: volumePath, freeSpace });
+        volumes.push(await this.getDiskUsage(volumePath));
       }
-    });
+    }
 
     // check if each volume has enough free space
-    volumes.forEach((volume) => {
+    for (const volume of volumes) {
       const requiredSpace = paths.reduce((totalSize, filePath) => {
         if (path.parse(filePath).root === volume.path) {
           return totalSize + fileSize;
         }
         return totalSize;
       }, 0);
+
       if (volume.freeSpace < requiredSpace) {
-        throw new Error(`Volume ${volume.path} does not have enough free space`);
+        LogBot.log(400, `Volume ${volume.path} does not have enough free space`);
+        return false;
       } else {
         LogBot.log(200, `Volume ${volume.path} has enough free space with ${volume.freeSpace} bytes`);
       }
-    });
+    }
+
+    return true;
   }
 
   /**

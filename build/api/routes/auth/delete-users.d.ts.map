@@ -1,1 +1,1 @@
-{"version":3,"file":"delete-users.d.ts","sourceRoot":"","sources":["file:///Users/axelrothe/Documents/Development/__npm/wranglebot/src/api/routes/auth/delete-users.ts"],"names":[],"mappings":"AACA,OAAO,WAAW,MAAM,mBAAmB,CAAC;;;;;;;AAE5C,wBAwBE"}
+{"version":3,"file":"delete-users.d.ts","sourceRoot":"","sources":["../../../../src/api/routes/auth/delete-users.ts"],"names":[],"mappings":"AACA,OAAO,WAAW,MAAM,mBAAmB,CAAC;;;;;;;AAE5C,wBAwBE"}
