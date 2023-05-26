@@ -77,7 +77,7 @@ npm run test
 ⚠️ You will require a `.env` to run the test environment:
 
 ```dotenv
-CLOUD_SYNC_DATABASE_TOKEN="xxxx-xxxx-xxxx-xxxx" #please contact for developer token
+CLOUD_SYNC_DATABASE_TOKEN="xxxx-xxxx-xxxx-xxxx" # get your token at wranglebot.io
 CLOUD_SYNC_DATABASE_URL="https://db2.wranglebot.io"
 CLOUD_ML_URL="https://ai.wranglebot.io" # you will need a positive credits balance, you can charge your wallet at wranglebot.io
 DEBUG_NOTIFICATIONS="false" #show notifications in console
@@ -87,7 +87,7 @@ DEBUG_NOTIFICATIONS="false" #show notifications in console
 
 If you are not using Cloud Sync, then you can use the offline mode. This mode will allow you to use WrangleBot without an internet connection. To use the offline mode, you will need to create a `.env` file in the root directory of the project. The `.env` file should contain the following:
 
-> Note: You will not be able to use AI Services in offline mode, as they are tied to your Cloud Sync account. If you need to migrate an offline database to Cloud Sync please write us an email at [a.rothe@vanrothe.com](mailto:a.rothe@vanrothe.com)
+> Note: You will not be able to use AI or Sync Services in offline mode, as they are tied to your Cloud Sync account. If you need to migrate an offline database to Cloud Sync please write us an email at [a.rothe@vanrothe.com](mailto:a.rothe@vanrothe.com)
 
 ```dotenv
 DATABASE_KEY="xxxx-xxxx-xxxx-xxxx"
