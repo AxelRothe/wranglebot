@@ -291,6 +291,11 @@ class WrangleBot extends EventEmitter {
         return __awaiter(this, void 0, void 0, function* () {
             if (!options.name)
                 throw new Error("No name provided");
+            if (options.pathToLibrary) {
+                if (!finder.isReachable(options.pathToLibrary)) {
+                    throw new Error(options.pathToLibrary + " is not a valid path.");
+                }
+            }
             const allowedPaths = [
                 //macos
                 "/volumes/",
@@ -304,6 +309,11 @@ class WrangleBot extends EventEmitter {
                 "/run/media/",
             ];
             const path = options.pathToLibrary.toLowerCase();
+            //check if the folder already exists
+            if (!finder.existsSync(path)) {
+                //if it does not create the base folder
+                finder.mkdirSync(path, { recursive: true });
+            }
             const allowed = allowedPaths.some((p) => path.startsWith(p));
             if (!allowed)
                 throw new Error("Path is not allowed");

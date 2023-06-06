@@ -95,6 +95,11 @@ export default class MetaLibrary {
         throw new Error(options.pathToLibrary + " is not reachable and can not be updated.");
       }
       this.pathToLibrary = options.pathToLibrary;
+      //check if the folder already exists
+      if (!finder.existsSync(this.pathToLibrary)) {
+        //if it does not create the base folder
+        finder.mkdirSync(this.pathToLibrary, { recursive: true });
+      }
     }
     if (options.folders) this.folders = options.folders;
     if (options.drops) this.drops = new MetaLibraryData(options.drops);
