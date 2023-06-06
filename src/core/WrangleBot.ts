@@ -135,13 +135,13 @@ class WrangleBot extends EventEmitter {
             token: options.vault.token,
           });
         }
-      } else if (options.vault.key) {
+      } else if (options.vault.token) {
         //LOCAL DB
         LogBot.log(100, "User supplied local database credentials. Attempting to connect to local database.");
 
         //init db interface for local use
         db = DB({
-          token: options.vault.key,
+          token: options.vault.token,
         });
         //rebuild local model
         await DB().rebuildLocalModel();
