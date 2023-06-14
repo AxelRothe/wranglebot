@@ -100,9 +100,12 @@ class DB extends EventEmitter {
     }
 
     if (finder.exists("transactions")) {
+      let t = Date.now();
+
       let folderContents = finder.getContentOfFolder(this.pathToTransactions);
 
       const transactions: Transaction[] = [];
+
       for (let file of folderContents) {
         try {
           const parsedData = JSON.parse(finder.parseFileSync(finder.join(this.pathToTransactions, file)));
@@ -111,8 +114,8 @@ class DB extends EventEmitter {
           LogBot.log(500, "Could not parse transaction file " + file + ". Ignoring File.");
         }
       }
-      //sort transactions by timestamp
 
+      //sort transactions by timestamp
       transactions.sort((a: Transaction, b: Transaction) => {
         return a.timestamp - b.timestamp > 0 ? 1 : -1;
       });
@@ -130,9 +133,10 @@ class DB extends EventEmitter {
         this.apply(transaction);
         transactionCounts[transaction.getStatus()]++;
       }
-      LogBot.log(200, "Loaded " + this.transactions.length + " transactions from disk");
-      if (transactionCounts.rejected > 0) LogBot.log(200, "Rejected: " + transactionCounts.rejected);
-      if (transactionCounts.pending > 0) LogBot.log(200, "Pending: " + transactionCounts.pending);
+
+      LogBot.log(200, "Parsed " + transactions.length + " transactions in " + (Date.now() - t) + "ms");
+      if (transactionCounts.rejected > 0) LogBot.log(200, "Transactions Rejected: " + transactionCounts.rejected);
+      if (transactionCounts.pending > 0) LogBot.log(200, "Transactions Pending: " + transactionCounts.pending);
     }
   }
 
@@ -169,7 +173,7 @@ class DB extends EventEmitter {
       );
 
       this.socket.once("sync-start", (syncInfo: SyncInfoJSON) => {
-        LogBot.log(200, "Syncing " + syncInfo.totalTransactions + " transactions");
+        LogBot.log(100, "Syncing " + syncInfo.totalTransactions + " transactions");
         this.$emit("notification", {
           title: "Syncing",
           message: "Syncing " + syncInfo.totalTransactions + " transactions",
@@ -434,15 +438,17 @@ class DB extends EventEmitter {
       });
 
       this.socket.on("disconnect", () => {
-        this.offline = true; //going offline
-        clearTimeout(this.commitInterval);
-        LogBot.log(100, "Disconnected from peer");
+        if (!this.offline) {
+          this.offline = true; //going offline
+          clearTimeout(this.commitInterval);
+          LogBot.log(408, "Disconnected from peer");
+        }
       });
 
       this.socket.on("connect", () => {
         clearTimeout(timer);
         this.offline = false;
-        LogBot.log(100, "Connected to peer");
+        LogBot.log(200, "Connected to peer");
 
         this.offline = false; //back online
         this.fetchTransactions().then(() => {

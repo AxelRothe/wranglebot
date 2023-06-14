@@ -66,6 +66,7 @@ class DB extends EventEmitter {
                 }
             }
             if (finder.exists("transactions")) {
+                let t = Date.now();
                 let folderContents = finder.getContentOfFolder(this.pathToTransactions);
                 const transactions = [];
                 for (let file of folderContents) {
@@ -92,11 +93,11 @@ class DB extends EventEmitter {
                     this.apply(transaction);
                     transactionCounts[transaction.getStatus()]++;
                 }
-                LogBot.log(200, "Loaded " + this.transactions.length + " transactions from disk");
+                LogBot.log(200, "Parsed " + transactions.length + " transactions in " + (Date.now() - t) + "ms");
                 if (transactionCounts.rejected > 0)
-                    LogBot.log(200, "Rejected: " + transactionCounts.rejected);
+                    LogBot.log(200, "Transactions Rejected: " + transactionCounts.rejected);
                 if (transactionCounts.pending > 0)
-                    LogBot.log(200, "Pending: " + transactionCounts.pending);
+                    LogBot.log(200, "Transactions Pending: " + transactionCounts.pending);
             }
         });
     }
@@ -130,7 +131,7 @@ class DB extends EventEmitter {
         return new Promise((resolve) => {
             this.socket.emit("fetchTransactions", this.transactions.map((t) => t.uuid));
             this.socket.once("sync-start", (syncInfo) => {
-                LogBot.log(200, "Syncing " + syncInfo.totalTransactions + " transactions");
+                LogBot.log(100, "Syncing " + syncInfo.totalTransactions + " transactions");
                 this.$emit("notification", {
                     title: "Syncing",
                     message: "Syncing " + syncInfo.totalTransactions + " transactions",
@@ -378,14 +379,16 @@ class DB extends EventEmitter {
                 }
             });
             this.socket.on("disconnect", () => {
-                this.offline = true; //going offline
-                clearTimeout(this.commitInterval);
-                LogBot.log(100, "Disconnected from peer");
+                if (!this.offline) {
+                    this.offline = true; //going offline
+                    clearTimeout(this.commitInterval);
+                    LogBot.log(408, "Disconnected from peer");
+                }
             });
             this.socket.on("connect", () => {
                 clearTimeout(timer);
                 this.offline = false;
-                LogBot.log(100, "Connected to peer");
+                LogBot.log(200, "Connected to peer");
                 this.offline = false; //back online
                 this.fetchTransactions().then(() => {
                     this.commit().then(() => {
