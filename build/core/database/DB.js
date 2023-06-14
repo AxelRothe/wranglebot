@@ -74,8 +74,7 @@ class DB extends EventEmitter {
                         transactions.push(new Transaction(parsedData));
                     }
                     catch (e) {
-                        LogBot.log(500, "Could not parse transaction file " + file + " Deleting File.");
-                        finder.rmSync(finder.join(this.pathToTransactions, file));
+                        LogBot.log(500, "Could not parse transaction file " + file + ". Ignoring File.");
                     }
                 }
                 //sort transactions by timestamp
