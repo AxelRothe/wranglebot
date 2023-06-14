@@ -104,9 +104,12 @@ class Espresso {
                 let writeStreams = [];
                 if (pathToTargets.length > 0) {
                     for (let i = 0; i < pathToTargets.length; i++) {
+                        if (!fs.existsSync(path.dirname(pathToTargets[i]))) {
+                            fs.mkdirSync(path.dirname(pathToTargets[i]), { recursive: true });
+                        }
                         const ws = fs.createWriteStream(pathToTargets[i], options);
                         ws.on("error", (err) => {
-                            reject(new Error("Write Process Failed"));
+                            reject(new Error("Write Process Failed for path " + pathToTargets[i]));
                         });
                         writeStreams.push(ws);
                     }
@@ -175,16 +178,13 @@ class Espresso {
                     //check if there is enough space on the disk to write the file
                     this.calculateRequiredSpace(pathToTargets, fileSizeInBytes)
                         .then((result) => {
-                        if (result) {
+                        if (!result) {
                             reject(new Error("Not enough space on disk"));
                             return;
                         }
                         else {
                             //pipe the read stream to the writeStreams
                             for (let i = 0; i < writeStreams.length; i++) {
-                                if (!fs.existsSync(path.dirname(pathToTargets[i]))) {
-                                    fs.mkdirSync(path.dirname(pathToTargets[i]), { recursive: true });
-                                }
                                 readStream.pipe(writeStreams[i]);
                             }
                         }
@@ -208,7 +208,7 @@ class Espresso {
             });
         });
     }
-    calculateRequiredSpace(paths, fileSize) {
+    calculateRequiredSpace(paths, totalJobSizeInBytes) {
         return __awaiter(this, void 0, void 0, function* () {
             const volumes = [];
             // get list of unique volumes
@@ -218,14 +218,17 @@ class Espresso {
                     volumes.push(yield this.getDiskUsage(volumePath));
                 }
             }
+            console.log(volumes);
             // check if each volume has enough free space
             for (const volume of volumes) {
                 const requiredSpace = paths.reduce((totalSize, filePath) => {
-                    if (path.parse(filePath).root === volume.path) {
-                        return totalSize + fileSize;
+                    const volumeName = finder.getMountPoint(filePath);
+                    if (volumeName === volume.path) {
+                        return totalSize + totalJobSizeInBytes;
                     }
                     return totalSize;
                 }, 0);
+                console.log(requiredSpace);
                 if (volume.freeSpace < requiredSpace) {
                     LogBot.log(400, `Volume ${volume.path} does not have enough free space`);
                     return false;

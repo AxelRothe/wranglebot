@@ -428,14 +428,21 @@ class Finder {
         return "/" + pathArray[0] + "/" + pathArray[1];
     }
     getVolumeName(pathToElement) {
-        let path = pathToElement.split("/");
-        if (this.platform === "darwin" && path[1] === "Volumes") {
-            return path[2];
+        try {
+            let path = pathToElement.split("/");
+            //macos
+            if (this.platform === "darwin" && path[1].toLowerCase() === "volumes") {
+                return path[2];
+            }
+            //linux
+            if (this.platform === "linux" && path[1] === "media") {
+                return path[2];
+            }
+            throw new Error("unknown volume");
         }
-        if (this.platform === "darwin" && path[1] !== "Volumes") {
-            return "Internal";
+        catch (e) {
+            throw e;
         }
-        return "unknown volume";
     }
     /**
      * Returns the file type of the given path

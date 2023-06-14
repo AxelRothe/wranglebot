@@ -464,15 +464,22 @@ class Finder {
   }
 
   getVolumeName(pathToElement) {
-    let path = pathToElement.split("/");
+    try {
+      let path = pathToElement.split("/");
 
-    if (this.platform === "darwin" && path[1] === "Volumes") {
-      return path[2];
+      //macos
+      if (this.platform === "darwin" && path[1].toLowerCase() === "volumes") {
+        return path[2];
+      }
+      //linux
+      if (this.platform === "linux" && path[1] === "media") {
+        return path[2];
+      }
+
+      throw new Error("unknown volume");
+    } catch (e) {
+      throw e;
     }
-    if (this.platform === "darwin" && path[1] !== "Volumes") {
-      return "Internal";
-    }
-    return "unknown volume";
   }
 
   /**

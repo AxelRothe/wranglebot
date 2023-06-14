@@ -51,7 +51,7 @@ export default class Espresso {
         path: string;
         freeSpace: number;
     }>;
-    calculateRequiredSpace(paths: string[], fileSize: number): Promise<boolean>;
+    calculateRequiredSpace(paths: string[], totalJobSizeInBytes: number): Promise<boolean>;
     /**
      * Checks if the size of the file is the same as the size of the file that was read
      * @param paths
