@@ -18,7 +18,7 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 class ExportBot {
     constructor() {
-        this.pathToAssets = finder.join(__dirname, "../../../../assets/");
+        this.pathToAssets = finder.join(__dirname, "../../../assets/");
         this.assets = {
             fonts: {
                 body: {
@@ -57,13 +57,18 @@ class ExportBot {
                     let metaData = file.getMetaData();
                     let cells = [];
                     //prettify entries
-                    for (let [key, value] of Object.entries(metaData.entries)) {
-                        let val = value;
+                    for (const column of Scraper.getColumns()) {
+                        //find the entry in the file
+                        let val = metaData.entries[column.id];
+                        if (!val) {
+                            cells.push("");
+                            continue;
+                        }
                         //convert if needed
-                        if (this.toPrettyTime.indexOf(key) >= 0) {
+                        if (this.toPrettyTime.indexOf(column.id) >= 0) {
                             val = prettyMilliseconds(Number(val) * 1000);
                         }
-                        if (this.toPrettyBytes.indexOf(key) >= 0) {
+                        if (this.toPrettyBytes.indexOf(column.id) >= 0) {
                             val = prettyBytes(Number(val));
                         }
                         //add to list

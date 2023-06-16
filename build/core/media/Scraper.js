@@ -99,7 +99,7 @@ Scraper.availableColumns = {
         { id: "comments", name: "Comments", mask: new FilterMask(["comments"]) },
         { id: "keywords", name: "Keywords", mask: new FilterMask(["keywords"]) },
         { id: "good-take", name: "Good Take", mask: new FilterMask(["good take"]) },
-        { id: "creation-date", name: "Creation Date", mask: new FilterMask(["encoded_date"]) },
+        { id: "creation-date", name: "Creation Date", mask: new FilterMask(["creation_date", "encoded_date", "modification_date"]) },
         /* VIDEO TECHNICAL */
         {
             id: "video-camera-index",
@@ -118,7 +118,13 @@ Scraper.availableColumns = {
         },
         { id: "reel-name", name: "Reel Name", mask: new FilterMask(["com.arri.camera.ReelName", "tags.reel_name"]) },
         { id: "video-start-tc", name: "Start TC", mask: new FilterMask(["timecode"]) },
-        { id: "video-frames", name: "Frames", mask: new FilterMask(["nb_frames"]) },
+        {
+            id: "video-frames",
+            name: "Frames",
+            mask: new FilterMask(["nb_frames"], (value) => {
+                return parseInt(value);
+            }),
+        },
         { id: "video-duration", name: "Duration", mask: new FilterMask(["duration"]) },
         { id: "video-bit-depth", name: "Bit Depth", mask: new FilterMask(["bits_per_raw_sample"]) },
         { id: "video-field-dominance", name: "Field Dominance", mask: new FilterMask(["field_order"]) },

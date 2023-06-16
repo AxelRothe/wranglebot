@@ -55,7 +55,6 @@
     "jsonwebtoken": "^9.0.0",
     "logbotjs": "^1.3.1",
     "md5": "^2.3.0",
-    "mediainfo.js": "^0.1.9",
     "nodemailer": "^6.9.2",
     "pdfmake": "^0.2.7",
     "pretty-bytes": "^6.1.0",

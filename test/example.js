@@ -14,13 +14,13 @@ let t1 = Date.now();
 
 let cancelToken = new CancelToken();
 
-setTimeout(() => {
-  cancelToken.abort();
-}, 500);
-
-cancelToken.on("abort", () => {
-  copyTool.abort();
-});
+// setTimeout(() => {
+//   cancelToken.abort();
+// }, 500);
+//
+// cancelToken.on("abort", () => {
+//   copyTool.abort();
+// });
 
 copyTool
   .source("/Volumes/NVME/example/F003/F003C003_190925_MN99.mxf")
@@ -30,5 +30,6 @@ copyTool
   ])
   .copy(callback)
   .then((result) => {
+    console.log(JSON.stringify(result, null, 2));
     console.log("done", Date.now() - t1);
   });
