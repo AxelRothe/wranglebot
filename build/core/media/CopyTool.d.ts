@@ -24,12 +24,12 @@ export default class CopyTool {
      * @param [options.overwrite] - If true, will overwrite the destination file if it exists
      * @param [options.chunkSize] - The size of each chunk to copy in MB. Defaults to 10MB
      */
-    constructor(options?: {
-        paranoid: boolean;
-        hash: string;
-        overwrite: boolean;
-        chunkSize: number;
-        key: string;
+    constructor(options: {
+        paranoid?: boolean;
+        hash?: "xxhash128" | "xxhash64" | "xxhash32" | "xxhash3";
+        overwrite?: boolean;
+        chunkSize?: number;
+        key?: string;
     });
     /**
      * Adds a source file to copy
