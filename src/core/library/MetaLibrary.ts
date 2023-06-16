@@ -14,7 +14,6 @@ import { finder } from "../system/index.js";
 import utility from "../system/utility.js";
 
 import config from "../system/Config.js";
-import Scraper from "../media/Scraper.js";
 import { TranscodeTask } from "../transcode/TranscodeTask.js";
 import { indexer } from "../media/Indexer.js";
 import Job from "../media/Job.js";
@@ -881,7 +880,7 @@ export default class MetaLibrary {
           const basename = finder.basename(executedJob.source).toString();
           const newMetaFile = new MetaFile({
             hash: executedJob.result.hash,
-            metaData: Scraper.parse(executedJob.result.metaData),
+            metaData: executedJob.result.metaData,
             basename: basename,
             name: basename.substring(0, basename.lastIndexOf(".")),
             size: executedJob.result.size,
