@@ -1,0 +1,1 @@
+{"version":3,"file":"CancelToken.js","sourceRoot":"","sources":["../../../src/core/media/CancelToken.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAE,MAAM,QAAQ,CAAC;AAEtC,MAAM,CAAC,OAAO,OAAO,WAAY,SAAQ,YAAY;IAArD;;QACE,WAAM,GAAG,KAAK,CAAC;IAMjB,CAAC;IAJC,KAAK;QACH,IAAI,CAAC,MAAM,GAAG,IAAI,CAAC;QACnB,IAAI,CAAC,IAAI,CAAC,OAAO,CAAC,CAAC;IACrB,CAAC;CACF"}
