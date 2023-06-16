@@ -49,9 +49,9 @@ export default class Task {
    * @param job {Job}
    * @param cb {Function} callback to get progress
    * @param cancelToken {{cancel: boolean}} cancel token
-   * @returns {Promise<Job|Error>}
+   * @returns {Promise<Job>}
    */
-  async runOneJob(job: Job, cb, cancelToken) {
+  async runOneJob(job: Job, cb, cancelToken): Promise<Job> {
     try {
       return await job.run(cb, cancelToken);
     } catch (e) {

@@ -42,7 +42,7 @@ export default class Task {
      * @param job {Job}
      * @param cb {Function} callback to get progress
      * @param cancelToken {{cancel: boolean}} cancel token
-     * @returns {Promise<Job|Error>}
+     * @returns {Promise<Job>}
      */
     runOneJob(job, cb, cancelToken) {
         return __awaiter(this, void 0, void 0, function* () {

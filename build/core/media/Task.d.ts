@@ -18,9 +18,9 @@ export default class Task {
      * @param job {Job}
      * @param cb {Function} callback to get progress
      * @param cancelToken {{cancel: boolean}} cancel token
-     * @returns {Promise<Job|Error>}
+     * @returns {Promise<Job>}
      */
-    runOneJob(job: Job, cb: any, cancelToken: any): Promise<unknown>;
+    runOneJob(job: Job, cb: any, cancelToken: any): Promise<Job>;
     get stats(): TaskStatusReturn;
     toJSON(options?: {
         db: boolean;

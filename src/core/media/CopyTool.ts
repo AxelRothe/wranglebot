@@ -35,11 +35,17 @@ export default class CopyTool {
    * @param [options.overwrite] - If true, will overwrite the destination file if it exists
    * @param [options.chunkSize] - The size of each chunk to copy in MB. Defaults to 10MB
    */
-  constructor(options = { paranoid: false, hash: "xxhash64", overwrite: false, chunkSize: 10, key: "12345678" }) {
+  constructor(options: {
+    paranoid?: boolean;
+    hash?: "xxhash128" | "xxhash64" | "xxhash32" | "xxhash3";
+    overwrite?: boolean;
+    chunkSize?: number;
+    key?: string;
+  }) {
     this.paranoid = options.paranoid || false;
     this.overwrite = options.overwrite || false;
     this.chunkSize = options.chunkSize || 10;
-    this.highWaterMark = options.chunkSize * 1024 * 1024;
+    this.highWaterMark = this.chunkSize * 1024 * 1024;
     this.key = options.key || "12345678";
 
     switch (options.hash) {
@@ -277,8 +283,12 @@ export default class CopyTool {
   }
 
   static async analyseFile(path: string) {
-    let metaData = await Probe.analyse(path);
-    return Scraper.parse(metaData);
+    try {
+      let metaData = await Probe.analyse(path);
+      return Scraper.parse(metaData);
+    } catch (e) {
+      return {};
+    }
   }
 
   abort() {

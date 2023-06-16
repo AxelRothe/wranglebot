@@ -16,7 +16,7 @@ export default class Job {
      *
      * @return Promise<Job>
      */
-    run(callback: any, abort: any): Promise<unknown>;
+    run(callback: any, abort: any): Promise<Job>;
     /**
      * Returns the job as a json object
      */

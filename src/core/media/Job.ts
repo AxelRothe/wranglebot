@@ -37,11 +37,15 @@ export default class Job {
    *
    * @return Promise<Job>
    */
-  async run(callback, abort) {
+  async run(callback, abort): Promise<Job> {
     return new Promise((resolve, reject) => {
       if (this.status !== Status.DONE || !this.result) {
         this.status = Status.RUNNING;
-        const cpytl = new CopyTool();
+        const cpytl = new CopyTool({
+          paranoid: true,
+          hash: "xxhash64",
+          overwrite: true,
+        });
 
         try {
           cpytl.source(this.source);
@@ -75,15 +79,19 @@ export default class Job {
             });
         } else {
           //analyse only
-          CopyTool.analyseFile(callback)
-            .then((result) => {
-              if (result) {
-                this.result = result;
-                this.status = Status.DONE;
-              } else {
-                this.status = Status.PENDING;
-              }
-              resolve(this);
+          cpytl
+            .hashFile(this.source)
+            .then((hash) => {
+              CopyTool.analyseFile(this.source)
+                .then((metaData) => {
+                  this.result = { hash, metaData };
+                  this.status = Status.DONE;
+                  resolve(this);
+                })
+                .catch((e) => {
+                  this.status = Status.FAILED;
+                  reject(e);
+                });
             })
             .catch((e) => {
               this.status = Status.FAILED;

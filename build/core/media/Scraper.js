@@ -64,6 +64,8 @@ class Scraper {
         }
     }
     parse(raw) {
+        if (!raw.streams)
+            return {};
         if (raw.streams.length === 0)
             throw new Error("No streams found in metadata");
         let videoStream = raw.streams.find((stream) => stream.codec_type === "video");
