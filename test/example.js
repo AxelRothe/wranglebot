@@ -24,6 +24,7 @@ let cancelToken = new CancelToken();
 
 copyTool
   .source("/Volumes/NVME/example/F003/F003C003_190925_MN99.mxf")
+  // .source("/Volumes/NVME/example/M001/M001C001_161207_R00H.mov")
   .destinations([
     "/volumes/Data/__test/backup5/example-task-03/F003C003_190925_MN99.mxf",
     "/volumes/NVME/__test/backup6/example-task-03/F003C003_190925_MN99.mxf",

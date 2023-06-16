@@ -25,7 +25,11 @@ class Scraper {
       { id: "comments", name: "Comments", mask: new FilterMask(["comments"]) },
       { id: "keywords", name: "Keywords", mask: new FilterMask(["keywords"]) },
       { id: "good-take", name: "Good Take", mask: new FilterMask(["good take"]) },
-      { id: "creation-date", name: "Creation Date", mask: new FilterMask(["creation_date", "encoded_date", "modification_date"]) },
+      {
+        id: "creation-date",
+        name: "Creation Date",
+        mask: new FilterMask(["creation_date", "creation_time", "encoded_date", "encoded_time", "modification_date", "modification_time"]),
+      },
 
       /* VIDEO TECHNICAL */
       {
@@ -48,7 +52,7 @@ class Scraper {
       {
         id: "video-frames",
         name: "Frames",
-        mask: new FilterMask(["nb_frames"], (value) => {
+        mask: new FilterMask(["duration_ts"], (value) => {
           return parseInt(value);
         }),
       },
@@ -69,12 +73,8 @@ class Scraper {
       },
       { id: "video-bit-rate", name: "Bit Rate", mask: new FilterMask(["bit_rate"]) },
       { id: "video-codec", name: "Codec", mask: new FilterMask(["codec_long_name"]) },
+      { id: "video-profile", name: "Profile", mask: new FilterMask(["profile"]) },
       { id: "video-format", name: "Container", mask: new FilterMask(["format_long_name"]) },
-      {
-        id: "video-subsampling",
-        name: "Chroma Subsampling",
-        mask: new FilterMask(["profile"]),
-      },
 
       /* VIDEO CREATIVE */
       {
@@ -101,7 +101,7 @@ class Scraper {
       {
         id: "video-color-space",
         name: "Color Space",
-        mask: new FilterMask(["ColorSpace", "color_primaries"]),
+        mask: new FilterMask(["color_space", "color_primaries"]),
       },
       {
         id: "video-gamma",

@@ -236,6 +236,7 @@ export default class CopyTool {
                             resolve({
                                 hash,
                                 metaData,
+                                size: this.fileSizeInBytes,
                             });
                         }
                         else {
@@ -244,6 +245,7 @@ export default class CopyTool {
                                 resolve({
                                     hash,
                                     metaData,
+                                    size: this.fileSizeInBytes,
                                 });
                             });
                         }
