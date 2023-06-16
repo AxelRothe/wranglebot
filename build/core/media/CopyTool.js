@@ -258,7 +258,6 @@ export default class CopyTool {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 let metaData = yield Probe.analyse(path);
-                console.log(JSON.stringify(metaData, null, 2));
                 return Scraper.parse(metaData);
             }
             catch (e) {

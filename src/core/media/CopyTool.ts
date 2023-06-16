@@ -287,7 +287,6 @@ export default class CopyTool {
   static async analyseFile(path: string) {
     try {
       let metaData = await Probe.analyse(path);
-      console.log(JSON.stringify(metaData, null, 2));
       return Scraper.parse(metaData);
     } catch (e) {
       return {};
