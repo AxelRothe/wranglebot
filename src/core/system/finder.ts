@@ -11,46 +11,32 @@ import { exec } from "child_process";
 
 class Finder {
   cryptr = new Cryptr("b2909139-4cdc-46d6-985c-3726ede95335"); //this is just for obfuscation
-  supportedPlatforms: { win32: string; darwin: string; linux: string };
-  platform: NodeJS.Platform;
-  pathToVolumes: string;
+  supportedPlatforms: { darwin: string; linux: string } = {
+    darwin: "MacOS",
+    linux: "linux",
+  };
+  platform: NodeJS.Platform = os.platform();
+  pathToVolumes: string = "/";
 
   constructor() {
-    this.supportedPlatforms = {
-      win32: "Windows",
-      darwin: "MacOS",
-      linux: "linux",
-    };
-
-    this.platform = os.platform();
-
     if (this.supportedPlatforms[this.platform]) {
       LogBot.log(200, "Detected supported Platform: " + this.supportedPlatforms[this.platform]);
     } else {
-      LogBot.log(424, "Detected a non supported Platform. Please start this app on a supported Platform: MacOS x64");
+      throw new Error("Detected a non supported Platform. Please start this app on a supported Platform: " + Object.values(this.supportedPlatforms));
     }
 
     switch (this.platform) {
-      case "win32":
-        this.pathToVolumes = "";
-        break;
       case "darwin":
-        this.pathToVolumes = "/Volumes/";
+        this.pathToVolumes = "/volumes/";
         break;
       case "linux":
         this.pathToVolumes = "/media/" + os.userInfo().username + "/";
         break;
-      default:
-        this.pathToVolumes = "/";
     }
   }
 
   isMac() {
     return this.platform === "darwin";
-  }
-
-  isWindows() {
-    return this.platform === "win32";
   }
 
   isLinux() {
@@ -60,8 +46,6 @@ class Finder {
   openInFinder(path, callback) {
     if (this.isMac()) {
       exec("open '" + path + "'", callback);
-    } else if (this.isWindows()) {
-      exec("explorer '" + path + "'", callback);
     } else if (this.isLinux()) {
       exec("xdg-open  '" + path + "'", callback);
     }
@@ -130,31 +114,6 @@ class Finder {
   }
 
   /**
-   * @typedef {Object} DriveScan
-   * @property {string} uuid
-   * @property {string} productName
-   * @property {string} label
-   */
-
-  /**
-   * Scans a drive at the mountpoint and returns meta data
-   *
-   * @param mount
-   * @return {Promise<DriveScan>}
-   */
-  async scanDrive(mount) {
-    return new Promise((resolve) => {
-      si.blockDevices().then((r) => {
-        for (let device of r) {
-          if (device.mount === mount) {
-            resolve(device);
-          }
-        }
-      });
-    });
-  }
-
-  /**
    * Retrieve all folders with subfolders within a folder
    *
    * @param {string} sourcePath
@@ -176,10 +135,6 @@ class Finder {
       }
     }
     return matches;
-  }
-
-  getPathToVolumes() {
-    return this.pathToVolumes;
   }
 
   getPathToUserData(path = "") {
@@ -457,31 +412,6 @@ class Finder {
     ejectMedia.eject(pathToDevice, callback);
   }
 
-  getVolumeMountpoint(stringToParse) {
-    const pathArray = stringToParse.split("/");
-    pathArray.shift();
-    return "/" + pathArray[0] + "/" + pathArray[1];
-  }
-
-  getVolumeName(pathToElement) {
-    try {
-      let path = pathToElement.split("/");
-
-      //macos
-      if (this.platform === "darwin" && path[1].toLowerCase() === "volumes") {
-        return path[2];
-      }
-      //linux
-      if (this.platform === "linux" && path[1] === "media") {
-        return path[2];
-      }
-
-      throw new Error("unknown volume");
-    } catch (e) {
-      throw e;
-    }
-  }
-
   /**
    * Returns the file type of the given path
    *
@@ -615,15 +545,33 @@ class Finder {
     return fs.existsSync(newPath);
   }
 
-  getVolumePath(filePath) {
-    const root = path.parse(filePath).root;
-    if (this.platform === "darwin" && root === "/") {
-      return `/${path.parse(filePath).dir.split(path.sep)[1]}/${path.parse(filePath).dir.split(path.sep)[2]}`;
+  getVolumePath(stringToParse) {
+    const volumeName = this.getVolumeName(stringToParse);
+    return this.join(this.pathToVolumes, volumeName);
+  }
+
+  getVolumeName(pathToElement) {
+    try {
+      let path = pathToElement.split("/");
+      let element = path[1].toLowerCase();
+
+      //macos
+      if (this.platform === "darwin") {
+        if (element === "volumes") return path[2];
+        if (element === "users") return "Macintosh HD";
+      }
+      //linux
+      if (this.platform === "linux") {
+        if (element === "media") return path[2];
+        if (element === "home") {
+          return "/";
+        }
+      }
+
+      throw new Error("incompatible path to a volume");
+    } catch (e) {
+      throw e;
     }
-    if (this.platform === "linux" && root === "/") {
-      return `/media/${process.env.USER}/${path.parse(filePath).dir.split(path.sep)[3]}`;
-    }
-    return root;
   }
 }
 

@@ -13,11 +13,10 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
 var _TranscodeJob_instances, _TranscodeJob_transcodeOneMetaFile;
-import { MetaCopy } from "../library/MetaCopy.js";
 import { v4 as uuidv4 } from "uuid";
 import { finder } from "../system/index.js";
 import TranscodeBot from "./index.js";
-import Espresso from "../media/Espresso.js";
+import CopyTool from "../media/CopyTool.js";
 export class TranscodeJob {
     constructor(task, options) {
         _TranscodeJob_instances.add(this);
@@ -44,16 +43,13 @@ export class TranscodeJob {
         return __awaiter(this, void 0, void 0, function* () {
             this.cancelToken = cancelToken;
             try {
-                const metaCopy = yield __classPrivateFieldGet(this, _TranscodeJob_instances, "m", _TranscodeJob_transcodeOneMetaFile).call(this, this.metaFile, callback);
-                if (metaCopy) {
-                    this.metaCopy = metaCopy;
-                    this.status = 3;
-                    return metaCopy;
-                }
-                else {
+                const newMetaFile = yield __classPrivateFieldGet(this, _TranscodeJob_instances, "m", _TranscodeJob_transcodeOneMetaFile).call(this, this.metaFile, callback);
+                if (!newMetaFile) {
                     this.status = 4;
                     return null;
                 }
+                this.status = 3;
+                return newMetaFile;
             }
             catch (e) {
                 this.status = 4;
@@ -79,38 +75,27 @@ _TranscodeJob_instances = new WeakSet(), _TranscodeJob_transcodeOneMetaFile = fu
         const reachableMetaCopy = metaFile.copies.find((copy) => {
             return finder.existsSync(copy.pathToBucket.file);
         });
-        if (reachableMetaCopy) {
-            const pathToExport = this.pathToExport;
-            const pathToExportedFile = pathToExport + "/" + (this.customName || metaFile.name) + "." + this.task.template.extension;
-            if (finder.existsSync(pathToExportedFile) && !this.task.overwrite) {
-                throw new Error("File already exists.");
-            }
-            //transcode the meta file
-            try {
-                const transcode = TranscodeBot.generateTranscode(reachableMetaCopy.pathToBucket.file, Object.assign(Object.assign({}, this.task.template), { output: pathToExportedFile, lut: this.task.lut }));
-                if (transcode === null)
-                    throw new Error("Could not generate transcode");
-                yield transcode.run(callback, this.cancelToken);
-                if (this.cancelToken.cancel)
-                    return null;
-                const cup = new Espresso();
-                const analyzedFile = yield cup.pour(pathToExportedFile).analyse(this.cancelToken, () => { });
-                const newMetaCopy = new MetaCopy({
-                    hash: analyzedFile.hash,
-                    pathToSource: reachableMetaCopy.pathToBucket.file,
-                    pathToBucket: pathToExportedFile,
-                    label: "transcode",
-                    metaFile: metaFile,
-                });
-                return newMetaCopy;
-            }
-            catch (e) {
-                console.log(e);
-                throw new Error("Could not transcode " + reachableMetaCopy.pathToBucket.file + " to " + pathToExport);
-            }
-        }
-        else {
+        if (!reachableMetaCopy) {
             throw new Error("Could not find a reachable copy for " + metaFile.name);
+        }
+        const pathToExport = this.pathToExport;
+        const pathToExportedFile = pathToExport + "/" + (this.customName || metaFile.name) + "." + this.task.template.extension;
+        if (finder.existsSync(pathToExportedFile) && !this.task.overwrite) {
+            throw new Error("File already exists.");
+        }
+        //transcode the meta file
+        try {
+            const transcode = TranscodeBot.generateTranscode(reachableMetaCopy.pathToBucket.file, Object.assign(Object.assign({}, this.task.template), { output: pathToExportedFile, lut: this.task.lut }));
+            if (transcode === null)
+                throw new Error("Could not generate transcode");
+            yield transcode.run(callback, this.cancelToken);
+            if (this.cancelToken.cancel)
+                return null;
+            return yield CopyTool.analyseFile(pathToExportedFile);
+        }
+        catch (e) {
+            console.log(e);
+            throw new Error("Could not transcode " + reachableMetaCopy.pathToBucket.file + " to " + pathToExport);
         }
     });
 };

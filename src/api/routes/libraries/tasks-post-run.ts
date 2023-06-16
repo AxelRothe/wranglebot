@@ -1,6 +1,7 @@
 import { WrangleBot } from "../../../core/WrangleBot.js";
 import { SocketServer } from "../../SocketServer.js";
 import RouteResult from "../../RouteResult.js";
+import CancelToken from "../../../core/media/CancelToken.js";
 
 export default {
   method: "post",
@@ -21,7 +22,7 @@ export default {
       });
     };
 
-    const cancelToken = { cancel: false };
+    const cancelToken = new CancelToken();
 
     let cancelTokens = server.getFromCache("cancelTokens");
     if (!cancelTokens) {

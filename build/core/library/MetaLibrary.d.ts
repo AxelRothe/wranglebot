@@ -67,7 +67,6 @@ export default class MetaLibrary {
     createCopyTaskForNewFiles(): Promise<false | Task>;
     scanLibraryForNewFiles(folders?: Folders[], basePath?: string, jobs?: any[]): Promise<Array<Job>>;
     getMetaCopyByPath(path: any): false | MetaCopy;
-    handleFileChange(event: any, path: any): Promise<void>;
     log(message: any, type: any): void;
     /**
      *

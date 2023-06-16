@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import RouteResult from "../../RouteResult.js";
+import CancelToken from "../../../core/media/CancelToken.js";
 export default {
     method: "post",
     requiredRole: ["admin", "maintainer", "contributor"],
@@ -20,7 +21,7 @@ export default {
         const cb = (data) => {
             server.inform("task", task.id, Object.assign({ status: "running", jobs: task.jobs.map((j) => j.toJSON()) }, data));
         };
-        const cancelToken = { cancel: false };
+        const cancelToken = new CancelToken();
         let cancelTokens = server.getFromCache("cancelTokens");
         if (!cancelTokens) {
             cancelTokens = server.addToCache("cancelTokens", {});

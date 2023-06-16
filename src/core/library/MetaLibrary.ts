@@ -14,8 +14,7 @@ import { finder } from "../system/index.js";
 import utility from "../system/utility.js";
 
 import config from "../system/Config.js";
-import Scraper from "./Scraper.js";
-import Espresso from "../media/Espresso.js";
+import Scraper from "../media/Scraper.js";
 import { TranscodeTask } from "../transcode/TranscodeTask.js";
 import { indexer } from "../media/Indexer.js";
 import Job from "../media/Job.js";
@@ -314,13 +313,6 @@ export default class MetaLibrary {
       if (!finder.existsSync(folderPath)) {
         finder.mkdirSync(folderPath, { recursive: true });
       }
-
-      /*if (folder.watch) {
-        watch(folderPath, { recursive: false }, (eventType, path) => {
-          if (path.includes(".DS_Store")) return;
-          this.handleFileChange(eventType, path);
-        });
-      }*/
     }
   }
 
@@ -380,74 +372,6 @@ export default class MetaLibrary {
       }
     }
     return false;
-  }
-
-  async handleFileChange(event, path) {
-    let basename = finder.basename(path);
-
-    if (event === "update") {
-      //check if this a file of an existing job
-      for (const task of Object.values(this.wb.index.copyTasks)) {
-        for (let job of task.jobs) {
-          if (job.destinations === null) continue;
-
-          for (let destination of job.destinations) {
-            if (destination === path || job.source === path) return;
-          }
-        }
-      }
-
-      //check if this is a file of an existing metaCopy
-      for (const metaCopy of Object.values(this.wb.index.metaCopies)) {
-        if (metaCopy.pathToBucket.file === path) {
-          return; //ignore this file change
-        }
-      }
-
-      //check if new or moved file
-      const cup = new Espresso();
-      const result = await cup.pour(path).analyse({ cancel: false }, (progress) => {});
-
-      const mf = this.findMetaFileByHash(result.hash);
-      if (mf) {
-        //found new copy of existing metafile
-        const mc = new MetaCopy({
-          metaFile: mf,
-          hash: result.hash,
-          pathToSource: path,
-          label: "watched",
-        });
-        await this.addOneMetaCopy(mc, mf);
-      } else {
-        //create new metafile
-        const newMF = new MetaFile({
-          hash: result.hash,
-          metaData: Scraper.parse(result.metaData),
-          basename: basename,
-          name: basename.substring(0, basename.lastIndexOf(".")),
-          size: result.size,
-          fileType: finder.getFileType(basename),
-          extension: finder.extname(basename),
-        });
-
-        await this.addOneMetaFile(newMF);
-
-        const newMC = new MetaCopy({
-          metaFile: newMF,
-          hash: result.hash,
-          pathToSource: path,
-          label: "watched",
-        });
-
-        await utility.twiddleThumbs(5); //wait 5 milliseconds to make sure the timestamp is incremented, yes lazy I know; sue me, it works; worthy of a test though if we can reduce to 1ms
-
-        await this.addOneMetaCopy(newMC, newMF);
-
-        LogBot.log(200, `Added new MetaFile ${newMF.name} with hash ${newMF.hash}`);
-      }
-    } else if (event === "remove") {
-      console.log("remove", path);
-    }
   }
 
   log(message, type) {

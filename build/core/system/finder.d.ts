@@ -6,7 +6,6 @@ import Cryptr from "cryptr";
 declare class Finder {
     cryptr: Cryptr;
     supportedPlatforms: {
-        win32: string;
         darwin: string;
         linux: string;
     };
@@ -14,7 +13,6 @@ declare class Finder {
     pathToVolumes: string;
     constructor();
     isMac(): boolean;
-    isWindows(): boolean;
     isLinux(): boolean;
     openInFinder(path: any, callback: any): void;
     /**
@@ -32,19 +30,6 @@ declare class Finder {
     getDisks(): Promise<any[]>;
     getMountPoint(pathToElement: any): string;
     /**
-     * @typedef {Object} DriveScan
-     * @property {string} uuid
-     * @property {string} productName
-     * @property {string} label
-     */
-    /**
-     * Scans a drive at the mountpoint and returns meta data
-     *
-     * @param mount
-     * @return {Promise<DriveScan>}
-     */
-    scanDrive(mount: any): Promise<unknown>;
-    /**
      * Retrieve all folders with subfolders within a folder
      *
      * @param {string} sourcePath
@@ -53,7 +38,6 @@ declare class Finder {
      * @return {String[]} the array of absolute folder paths
      */
     getFolders(sourcePath: any, limit: any, index?: number): any;
-    getPathToVolumes(): string;
     getPathToUserData(path?: string): string;
     /**
      *
@@ -155,8 +139,6 @@ declare class Finder {
      * @param callback
      */
     eject(pathToDevice: any, callback: any): void;
-    getVolumeMountpoint(stringToParse: any): string;
-    getVolumeName(pathToElement: any): any;
     /**
      * Returns the file type of the given path
      *
@@ -211,7 +193,8 @@ declare class Finder {
      * @returns {boolean}
      */
     renameAndMove(pathToElement: any, newName: any, newFolder: any): boolean;
-    getVolumePath(filePath: any): string;
+    getVolumePath(stringToParse: any): string;
+    getVolumeName(pathToElement: any): any;
 }
 declare const finder: Finder;
 export default finder;

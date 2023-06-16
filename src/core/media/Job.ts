@@ -1,4 +1,4 @@
-import Espresso from "./Espresso.js";
+import CopyTool from "./CopyTool.js";
 import { v4 as uuidv4 } from "uuid";
 import Status from "./Status.js";
 
@@ -37,24 +37,29 @@ export default class Job {
    *
    * @return Promise<Job>
    */
-  async run(callback, cancelToken) {
+  async run(callback, abort) {
     return new Promise((resolve, reject) => {
       if (this.status !== Status.DONE || !this.result) {
         this.status = Status.RUNNING;
-        const cup = new Espresso();
+        const cpytl = new CopyTool();
 
         try {
-          cup.pour(this.source);
+          cpytl.source(this.source);
         } catch (e) {
           this.status = Status.FAILED;
           reject(e);
           return;
         }
 
+        abort.on("abort", () => {
+          cpytl.abort();
+        });
+
         //copy and analyse
         if (this.destinations !== null) {
-          cup
-            .drink(this.destinations, cancelToken, callback)
+          cpytl
+            .destinations(this.destinations)
+            .copy(callback)
             .then((result) => {
               if (result) {
                 this.result = result;
@@ -70,8 +75,7 @@ export default class Job {
             });
         } else {
           //analyse only
-          cup
-            .analyse(cancelToken, callback)
+          CopyTool.analyseFile(callback)
             .then((result) => {
               if (result) {
                 this.result = result;

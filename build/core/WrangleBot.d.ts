@@ -65,21 +65,17 @@ declare class WrangleBot extends EventEmitter {
     finder: {
         cryptr: import("cryptr");
         supportedPlatforms: {
-            win32: string;
             darwin: string;
             linux: string;
         };
         platform: NodeJS.Platform;
         pathToVolumes: string;
         isMac(): boolean;
-        isWindows(): boolean;
         isLinux(): boolean;
         openInFinder(path: any, callback: any): void;
         getDisks(): Promise<any[]>;
         getMountPoint(pathToElement: any): string;
-        scanDrive(mount: any): Promise<unknown>;
         getFolders(sourcePath: any, limit: any, index?: number): any;
-        getPathToVolumes(): string;
         getPathToUserData(path?: string): string;
         access(pathToElement: any): boolean;
         isReachable(path: any): boolean;
@@ -111,8 +107,6 @@ declare class WrangleBot extends EventEmitter {
         watch(pathToFolder: any, callback: any): import("fs").FSWatcher;
         checkDiskSpace(pathToDevice: any): Promise<unknown>;
         eject(pathToDevice: any, callback: any): void;
-        getVolumeMountpoint(stringToParse: any): string;
-        getVolumeName(pathToElement: any): any;
         getFileType(filename: any): "video" | "video-raw" | "audio" | "photo" | "sidecar";
         getContentOfFolder(pathToFolder: any, options?: {
             showHidden: boolean;
@@ -126,7 +120,8 @@ declare class WrangleBot extends EventEmitter {
         copy(pathToElement: any, newPath: any): void;
         move(pathToElement: any, newFolder: any): void;
         renameAndMove(pathToElement: any, newName: any, newFolder: any): boolean;
-        getVolumePath(filePath: any): string;
+        getVolumePath(stringToParse: any): string;
+        getVolumeName(pathToElement: any): any;
     };
     ML: any;
     config: {

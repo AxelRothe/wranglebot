@@ -1,0 +1,17 @@
+import ffmpeg from "fluent-ffmpeg";
+import { path as ffprobePath } from "@ffprobe-installer/ffprobe";
+
+ffmpeg.setFfprobePath(ffprobePath);
+export default class Probe {
+  static analyse(path: string) {
+    return new Promise((resolve, reject) => {
+      ffmpeg.ffprobe(path, (err, metadata) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(metadata);
+        }
+      });
+    });
+  }
+}

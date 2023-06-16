@@ -371,10 +371,6 @@ class WrangleBot extends EventEmitter {
       //linux
       "/media/",
       "/home/",
-      //ubuntu
-      "/mnt/",
-      //archlinux
-      "/run/media/",
     ];
     const path = options.pathToLibrary.toLowerCase();
 

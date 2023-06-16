@@ -2,7 +2,7 @@ import { finder } from "../system/index.js";
 import PdfPrinter from "pdfmake";
 import prettyBytes from "pretty-bytes";
 import prettyMilliseconds from "pretty-ms";
-import Scraper from "../library/Scraper.js";
+import { Scraper } from "../media/Scraper.js";
 import { v4 as uuidv4 } from "uuid";
 
 import { dirname } from "path";

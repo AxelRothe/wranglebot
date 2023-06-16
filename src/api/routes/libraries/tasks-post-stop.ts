@@ -14,7 +14,7 @@ export default {
     let cancelTokens = server.getFromCache("cancelTokens");
 
     if (cancelTokens && cancelTokens[task.id]) {
-      cancelTokens[task.id].cancel = true;
+      cancelTokens[task.id].abort();
 
       server.inform("task", task.id, {
         jobs: task.jobs.map((j) => j.toJSON()),

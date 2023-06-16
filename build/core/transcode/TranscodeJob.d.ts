@@ -19,7 +19,7 @@ export declare class TranscodeJob {
         customName?: string;
         status?: number;
     });
-    run(cancelToken: any, callback: any): Promise<MetaCopy | null>;
+    run(cancelToken: any, callback: any): Promise<{} | null>;
     cancel(): void;
     toJSON(): {
         id: string;
