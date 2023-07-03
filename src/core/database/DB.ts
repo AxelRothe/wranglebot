@@ -532,3 +532,4 @@ const getDB = (options: DBOptions | undefined = undefined) => {
   throw new Error("No database instance found");
 };
 export default getDB;
+export { DB };

@@ -44,7 +44,7 @@ class Scraper {
       },
       {
         id: "video-camera-sn",
-        name: "Camera Index",
+        name: "Camera Serialnumber",
         mask: new FilterMask(["com.arri.camera.CameraSerialNumber"]),
       },
       { id: "reel-name", name: "Reel Name", mask: new FilterMask(["com.arri.camera.ReelName", "tags.reel_name"]) },
@@ -111,7 +111,6 @@ class Scraper {
       { id: "video-iso", name: "ISO", mask: new FilterMask(["com.arri.camera.ExposureIndexAsa"]) },
       { id: "video-lut", name: "LUT", mask: new FilterMask(["com.arri.camera.look.name"]) },
       { id: "video-neutral-density", name: "ND", mask: new FilterMask(["com.arri.camera.NdFilterDensity"]) },
-
       {
         id: "video-camera-firmware",
         name: "Firmware",

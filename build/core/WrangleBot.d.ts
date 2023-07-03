@@ -21,6 +21,7 @@ import WrangleBotOptions from "./WrangleBotOptions.js";
 import EventEmitter from "events";
 import { config } from "./system/index.js";
 import { DriveBot } from "./drives/DriveBot.js";
+import { DB as Database } from "./database/DB.js";
 interface ReturnObject {
     status: 200 | 400 | 500 | 404;
     message?: string;
@@ -158,6 +159,7 @@ declare class WrangleBot extends EventEmitter {
     };
     private thirdPartyExtensions;
     private servers;
+    db: Database | any;
     constructor();
     open(options: WrangleBotOptions): Promise<this | null>;
     close(): Promise<string>;

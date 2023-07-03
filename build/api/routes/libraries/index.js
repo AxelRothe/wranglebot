@@ -37,6 +37,7 @@ import transcodePostOne from "./transcode-post-one.js";
 import transcodePostRun from "./transcode-post-run.js";
 import transcodePostStop from "./transcode-post-stop.js";
 import transcodeStatus from "./transcode-status.js";
+import status from "./status.js";
 export default [
     tasksGetMany,
     tasksDelete,
@@ -77,5 +78,6 @@ export default [
     transcodePostRun,
     transcodePostStop,
     transcodeStatus,
+    status,
 ];
 //# sourceMappingURL=index.js.map

@@ -78,14 +78,14 @@ class WrangleBot extends EventEmitter {
                     if (!options.vault.token)
                         throw new Error("No token provided");
                     //init db interface
-                    db = DB({
+                    this.db = DB({
                         url: options.vault.sync_url,
                         token: options.vault.token,
                     });
                     //rebuild local model
                     yield DB().rebuildLocalModel();
                     //connect to db websocket
-                    yield db.connect(options.vault.token);
+                    yield this.db.connect(options.vault.token);
                     if (options.vault.ai_url) {
                         //init machine learning interface
                         this.ML = MLInterface({
@@ -98,17 +98,17 @@ class WrangleBot extends EventEmitter {
                     //LOCAL DB
                     LogBot.log(100, "User supplied local database credentials. Attempting to connect to local database.");
                     //init db interface for local use
-                    db = DB({
+                    this.db = DB({
                         token: options.vault.token,
                     });
                     //rebuild local model
                     yield DB().rebuildLocalModel();
                 }
-                if (db) {
-                    DB().on("transaction", (transaction) => {
+                if (this.db) {
+                    this.db.on("transaction", (transaction) => {
                         this.applyTransaction(transaction);
                     });
-                    db.on("notification", (notification) => {
+                    this.db.on("notification", (notification) => {
                         this.$emit("notification", notification);
                     });
                     //start Account Manager
@@ -157,6 +157,7 @@ class WrangleBot extends EventEmitter {
                     this.driveBot.on("removed", this.handleVolumeUnmount.bind(this));
                     this.driveBot.on("added", this.handleVolumeMount.bind(this));
                     this.status = WrangleBot.OPEN;
+                    LogBot.log(200, "WrangleBot instance opened successfully: https://localhost:" + options.port);
                     this.$emit("notification", {
                         title: "Howdy!",
                         message: "WrangleBot is ready to wrangle",

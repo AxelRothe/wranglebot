@@ -464,4 +464,5 @@ const getDB = (options = undefined) => {
     throw new Error("No database instance found");
 };
 export default getDB;
+export { DB };
 //# sourceMappingURL=DB.js.map

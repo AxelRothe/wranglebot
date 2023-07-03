@@ -117,7 +117,7 @@ Scraper.availableColumns = {
         },
         {
             id: "video-camera-sn",
-            name: "Camera Index",
+            name: "Camera Serialnumber",
             mask: new FilterMask(["com.arri.camera.CameraSerialNumber"]),
         },
         { id: "reel-name", name: "Reel Name", mask: new FilterMask(["com.arri.camera.ReelName", "tags.reel_name"]) },
