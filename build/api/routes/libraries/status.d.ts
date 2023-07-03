@@ -4,7 +4,6 @@ import RouteResult from "../../RouteResult.js";
 declare const _default: {
     method: string;
     url: string;
-    public: boolean;
     handler: (req: any, res: any, bot: WrangleBot, server: SocketServer) => Promise<RouteResult>;
 };
 export default _default;

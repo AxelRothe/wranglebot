@@ -11,11 +11,9 @@ import RouteResult from "../../RouteResult.js";
 export default {
     method: "get",
     url: "/status",
-    public: true,
     handler: (req, res, bot, server) => __awaiter(void 0, void 0, void 0, function* () {
         return new RouteResult(200, {
-            version: bot.config.get("version"),
-            database: bot.db.offline,
+            database: bot.db.offline ? "offline" : "online",
         });
     }),
 };
