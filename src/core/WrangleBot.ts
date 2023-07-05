@@ -823,6 +823,9 @@ class WrangleBot extends EventEmitter {
                         },
                       };
                     },
+                    post: async (options): Promise<MetaCopy> => {
+                      return await lib.addOneMetaCopy(options, metafile);
+                    },
                   },
                   metadata: {
                     put: (options): Boolean => {
@@ -854,6 +857,9 @@ class WrangleBot extends EventEmitter {
                     },
                   },
                 };
+              },
+              post: async (metafile: MetaFile | Object | string): Promise<MetaFile> => {
+                return await lib.addOneMetaFile(metafile);
               },
             },
             tasks: {

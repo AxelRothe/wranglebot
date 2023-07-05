@@ -81,10 +81,10 @@ export default class MetaLibrary {
     /**
      * Adds a MetaFile to the database(), as well as the runtime
      *
-     * @param metaFile
+     * @param metaFile {MetaFile | Object | string} the MetaFile to add, it can be a MetaFile, a JSON Object or a string to a file
      * @return {Promise<void>}
      */
-    addOneMetaFile(metaFile: any): Promise<void>;
+    addOneMetaFile(metaFile: any): Promise<MetaFile>;
     /**
      * Retrieves a MetaFile from its library by hash, can lead to collisions
      *
@@ -104,7 +104,7 @@ export default class MetaLibrary {
     }): MetaFile[];
     removeOneMetaFile(metaFile: any, save?: boolean): boolean;
     removeManyMetaFiles(metaFiles: any, save?: boolean): boolean;
-    addOneMetaCopy(metaCopy: any, metaFile: any): Promise<any>;
+    addOneMetaCopy(metaCopy: MetaCopy | Object, metaFile: any): Promise<any>;
     getOneMetaCopy(metaFileId: any, metaCopyId: any): any;
     getManyMetaCopies(metaFileID: any): MetaCopy[];
     removeOneMetaCopy(metaCopy: any, options?: {

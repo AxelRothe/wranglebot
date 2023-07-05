@@ -715,6 +715,9 @@ class WrangleBot extends EventEmitter {
                                                 },
                                             };
                                         },
+                                        post: (options) => __awaiter(this, void 0, void 0, function* () {
+                                            return yield lib.addOneMetaCopy(options, metafile);
+                                        }),
                                     },
                                     metadata: {
                                         put: (options) => {
@@ -747,6 +750,9 @@ class WrangleBot extends EventEmitter {
                                     },
                                 };
                             },
+                            post: (metafile) => __awaiter(this, void 0, void 0, function* () {
+                                return yield lib.addOneMetaFile(metafile);
+                            }),
                         },
                         tasks: {
                             one: (id) => {

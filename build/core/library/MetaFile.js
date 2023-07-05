@@ -21,11 +21,13 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var _MetaFile_hash;
 import { v4 as uuidv4 } from "uuid";
 import { SearchLite } from "searchlite";
+import { MetaCopy } from "./MetaCopy.js";
 import { MetaData } from "./MetaData.js";
 import { Thumbnail } from "./Thumbnail.js";
 import { finder } from "../system/index.js";
 import DB from "../database/DB.js";
 import { MLInterface } from "../analyse/MLInterface.js";
+import CopyTool from "../media/CopyTool.js";
 class MetaFile {
     /**
      *
@@ -35,8 +37,12 @@ class MetaFile {
         this.copies = [];
         _MetaFile_hash.set(this, void 0);
         this.thumbnails = [];
+        if (!options.hash)
+            throw new Error("No hash provided");
         __classPrivateFieldSet(this, _MetaFile_hash, options.hash || "NaN", "f");
+        /* init id or copy from object */
         this.id = options.id || uuidv4();
+        /* Thumbnails init */
         this.thumbnails = [];
         if (options.thumbnails) {
             for (let thumb of options.thumbnails) {
@@ -45,13 +51,69 @@ class MetaFile {
             }
         }
         this.metaData = new MetaData(options.metaData) || new MetaData();
-        this.basename = options.basename || "NaN";
+        if (!options.basename)
+            throw new Error("No basename provided");
+        if (options.basename.split(".").length < 2)
+            throw new Error("Invalid basename");
+        this.basename = options.basename;
         this.name = options.name || this.basename.split(".")[0];
-        this.size = options.size || 0;
-        this.fileType = options.fileType || "NaN";
-        this.extension = options.extension || "";
+        this.extension = options.extension || this.basename.split(".")[1];
+        if (!options.size)
+            throw new Error("No size provided");
+        if (!options.fileType)
+            throw new Error("No fileType provided");
+        this.size = options.size;
+        this.fileType = options.fileType;
         this.creationDate = options.creationDate ? new Date(options.creationDate) : new Date();
         this._hash = __classPrivateFieldGet(this, _MetaFile_hash, "f");
+    }
+    /**
+     * Creates a MetaFile from a source file
+     *
+     * @param source {string} the path to the source file
+     * @return {Promise<MetaFile>} the created MetaFile
+     */
+    static fromFile(source) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (!finder.existsSync(source))
+                    throw new Error("File does not exist");
+                const basename = finder.basename(source).toString();
+                const cpt = new CopyTool({
+                    hash: "xxhash64",
+                });
+                const hash = yield cpt.hashFile(source);
+                const metaData = yield CopyTool.analyseFile(source);
+                const size = finder.lstatSync(source).size;
+                const newMf = new MetaFile({
+                    hash,
+                    metaData,
+                    basename,
+                    name: basename.substring(0, basename.lastIndexOf(".")),
+                    size,
+                    fileType: finder.getFileType(basename),
+                    extension: finder.extname(basename),
+                });
+                newMf.addCopy(new MetaCopy({
+                    pathToSource: source,
+                    metafile: newMf,
+                    hash,
+                }));
+                return newMf;
+            }
+            catch (e) {
+                throw new Error("Could not create MetaFile from file: " + e.message);
+            }
+        });
+    }
+    getReachableCopies() {
+        let reachableCopies = [];
+        for (let copy of this.copies) {
+            if (copy.isReachable()) {
+                reachableCopies.push(copy);
+            }
+        }
+        return reachableCopies;
     }
     /**
      * Get Hash

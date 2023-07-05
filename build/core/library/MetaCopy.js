@@ -25,9 +25,13 @@ class MetaCopy {
         this.id = options.id ? options.id : uuidv4();
         this.label = options.label || "";
         this.metaFile = options.metaFile || undefined;
+        if (!options.pathToSource)
+            throw new Error("No pathToSource provided");
         __classPrivateFieldSet(this, _MetaCopy_pathToSource, options.pathToSource, "f");
         __classPrivateFieldSet(this, _MetaCopy_pathToBucket, options.pathToBucket || __classPrivateFieldGet(this, _MetaCopy_pathToSource, "f"), "f");
-        __classPrivateFieldSet(this, _MetaCopy_hash, options.hash ? options.hash : "", "f");
+        if (!options.hash)
+            throw new Error("No hash provided");
+        __classPrivateFieldSet(this, _MetaCopy_hash, options.hash, "f");
     }
     update(options, save = true) {
         this.label = options.label || this.label;

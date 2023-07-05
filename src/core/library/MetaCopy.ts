@@ -19,9 +19,14 @@ class MetaCopy {
     this.label = options.label || "";
     this.metaFile = options.metaFile || undefined;
 
+    if (!options.pathToSource) throw new Error("No pathToSource provided");
+
     this.#pathToSource = options.pathToSource;
     this.#pathToBucket = options.pathToBucket || this.#pathToSource;
-    this.#hash = options.hash ? options.hash : "";
+
+    if (!options.hash) throw new Error("No hash provided");
+
+    this.#hash = options.hash;
   }
 
   update(options, save = true) {

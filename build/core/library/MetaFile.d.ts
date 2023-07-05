@@ -21,6 +21,14 @@ declare class MetaFile {
      */
     constructor(options: any);
     /**
+     * Creates a MetaFile from a source file
+     *
+     * @param source {string} the path to the source file
+     * @return {Promise<MetaFile>} the created MetaFile
+     */
+    static fromFile(source: any): Promise<MetaFile>;
+    getReachableCopies(): MetaCopy[];
+    /**
      * Get Hash
      * @return {string} hash
      */

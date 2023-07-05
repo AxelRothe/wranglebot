@@ -470,17 +470,35 @@ export default class MetaLibrary {
   /**
    * Adds a MetaFile to the database(), as well as the runtime
    *
-   * @param metaFile
+   * @param metaFile {MetaFile | Object | string} the MetaFile to add, it can be a MetaFile, a JSON Object or a string to a file
    * @return {Promise<void>}
    */
-  async addOneMetaFile(metaFile) {
-    if (this.readOnly) throw new Error("Library is read only");
+  async addOneMetaFile(metaFile): Promise<MetaFile> {
+    try {
+      if (this.readOnly) throw new Error("Library is read only");
 
-    await DB().updateOne("metafiles", { id: metaFile.id, library: this.name }, metaFile.toJSON({ db: true }));
-    this.metaFiles.push(metaFile);
-    this.wb.addToRuntime("metaFiles", metaFile);
+      //the metaFile is a path to a file
+      if (typeof metaFile === "string") {
+        metaFile = await MetaFile.fromFile(metaFile);
+        //check if the file is already in the library
+        if (this.findMetaFileByHash(metaFile.hash)) throw new Error("File already exists in library");
+      }
 
-    this.wb.emit("metafile-new", metaFile);
+      //the metaFile is not a MetaFile instance and is used to initialize one
+      if (!(metaFile instanceof MetaFile)) {
+        metaFile = new MetaFile(metaFile);
+      }
+
+      //the metaFile is now def a MetaFile instance
+      await DB().updateOne("metafiles", { id: metaFile.id, library: this.name }, metaFile.toJSON({ db: true }));
+      this.metaFiles.push(metaFile); //add to local array
+      this.wb.addToRuntime("metaFiles", metaFile); //add global index store
+
+      this.wb.emit("metafile-new", metaFile); //emit event
+      return metaFile;
+    } catch (e: any) {
+      throw new Error("Failed to add MetaFile to " + this.name + ": " + e.message);
+    }
   }
 
   /**
@@ -577,23 +595,35 @@ export default class MetaLibrary {
 
   /* METACOPIES */
 
-  async addOneMetaCopy(metaCopy, metaFile) {
-    if (this.readOnly) throw new Error("Library is read only");
+  async addOneMetaCopy(metaCopy: MetaCopy | Object, metaFile): Promise<any> {
+    try {
+      if (this.readOnly) throw new Error("Library is read only");
 
-    metaFile.addCopy(metaCopy);
-    this.wb.addToRuntime("metaCopies", metaCopy);
-    DB().updateOne(
-      "metafiles",
-      { id: metaFile.id, library: this.name },
-      {
-        copies: metaFile.copies.map((c) => c.id),
+      if (!(metaCopy instanceof MetaCopy)) {
+        metaCopy = new MetaCopy(metaCopy);
       }
-    );
-    await utility.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
 
-    this.wb.emit("metacopy-new", metaCopy);
+      metaFile.addCopy(metaCopy);
+      this.wb.addToRuntime("metaCopies", metaCopy);
+      DB().updateOne(
+        "metafiles",
+        { id: metaFile.id, library: this.name },
+        {
+          copies: metaFile.copies.map((c) => c.id),
+        }
+      );
+      await utility.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
+      DB().updateOne(
+        "metacopies",
+        { id: (<MetaCopy>metaCopy).id, library: this.name, metaFile: metaFile.id },
+        (<MetaCopy>metaCopy).toJSON({ db: true })
+      );
 
-    return DB().updateOne("metacopies", { id: metaCopy.id, library: this.name, metaFile: metaFile.id }, metaCopy.toJSON({ db: true }));
+      this.wb.emit("metacopy-new", metaCopy);
+      return metaCopy;
+    } catch (e: any) {
+      throw new Error("Failed to add MetaCopy to " + this.name + ": " + e.message);
+    }
   }
 
   getOneMetaCopy(metaFileId, metaCopyId) {

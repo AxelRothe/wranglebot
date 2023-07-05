@@ -19,6 +19,7 @@ import libraryPutOne from "./library-put-one.js";
 import metacopyDelete from "./metacopy-delete.js";
 import metacopyGetMany from "./metacopy-get-many.js";
 import metacopyGetOne from "./metacopy-get-one.js";
+import metacopyPostOne from "./metacopy-post-one.js";
 import metafilesDelete from "./metafiles-delete.js";
 import metafilesExport from "./metafiles-export.js";
 import metafilesGetMany from "./metafiles-get-many.js";
@@ -26,6 +27,7 @@ import metafilesGetOne from "./metafiles-get-one.js";
 import metafilesPut from "./metafiles-put.js";
 import metafilesAnalyseOne from "./metafiles-analyse-one.js";
 import metafilesAnalyseMany from "./metafiles-analyse-many.js";
+import metafilesPostOne from "./metafiles-post-one.js";
 import openFolder from "./open-folder.js";
 import thumbnailsGet from "./thumbnails-get.js";
 import thumbnailsPostMany from "./thumbnails-post-many.js";
@@ -60,6 +62,7 @@ export default [
     metacopyDelete,
     metacopyGetMany,
     metacopyGetOne,
+    metacopyPostOne,
     metafilesDelete,
     metafilesExport,
     metafilesGetMany,
@@ -67,6 +70,7 @@ export default [
     metafilesPut,
     metafilesAnalyseOne,
     metafilesAnalyseMany,
+    metafilesPostOne,
     openFolder,
     thumbnailsGet,
     thumbnailsPostMany,

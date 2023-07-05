@@ -273,6 +273,7 @@ declare class WrangleBot extends EventEmitter {
                             many: (filters?: {}) => {
                                 fetch: () => MetaCopy[];
                             };
+                            post: (options: any) => Promise<MetaCopy>;
                         };
                         metadata: {
                             put: (options: any) => Boolean;
@@ -287,6 +288,7 @@ declare class WrangleBot extends EventEmitter {
                             report: (options: any) => Promise<Boolean>;
                         };
                     };
+                    post: (metafile: MetaFile | Object | string) => Promise<MetaFile>;
                 };
                 tasks: {
                     one: (id: any) => {
