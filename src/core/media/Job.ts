@@ -55,7 +55,7 @@ export default class Job {
           return;
         }
 
-        abort.on("abort", () => {
+        abort.addCallback(() => {
           cpytl.abort();
         });
 
@@ -80,7 +80,7 @@ export default class Job {
         } else {
           //analyse only
           cpytl
-            .hashFile(this.source)
+            .hashFile(this.source, callback)
             .then((hash) => {
               CopyTool.analyseFile(this.source)
                 .then((metaData) => {

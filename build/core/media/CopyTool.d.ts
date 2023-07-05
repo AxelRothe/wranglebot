@@ -49,7 +49,7 @@ export default class CopyTool {
     /**
      * hashes the source file and returns the hash
      */
-    hashFile(path: string): Promise<unknown>;
+    hashFile(path: string, callback?: (progress: any) => void): Promise<unknown>;
     /**
      * Copies the file to the destinations
      *

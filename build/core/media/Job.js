@@ -53,7 +53,7 @@ export default class Job {
                         reject(e);
                         return;
                     }
-                    abort.on("abort", () => {
+                    abort.addCallback(() => {
                         cpytl.abort();
                     });
                     //copy and analyse
@@ -79,7 +79,7 @@ export default class Job {
                     else {
                         //analyse only
                         cpytl
-                            .hashFile(this.source)
+                            .hashFile(this.source, callback)
                             .then((hash) => {
                             CopyTool.analyseFile(this.source)
                                 .then((metaData) => {

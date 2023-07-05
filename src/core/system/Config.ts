@@ -41,7 +41,7 @@ class Config {
 
     this.pathToConfigFile = path.join(this.getPathToUserData(), "config.json");
 
-    if (fs.existsSync(this.pathToConfigFile)) {
+    if (finder.existsSync(this.pathToConfigFile)) {
       this.config = JSON.parse(fs.readFileSync(this.pathToConfigFile).toString());
 
       if (!this.config["wb-version"] || this.config["wb-version"] !== this.versionNumber) {

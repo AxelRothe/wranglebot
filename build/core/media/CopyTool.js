@@ -15,7 +15,6 @@ const { XXHash128, XXHash3, XXHash32, XXHash64 } = pkg;
 import diskusage from "diskusage-ng";
 import { finder } from "../system/index.js";
 import Probe from "./Probe.js";
-import fs from "fs";
 import Scraper from "./Scraper.js";
 export default class CopyTool {
     /**
@@ -125,18 +124,38 @@ export default class CopyTool {
     /**
      * hashes the source file and returns the hash
      */
-    hashFile(path) {
+    hashFile(path, callback = (progress) => {
+        /* do nothing */
+    }) {
         return new Promise((resolve, reject) => {
-            if (!fs.existsSync(path)) {
+            if (!finder.existsSync(path)) {
                 reject(new Error("File does not exist at " + path));
             }
             //reset the hash
             this.hash.reset();
+            let fileSizeInBytes = finder.lstatSync(path).size;
             const readStream = finder.createReadStream(path, { highWaterMark: this.highWaterMark });
             const decoder = new StringDecoder("base64");
+            /* init abort controller */
+            this.abortController = new AbortController();
+            addAbortSignal(this.abortController.signal, readStream);
+            /* end abort controller */
+            let totalBytesRead = 0;
             readStream.on("data", (chunk) => {
                 this.hash.update(chunk);
+                totalBytesRead += chunk.length;
             });
+            /* init stream speed */
+            this.streamSpeed = new StreamSpeed();
+            this.streamSpeed.add(readStream);
+            this.streamSpeed.on("speed", (speed) => {
+                callback({
+                    bytesPerSecond: speed,
+                    bytesRead: totalBytesRead,
+                    size: fileSizeInBytes,
+                });
+            });
+            /* end stream speed */
             readStream.on("end", () => {
                 let digest = this.hash.digest();
                 const hash = decoder.write(digest);

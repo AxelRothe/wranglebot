@@ -35,7 +35,7 @@ class Config {
         //set logfile path
         LogBot.setPathToLogFile(this.getPathToUserData() + "/log.txt");
         this.pathToConfigFile = path.join(this.getPathToUserData(), "config.json");
-        if (fs.existsSync(this.pathToConfigFile)) {
+        if (finder.existsSync(this.pathToConfigFile)) {
             this.config = JSON.parse(fs.readFileSync(this.pathToConfigFile).toString());
             if (!this.config["wb-version"] || this.config["wb-version"] !== this.versionNumber) {
                 LogBot.log(409, "Upgrading config from " + this.config.version + " to version " + this.versionNumber);
