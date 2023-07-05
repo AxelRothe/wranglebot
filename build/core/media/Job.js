@@ -83,7 +83,7 @@ export default class Job {
                             .then((hash) => {
                             CopyTool.analyseFile(this.source)
                                 .then((metaData) => {
-                                this.result = { hash, metaData };
+                                this.result = { hash, metaData, size: this.stats.size };
                                 this.status = Status.DONE;
                                 resolve(this);
                             })

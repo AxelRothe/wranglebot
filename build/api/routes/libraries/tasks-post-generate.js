@@ -20,7 +20,7 @@ export default {
             label,
             types,
             source,
-            destinations,
+            destinations: destinations ? destinations : [],
             settings,
         });
         if (task) {

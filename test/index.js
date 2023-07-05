@@ -16,8 +16,8 @@ let conf = {
 wb.open({
   vault: {
     token: process.env.CLOUD_SYNC_DATABASE_TOKEN,
-    sync_url: process.env.CLOUD_SYNC_DATABASE_URL,
-    ai_url: process.env.CLOUD_SYNC_MACHINE_LEARNING_URL,
+    // sync_url: process.env.CLOUD_SYNC_DATABASE_URL,
+    // ai_url: process.env.CLOUD_SYNC_MACHINE_LEARNING_URL,
   },
   port: 3200,
   secret: process.env.VAULT_JWT_SECRET,
@@ -39,24 +39,6 @@ if (conf.debugNotifications) {
 
 wb.on("ready", async (bot) => {
   LogBot.endSpinner("load", "success", "Loaded " + wb.index.libraries.length + " libraries");
-
-  // wb.query.library
-  //   .one("kosmofilms")
-  //   .metafiles.post("/Volumes/NVME/example/F003/F003C016_190925_MN99.mxf")
-  //   .then((result) => {
-  //     console.log(result);
-  //   });
-
-  // wb.query.library
-  //   .one("kosmofilms")
-  //   .metafiles.one("40c87933-8597-4a77-8dae-9e244a87f0fa")
-  //   .metacopies.post({
-  //     pathToSource: "/Volumes/NVME/example/F003/F003C016_190925_MN99.mxf",
-  //     hash: "O+NG6NkO",
-  //   })
-  //   .then((result) => {
-  //     console.log(result);
-  //   });
 });
 
 wb.on("error", async (bot) => {
