@@ -489,6 +489,12 @@ export default class MetaLibrary {
         metaFile = new MetaFile(metaFile);
       }
 
+      //add copies
+      for (let metacopy of metaFile.copies) {
+        await DB().updateOne("metacopies", { id: metacopy.id, library: this.name, metaFile: metaFile.id }, metacopy.toJSON({ db: true }));
+        this.wb.addToRuntime("metaCopies", metacopy);
+      }
+
       //the metaFile is now def a MetaFile instance
       await DB().updateOne("metafiles", { id: metaFile.id, library: this.name }, metaFile.toJSON({ db: true }));
       this.metaFiles.push(metaFile); //add to local array

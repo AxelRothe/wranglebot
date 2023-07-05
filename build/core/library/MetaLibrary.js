@@ -392,6 +392,11 @@ export default class MetaLibrary {
                 if (!(metaFile instanceof MetaFile)) {
                     metaFile = new MetaFile(metaFile);
                 }
+                //add copies
+                for (let metacopy of metaFile.copies) {
+                    yield DB().updateOne("metacopies", { id: metacopy.id, library: this.name, metaFile: metaFile.id }, metacopy.toJSON({ db: true }));
+                    this.wb.addToRuntime("metaCopies", metacopy);
+                }
                 //the metaFile is now def a MetaFile instance
                 yield DB().updateOne("metafiles", { id: metaFile.id, library: this.name }, metaFile.toJSON({ db: true }));
                 this.metaFiles.push(metaFile); //add to local array
