@@ -1,3 +1,5 @@
+![wranglebot-logo](https://wranglebot.io/assets/images/logo.png)
+
 # Welcome to WrangleBot
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/AxelRothe/wranglebot)
