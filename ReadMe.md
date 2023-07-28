@@ -1,6 +1,6 @@
 ![wranglebot-logo](https://wranglebot.io/assets/images/logo.png)
 
-# Welcome to WrangleBot
+# WrangleBot - Media Asset Management Platform
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/AxelRothe/wranglebot)
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/AxelRothe/wranglebot)
