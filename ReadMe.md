@@ -161,19 +161,6 @@ SMTP_PASS="<YOUR_EMAIL_PASS>"
 
 ---
 
-## ⚠️ Limitations & Data Privacy Concerns
-### Read Before Using!
-
-As of right now, WrangleBot is still in development. This means that there are some limitations to what WrangleBot can do.
-
-**These limitations are as follows:**
-
-- WrangleBot **Cloud Sync does not yet utilize end-to-end encryption** to protect your data, but uses TLS-Encryption to communicate and send data between you and the cloud sync servers. This means that **your data is encrypted while it is in transit, but not while it is stored on the cloud sync servers**.
-
-We are committed to addressing these limitations and implementing new features as soon as possible. We are also committed to protecting your data and privacy. We will never sell your data to third parties, and we will never use your data for any other purpose than to provide you with the best possible experience with WrangleBot. Please review our data [privacy policy here](https://wranglebot.io/privacy) for more information.
-
----
-
 ## 📜 License
 
 WrangleBot is released under the GPL-3.0 License. For more information, please view the license. You must publish all changes and modifications to the source code under the same license. We encourage you to contribute to the project and make it better for everyone.
