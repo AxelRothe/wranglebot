@@ -51,7 +51,7 @@ WrangleBot offers a variety of features to make asset management easier and more
   - written in NodeJS with Typescript
   - Javascript API, that uses chained commands and is easy to use without knowledge of the underlying code
   - fully controllable via REST API
-  - currently supports both Intel x64 and AMD64 Silicon M1+ MacOS
+  - currently supports both Intel x64 and AMD64, as well as Apple Silicon
 
 --- 
 
