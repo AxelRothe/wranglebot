@@ -5,7 +5,7 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/AxelRothe/wranglebot)
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/AxelRothe/wranglebot)
 ![GitHub repo size](https://img.shields.io/github/repo-size/AxelRothe/wranglebot)
-![Platforms](https://img.shields.io/badge/platforms-macos%20(x64%2C%20arm64)-blue)
+![Platforms](https://img.shields.io/badge/platforms-macos%20linux-blue)
 ![Discord](https://img.shields.io/discord/1070819210265104434?logo=discord&logoColor=blue)
 
 _Server Status_ ![Website](https://img.shields.io/website?label=Cloud%20Sync&url=https%3A%2F%2Fdb2.wranglebot.io%2Fversion) ![Website](https://img.shields.io/website?label=AI%20Services&url=https%3A%2F%2Fai.wranglebot.io%2Fversion)
