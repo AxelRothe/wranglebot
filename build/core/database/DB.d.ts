@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import Transaction from "./Transaction.js";
 import EventEmitter from "events";
 interface DBOptions {

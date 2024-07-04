@@ -1,5 +1,3 @@
-/// <reference types="node" />
-/// <reference types="node" />
 import StreamSpeed from "streamspeed";
 import fs from "fs";
 export default class CopyTool {

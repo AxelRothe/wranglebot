@@ -24,8 +24,8 @@ class Indexer {
      * @param matchExpression {RegExp|null} the expression to match
      * @return {Promise<Index>}
      */
-    index(sourcePath, toCount = ["video", "video-raw", "audio", "sidecar", "photo"], matchExpression = null) {
-        return __awaiter(this, void 0, void 0, function* () {
+    index(sourcePath_1) {
+        return __awaiter(this, arguments, void 0, function* (sourcePath, toCount = ["video", "video-raw", "audio", "sidecar", "photo"], matchExpression = null) {
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 let counter = {
                     video: 0,

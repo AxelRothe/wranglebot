@@ -1,6 +1,3 @@
-/// <reference types="node" />
-/// <reference types="node" />
-/// <reference types="node" />
 import fs from "fs";
 import Cryptr from "cryptr";
 declare class Finder {

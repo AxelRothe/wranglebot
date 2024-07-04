@@ -106,8 +106,8 @@ class DB extends EventEmitter {
      *
      * @return {Promise<DB>}
      */
-    connect(token = this.token) {
-        return __awaiter(this, void 0, void 0, function* () {
+    connect() {
+        return __awaiter(this, arguments, void 0, function* (token = this.token) {
             clearTimeout(this.connectTimeout);
             if (!token)
                 throw new Error("No token provided. Aborting.");

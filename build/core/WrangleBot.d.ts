@@ -1,7 +1,3 @@
-/// <reference types="node" />
-/// <reference types="node" />
-/// <reference types="node" />
-/// <reference types="node" />
 import User from "./accounts/User.js";
 import { Volume } from "./drives/Volume.js";
 import { Thumbnail } from "./library/Thumbnail.js";

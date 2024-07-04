@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import EventEmitter from "events";
 declare class DriveBot extends EventEmitter {
     /**

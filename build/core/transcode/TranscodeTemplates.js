@@ -179,7 +179,7 @@ TranscodeTemplates.videoCodecs = [
     },
     {
         name: "H.264",
-        videoCodec: "h264_videotoolbox",
+        videoCodec: "h264_videotoolbox", //"libx264",
         flavours: [
             {
                 name: "720p H.264",

@@ -435,8 +435,8 @@ class WrangleBot extends EventEmitter {
      * @param finishCallback?
      * @returns {Promise<boolean>} resolve to false if there is no need to generate thumbnails or if there are no copies reachable
      */
-    generateThumbnails(library, metaFiles, callback = (progress) => { }, finishCallback = (success) => { }) {
-        return __awaiter(this, void 0, void 0, function* () {
+    generateThumbnails(library_1, metaFiles_1) {
+        return __awaiter(this, arguments, void 0, function* (library, metaFiles, callback = (progress) => { }, finishCallback = (success) => { }) {
             const callbackWrapper = function (p) {
                 callback(Object.assign(Object.assign({}, p), { metaFile: currentFile }));
             };

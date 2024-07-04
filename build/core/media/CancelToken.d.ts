@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { EventEmitter } from "events";
 export default class CancelToken extends EventEmitter {
     private cancel;

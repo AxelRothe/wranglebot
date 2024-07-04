@@ -251,11 +251,11 @@ class ExportBot {
                                                 ["Scene", "Size", "Duration", "Count", "Average Duration", "Average Minute / Size"],
                                                 ...[...scenes.keys()].map((scene) => {
                                                     return [
-                                                        scene,
-                                                        prettyBytes(scenes.get(scene).size),
-                                                        prettyMilliseconds(Number(scenes.get(scene).duration) * 1000),
-                                                        scenes.get(scene).count,
-                                                        prettyMilliseconds((Number(scenes.get(scene).duration) * 1000) / scenes.get(scene).count),
+                                                        scene, //scene name
+                                                        prettyBytes(scenes.get(scene).size), //size
+                                                        prettyMilliseconds(Number(scenes.get(scene).duration) * 1000), //duration
+                                                        scenes.get(scene).count, //count
+                                                        prettyMilliseconds((Number(scenes.get(scene).duration) * 1000) / scenes.get(scene).count), //average duration
                                                         "1m : " + prettyBytes(Number(scenes.get(scene).size) / (Number(scenes.get(scene).duration) / 60)), //1 min : size
                                                     ];
                                                 }),

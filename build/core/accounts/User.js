@@ -58,7 +58,7 @@ export default class User {
             password: options.db ? this.password : undefined,
             email: this.email,
             roles: this.roles,
-            libraries: this.libraries,
+            libraries: this.libraries, //@deprecated,
             config: this.config,
         };
     }

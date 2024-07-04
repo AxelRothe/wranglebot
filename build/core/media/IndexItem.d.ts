@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { Stats } from "fs";
 declare class IndexItem {
     pathToFile: any;

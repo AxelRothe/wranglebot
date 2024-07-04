@@ -20,8 +20,8 @@ export default class ThumbnailFromImageFactory {
      * @param type
      * @returns {Promise<unknown>}
      */
-    generate(type = "jpg") {
-        return __awaiter(this, void 0, void 0, function* () {
+    generate() {
+        return __awaiter(this, arguments, void 0, function* (type = "jpg") {
             try {
                 const thumbId = uuidv4();
                 const thumbnailFolder = finder.join(config.getPathToUserData(), "thumbnails");
