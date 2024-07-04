@@ -1,9 +1,11 @@
-# Welcome to WrangleBot
+![wranglebot-logo](https://wranglebot.io/assets/images/logo.png)
+
+# WrangleBot - Media Asset Management Platform
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/AxelRothe/wranglebot)
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/AxelRothe/wranglebot)
 ![GitHub repo size](https://img.shields.io/github/repo-size/AxelRothe/wranglebot)
-![Platforms](https://img.shields.io/badge/platforms-macos%20(x64%2C%20arm64)-blue)
+![Platforms](https://img.shields.io/badge/platforms-macos%20linux-blue)
 ![Discord](https://img.shields.io/discord/1070819210265104434?logo=discord&logoColor=blue)
 
 _Server Status_ ![Website](https://img.shields.io/website?label=Cloud%20Sync&url=https%3A%2F%2Fdb2.wranglebot.io%2Fversion) ![Website](https://img.shields.io/website?label=AI%20Services&url=https%3A%2F%2Fai.wranglebot.io%2Fversion)
@@ -49,7 +51,7 @@ WrangleBot offers a variety of features to make asset management easier and more
   - written in NodeJS with Typescript
   - Javascript API, that uses chained commands and is easy to use without knowledge of the underlying code
   - fully controllable via REST API
-  - currently supports both Intel x64 and AMD64 Silicon M1+ MacOS
+  - currently supports both Intel x64 and AMD64, as well as Apple Silicon
 
 --- 
 
@@ -156,19 +158,6 @@ SMTP_PORT="<YOUR_EMAIL_SMTP_PORT>" # 465 for SSL, 587 for TLS
 SMTP_USER="<YOUR_EMAIL_USERNAME>"
 SMTP_PASS="<YOUR_EMAIL_PASS>"
 ```
-
----
-
-## ⚠️ Limitations & Data Privacy Concerns
-### Read Before Using!
-
-As of right now, WrangleBot is still in development. This means that there are some limitations to what WrangleBot can do.
-
-**These limitations are as follows:**
-
-- WrangleBot **Cloud Sync does not yet utilize end-to-end encryption** to protect your data, but uses TLS-Encryption to communicate and send data between you and the cloud sync servers. This means that **your data is encrypted while it is in transit, but not while it is stored on the cloud sync servers**.
-
-We are committed to addressing these limitations and implementing new features as soon as possible. We are also committed to protecting your data and privacy. We will never sell your data to third parties, and we will never use your data for any other purpose than to provide you with the best possible experience with WrangleBot. Please review our data [privacy policy here](https://wranglebot.io/privacy) for more information.
 
 ---
 
