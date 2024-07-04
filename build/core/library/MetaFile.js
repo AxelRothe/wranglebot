@@ -122,8 +122,8 @@ class MetaFile {
     get hash() {
         return __classPrivateFieldGet(this, _MetaFile_hash, "f");
     }
-    update(document, save = true) {
-        return __awaiter(this, void 0, void 0, function* () {
+    update(document_1) {
+        return __awaiter(this, arguments, void 0, function* (document, save = true) {
             if (document.metaData) {
                 this.metaData.update(document.metaData);
             }

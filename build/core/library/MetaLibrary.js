@@ -27,7 +27,7 @@ import config from "../system/Config.js";
 import { TranscodeTask } from "../transcode/TranscodeTask.js";
 import { indexer } from "../media/Indexer.js";
 import Status from "../media/Status.js";
-export default class MetaLibrary {
+class MetaLibrary {
     constructor(wb, options) {
         _MetaLibrary_instances.add(this);
         this.name = "UNNAMED";
@@ -164,8 +164,8 @@ export default class MetaLibrary {
      * @param readOnly
      * @return {Promise<boolean>}
      */
-    rebuild(metaLibraryProto, readOnly = false) {
-        return __awaiter(this, void 0, void 0, function* () {
+    rebuild(metaLibraryProto_1) {
+        return __awaiter(this, arguments, void 0, function* (metaLibraryProto, readOnly = false) {
             if (!metaLibraryProto)
                 throw new Error("Failed to Rebuild library! Reason: Missing Proto");
             if (!metaLibraryProto.name)
@@ -291,8 +291,8 @@ export default class MetaLibrary {
             return false;
         });
     }
-    scanLibraryForNewFiles(folders = this.folders, basePath = this.pathToLibrary, jobs = []) {
-        return __awaiter(this, void 0, void 0, function* () {
+    scanLibraryForNewFiles() {
+        return __awaiter(this, arguments, void 0, function* (folders = this.folders, basePath = this.pathToLibrary, jobs = []) {
             for (let folder of folders.filter((f) => f.watch)) {
                 let folderPath = finder.join(basePath, folder.name);
                 const r = yield indexer.index(folderPath);
@@ -1018,4 +1018,5 @@ _MetaLibrary_instances = new WeakSet(), _MetaLibrary_removeFromRunTime = functio
     }
     return -1;
 };
+export default MetaLibrary;
 //# sourceMappingURL=MetaLibrary.js.map
