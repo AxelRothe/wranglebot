@@ -97,6 +97,9 @@ class WrangleBot extends EventEmitter {
   }
 
   async open(options: WrangleBotOptions) {
+
+    config.build(options.app_data_location);
+
     LogBot.log(100, "Opening WrangleBot instance ... ");
     this.$emit("notification", {
       title: "Opening WrangleBot",
@@ -105,7 +108,9 @@ class WrangleBot extends EventEmitter {
 
     if (!config) throw new Error("Config failed to load. Aborting. Delete the config file and restart the bot.");
 
-    if (!options.port) options.port = config.get("port");
+    // get or set the port
+    if (options.port) config.set("port", options.port);
+    else options.port = config.get("port");
 
     this.pingInterval = this.config.get("pingInterval") || 5000;
 
@@ -213,7 +218,7 @@ class WrangleBot extends EventEmitter {
 
         this.status = WrangleBot.OPEN;
 
-        LogBot.log(200, "WrangleBot instance opened successfully: https://localhost:" + options.port);
+        LogBot.log(200, "WrangleBot instance opened successfully: http://localhost:" + options.port);
 
         this.$emit("notification", {
           title: "Howdy!",
@@ -227,7 +232,7 @@ class WrangleBot extends EventEmitter {
 
         this.$emit("notification", {
           title: "Could not connect to database",
-          message: "WrangleBot could not connect to the database. Please check your internet connection and try again.",
+          message: "WrangleBot could not connect to the database.",
         });
 
         this.$emit("error", new Error("Could not connect to database"));
@@ -240,7 +245,7 @@ class WrangleBot extends EventEmitter {
 
       this.$emit("notification", {
         title: "Could not connect to database",
-        message: "WrangleBot could not connect to the database. Please check your internet connection and try again.",
+        message: "WrangleBot could not connect to the database.",
       });
 
       return null;
@@ -299,18 +304,18 @@ class WrangleBot extends EventEmitter {
       LogBot.log(100, "Loading extensions ... ");
       //scan the plugins folder in the wranglebot directory
       //and load the routes from the plugins
-      const pathToPlugins = finder.getPathToUserData("wranglebot/custom/");
+      const pathToPlugins = finder.getPathToUserData("custom/");
       const thirdPartyPluginsRAW = finder.getContentOfFolder(pathToPlugins);
       LogBot.log(100, "Found " + thirdPartyPluginsRAW.length + " third party plugins.");
       if (thirdPartyPluginsRAW.length > 0) {
         for (let folderName of thirdPartyPluginsRAW) {
           LogBot.log(100, "Loading plugin " + folderName + " ... ");
-          const pathToPlugin = finder.getPathToUserData("wranglebot/custom/" + folderName);
+          const pathToPlugin = finder.getPathToUserData("custom/" + folderName);
           const folderContents = finder.getContentOfFolder(pathToPlugin);
 
           for (let pluginFolder of folderContents) {
             if (pluginFolder === "hooks") {
-              const pathToPluginHooks = finder.getPathToUserData("wranglebot/custom/" + folderName + "/" + pluginFolder);
+              const pathToPluginHooks = finder.getPathToUserData("custom/" + folderName + "/" + pluginFolder);
               const hookFolderContent = finder.getContentOfFolder(pathToPluginHooks);
 
               for (let scriptFileName of hookFolderContent) {

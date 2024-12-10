@@ -1,26 +1,21 @@
-import LogBot from "logbotjs";
 import wb from "../build/index.js";
 
 import { config } from "dotenv";
-
-LogBot.verbose = true;
+import LogBot from "logbotjs";
 
 config();
-
-LogBot.addSpinner("load", "Loading...");
 
 let conf = {
   debugNotifications: process.env.DEBUG_NOTIFICATIONS === "true",
 };
 
+// opens the instance
 wb.open({
+  app_data_location: process.env.APP_DATA_LOCATION,
   vault: {
-    token: process.env.CLOUD_SYNC_DATABASE_TOKEN,
-    // sync_url: process.env.CLOUD_SYNC_DATABASE_URL,
-    // ai_url: process.env.CLOUD_SYNC_MACHINE_LEARNING_URL,
+    token: process.env.LOCAL_DATABASE_TOKEN,
   },
   port: 3200,
-  secret: process.env.VAULT_JWT_SECRET,
   mail: {
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
@@ -33,14 +28,14 @@ wb.open({
 
 if (conf.debugNotifications) {
   wb.on("notification", (notification) => {
-    console.log("NOTIFICATION: " + notification.title + " - " + notification.message);
+    LogBot.log(100,"NOTIFICATION: " + notification.title + " - " + notification.message);
   });
 }
 
 wb.on("ready", async (bot) => {
-  LogBot.endSpinner("load", "success", "Loaded " + wb.index.libraries.length + " libraries");
+  LogBot.log(200,"Wranglebot is ready.");
 });
 
 wb.on("error", async (bot) => {
-  LogBot.endSpinner("load", "failure", "Failed to start wranglebot.");
+  LogBot.log(500, "Failed to start wranglebot.")
 });

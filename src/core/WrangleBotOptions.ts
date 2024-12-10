@@ -1,4 +1,5 @@
 export default interface WrangleBotOptions {
+  app_data_location: string;
   vault: {
     token?: string;
     sync_url?: string;

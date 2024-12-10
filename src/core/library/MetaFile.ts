@@ -195,7 +195,7 @@ class MetaFile {
   removeOneThumbnail(thumbnailId) {
     this.thumbnails = this.thumbnails.filter((thumbnail) => {
       if (thumbnail.id === thumbnailId) {
-        finder.rmSync(finder.join(finder.getPathToUserData("wranglebot"), "thumbnails", thumbnailId + ".jpg"));
+        finder.rmSync(finder.join(finder.getPathToUserData("thumbnails"), thumbnailId + ".jpg"));
         return false;
       }
       return true;

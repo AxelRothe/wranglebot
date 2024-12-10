@@ -8,16 +8,9 @@
 ![Platforms](https://img.shields.io/badge/platforms-macos%20linux-blue)
 ![Discord](https://img.shields.io/discord/1070819210265104434?logo=discord&logoColor=blue)
 
-_Server Status_ ![Website](https://img.shields.io/website?label=Cloud%20Sync&url=https%3A%2F%2Fdb2.wranglebot.io%2Fversion) ![Website](https://img.shields.io/website?label=AI%20Services&url=https%3A%2F%2Fai.wranglebot.io%2Fversion)
-
 ---
 
-WrangleBot is an open source media asset management tool designed to make digital asset management simple. Whether you are a media producer, content creator, or any other type of professional in the media industry, WrangleBot can help you manage and organize your assets.
-
-## Desktop App
-
-If you are looking for the Desktop App then please download the newest builds here: [Download WrangleBot Desktop App](https://wranglebot.io)
-
+WrangleBot is an open source media asset management platform engine.
 ---
 
 ## 🧰 Features
@@ -31,10 +24,6 @@ WrangleBot offers a variety of features to make asset management easier and more
 - Manage Metadata
   - edit and view metadata in advanced meta data editor
   - extract and scrub through thumbnails
-- Auto Tag with AI
-  - tag over 1500 objects classes
-  - detect landmarks and celebrities
-  - 🌐 requires a wallet at [wranglebot.io](https://wranglebot.io/account)
 - Library Management
   - create bins to manage media into categories and tags
   - import new files from "watched" bins
@@ -42,10 +31,6 @@ WrangleBot offers a variety of features to make asset management easier and more
 - Export and Transcode
   - transcode media to ProRes, H264 and DNxHD up to 4K
   - export with LUTs
-- Live Syncing
-  - app syncs itself between devices in realtime
-  - offload on one device and tag it at another studio
-  - 🌐 requires an account at [wranglebot.io](https://wranglebot.io/register)
 - Open Source
   - open NodeJS engine and browser client
   - written in NodeJS with Typescript
@@ -71,36 +56,11 @@ Then, run `npm install` to install all the dependencies. After that, run `npm ru
 
 ```js
 wranglebot.open({
+  app_data_location: "<APP_DATA_LOCATION>",
   vault: {
-    token: "<CLOUD_SYNC_DATABASE_TOKEN>",
-    sync_url: "<CLOUD_SYNC_DATABASE_URL>",
-    ai_url: "<CLOUD_SYNC_MACHINE_LEARNING_URL>",
+    token: "<LOCAL_DATABASE_TOKEN>"
   },
   port: 3200,
-  secret: "<VAULT_JWT_SECRET>",
-  //optional
-  mail: {
-    host: "<SMTP_HOST>",
-    port: "<SMTP_PORT>",
-    auth: {
-      user: "<SMTP_USER>",
-      pass: "<SMTP_PASS>",
-    },
-  },
-})
-```
-
-## 🪨 Offline Mode
-
-Just omit the `sync_url` and `ai_url` and WrangleBot will start in offline mode.
-
-```js
-wranglebot.open({
-  vault: {
-    token: "<DATABASE_TOKEN>"
-  },
-  port: 3200,
-  secret: "<VAULT_JWT_SECRET>",
   //optional
   mail: {
     host: "<SMTP_HOST>",
@@ -139,17 +99,13 @@ npm run build
 
 ### Running Test Environment
 
-```bash
-npm run test
-```
+Build the application and run the test environment:
 
 ⚠️ You will require a `.env` to run the test environment:
 
 ```dotenv
-CLOUD_SYNC_DATABASE_TOKEN="<YOUR_DATABASE_TOKEN>"  # get your token at wranglebot.io
-CLOUD_SYNC_DATABASE_URL="https://db2.wranglebot.io"
-CLOUD_SYNC_MACHINE_LEARNING_URL="https://ai.wranglebot.io" # you will need a positive credits balance, you can charge your wallet at wranglebot.io
-VAULT_JWT_SECRET="<YOUR_SECRET>" // choose your secret to generate a JWT Secret for authenticating users
+APP_DATA_LOCATION="<YOUR_APP_DATA_LOCATION>" // choose your app data location, i.e. "/Users/username/.wranglebot"
+LOCAL_DATABASE_TOKEN="<YOUR_DATABASE>" // choose your database token to connect to the database, i.e. "my_database"
 
 DEBUG_NOTIFICATIONS="false" #show notifications in console (true/false)
 
@@ -159,10 +115,12 @@ SMTP_USER="<YOUR_EMAIL_USERNAME>"
 SMTP_PASS="<YOUR_EMAIL_PASS>"
 ```
 
+```bash
+npm run test
+```
+
 ---
 
 ## 📜 License
 
 WrangleBot is released under the GPL-3.0 License. For more information, please view the license. You must publish all changes and modifications to the source code under the same license. We encourage you to contribute to the project and make it better for everyone.
-
-If you want to use the Cloud Syncing features and your company has more than $500,000 in revenue, you may need to register with us to acquire an enterprise license. Additionally, if you want to develop the engine or interface with proprietary features without re-releasing as LGPL, you will need to register for a commercial license. However, you are free to use the plugin system to code workflows, and it is unlikely that you will need to make drastic changes to the engine unless you require your own cloud database system or machine learning integrations.

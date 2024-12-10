@@ -9,6 +9,8 @@ import LogBot from "logbotjs";
 import Cryptr from "cryptr";
 import { exec } from "child_process";
 
+import config from "./Config.js";
+
 class Finder {
   cryptr = new Cryptr("b2909139-4cdc-46d6-985c-3726ede95335"); //this is just for obfuscation
   supportedPlatforms: { darwin: string; linux: string } = {
@@ -137,8 +139,8 @@ class Finder {
     return matches;
   }
 
-  getPathToUserData(path = "") {
-    return this.join(os.homedir(), path);
+  getPathToUserData(subPath = "") {
+    return path.join(config.getPathToUserData(),subPath)
   }
 
   /**
@@ -192,7 +194,7 @@ class Finder {
    * @returns {boolean}
    */
   exists(pathToElement) {
-    return fs.existsSync(this.join(this.getPathToUserData("wranglebot"), pathToElement));
+    return fs.existsSync(this.join(this.getPathToUserData(), pathToElement));
   }
 
   check(...elements) {
@@ -294,7 +296,7 @@ class Finder {
         data = this.encrypt(data);
       }
 
-      this.writeFileSync(this.join(this.getPathToUserData("wranglebot"), fileName), data);
+      this.writeFileSync(this.join(this.getPathToUserData(), fileName), data);
       return true;
     } catch (e) {
       console.error("Failed to save file", e);
@@ -310,7 +312,7 @@ class Finder {
         data = this.encrypt(data);
       }
 
-      const createWriteStream = fs.createWriteStream(this.join(this.getPathToUserData("wranglebot"), fileName));
+      const createWriteStream = fs.createWriteStream(this.join(this.getPathToUserData(), fileName));
       createWriteStream.write(data);
       createWriteStream.end();
 
@@ -336,7 +338,7 @@ class Finder {
 
   load(fileName, decrypt = false) {
     try {
-      let contentOfFile = this.readFileSync(this.join(this.getPathToUserData("wranglebot"), fileName)).toString();
+      let contentOfFile = this.readFileSync(this.join(this.getPathToUserData(), fileName)).toString();
 
       if (decrypt) {
         contentOfFile = this.decrypt(contentOfFile);

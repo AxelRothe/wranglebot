@@ -157,7 +157,7 @@ class SocketServer {
 
     //scan the plugins folder in the wranglebot directory
     //and load the routes from the plugins
-    const pathToPlugins = finder.getPathToUserData("wranglebot/custom/");
+    const pathToPlugins = finder.getPathToUserData("custom/");
     const plugins = finder.getContentOfFolder(pathToPlugins);
 
     for (let plugin of plugins) {
