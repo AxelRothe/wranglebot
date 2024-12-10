@@ -84,7 +84,6 @@ class MLInterfaceSingleton {
                     });
                 };
                 const resizedImage = yield waitForResizedImage();
-                //remove data:image/jpeg;base64,
                 const resizedImageWithoutHeader = resizedImage.substring(resizedImage.indexOf(",") + 1);
                 renderedFrames.push(resizedImageWithoutHeader);
             }

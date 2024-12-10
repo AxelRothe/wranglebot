@@ -3,10 +3,6 @@ declare class MetaCopy {
     id: any;
     label: string;
     metaFile: any;
-    /**
-     *
-     * @param options
-     */
     constructor(options: any);
     update(options: any, save?: boolean): void;
     get pathToSource(): any;
@@ -16,10 +12,6 @@ declare class MetaCopy {
     };
     verify(hash: any): boolean;
     get hash(): string;
-    /**
-     * Is true if both the hash of the MetaCopy and the MetaFile match
-     * @return {boolean}
-     */
     isVerified(): boolean;
     isReachable(): boolean;
     toJSON(options?: {

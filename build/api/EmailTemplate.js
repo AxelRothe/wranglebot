@@ -12,11 +12,6 @@ class EmailTemplate {
             html: this.render(),
         };
     }
-    /**
-     * Renders the email template as HTML
-     *
-     * @return {string}
-     */
     render() {
         return `
       <!doctype html>

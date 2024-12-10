@@ -8,9 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import RouteResult from "../../RouteResult.js";
-/**
- * @description Get the authenticated users information
- */
 export default {
     method: "get",
     url: "/users/me",

@@ -6,20 +6,8 @@ export default class Task {
     creationDate: any;
     jobs: Job[];
     query: any;
-    /**
-     *
-     * @param {any?} options
-     */
     constructor(options: any);
     update(document: any, save?: boolean): void;
-    /**
-     * Returns the job by object
-     *
-     * @param job {Job}
-     * @param cb {Function} callback to get progress
-     * @param cancelToken {{cancel: boolean}} cancel token
-     * @returns {Promise<Job>}
-     */
     runOneJob(job: Job, cb: any, cancelToken: any): Promise<Job>;
     get stats(): TaskStatusReturn;
     toJSON(options?: {

@@ -5,18 +5,6 @@ export default class Client {
         this.socket = socket;
         this.username = username;
     }
-    /**
-     * Adds a Hook to the Client
-     *
-     * @example
-     * client.addHook("message", (data : Betweeny) => {
-     *  console.log(data);
-     * });
-     *
-     * @param event {string} The event to listen for
-     * @param callback {function} The callback to run when the event is triggered
-     *
-     */
     addHook(event, callback) {
         let cb = {
             event,
@@ -27,14 +15,6 @@ export default class Client {
         this.callbacks.push(cb);
         this.socket.on(event, cb.callback);
     }
-    /**
-     * to be used after changing the socket
-     *
-     * @example
-     * client.syncHooks();
-     *
-     * @returns {void}
-     */
     syncHooks() {
         this.socket.removeAllListeners();
         for (let i = 0; i < this.callbacks.length; i++) {

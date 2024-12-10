@@ -1,9 +1,6 @@
 import type { WrangleBot } from "../../../core/WrangleBot.js";
 import { SocketServer } from "../../SocketServer.js";
 import RouteResult from "../../RouteResult.js";
-/**
- * @description Retrieves the balance that is associated with the authenticated user
- */
 declare const _default: {
     method: string;
     url: string;

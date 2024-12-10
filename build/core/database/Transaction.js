@@ -36,17 +36,12 @@ export default class Transaction {
     updateStatus(status) {
         this.status = status;
     }
-    /**
-     *
-     * @param socket
-     * @returns Promise<Boolean> true if transaction is committed, false if transaction is rejected
-     */
     $commit(socket) {
         if (this.isCommitted())
             throw new Error("Transaction is already committed");
         return new Promise((resolve, reject) => {
             socket.emit("transaction", Object.assign({}, this.toJSON()));
-            socket.removeAllListeners(this.uuid); //reset
+            socket.removeAllListeners(this.uuid);
             socket.once(this.uuid, (data) => {
                 if (data === TransactionStatus.SUCCESS) {
                     this.updateStatus(TransactionStatus.SUCCESS);

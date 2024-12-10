@@ -23,29 +23,17 @@ import extensions from "../extensions/index.js";
 import EventEmitter from "events";
 import { config, finder } from "./system/index.js";
 import { SearchLite } from "searchlite";
-//load here, otherwise the config will be preloaded and the config will be overwritten
 import { driveBot } from "./drives/DriveBot.js";
 import { v4 as uuidv4 } from "uuid";
 import DB from "./database/DB.js";
-/**
- * WrangleBot Interface
- * @class WrangleBot
- */
 class WrangleBot extends EventEmitter {
     constructor() {
         super();
-        // libraries: Array<MetaLibrary> = [];
-        /**
-         * @type {DriveBot}
-         */
         this.driveBot = driveBot;
         this.accountManager = AccountManager;
         this.finder = finder;
         this.config = config;
         this.status = WrangleBot.CLOSED;
-        /**
-         * index
-         */
         this.index = {
             libraries: [],
             metaFiles: {},
@@ -57,6 +45,7 @@ class WrangleBot extends EventEmitter {
     }
     open(options) {
         return __awaiter(this, void 0, void 0, function* () {
+            config.build(options.app_data_location);
             LogBot.log(100, "Opening WrangleBot instance ... ");
             this.$emit("notification", {
                 title: "Opening WrangleBot",
@@ -64,30 +53,27 @@ class WrangleBot extends EventEmitter {
             });
             if (!config)
                 throw new Error("Config failed to load. Aborting. Delete the config file and restart the bot.");
-            if (!options.port)
+            if (options.port)
+                config.set("port", options.port);
+            else
                 options.port = config.get("port");
             this.pingInterval = this.config.get("pingInterval") || 5000;
             try {
                 yield this.loadExtensions();
                 let db;
                 if (options.vault.sync_url && options.vault.token) {
-                    //CLOUD SYNC DB
                     LogBot.log(100, "User supplied cloud database credentials. Attempting to connect to cloud database.");
                     if (!options.vault.sync_url)
                         throw new Error("No databaseURL provided");
                     if (!options.vault.token)
                         throw new Error("No token provided");
-                    //init db interface
                     this.db = DB({
                         url: options.vault.sync_url,
                         token: options.vault.token,
                     });
-                    //rebuild local model
                     yield DB().rebuildLocalModel();
-                    //connect to db websocket
                     yield this.db.connect(options.vault.token);
                     if (options.vault.ai_url) {
-                        //init machine learning interface
                         this.ML = MLInterface({
                             url: options.vault.ai_url,
                             token: options.vault.token,
@@ -95,13 +81,10 @@ class WrangleBot extends EventEmitter {
                     }
                 }
                 else if (options.vault.token) {
-                    //LOCAL DB
                     LogBot.log(100, "User supplied local database credentials. Attempting to connect to local database.");
-                    //init db interface for local use
                     this.db = DB({
                         token: options.vault.token,
                     });
-                    //rebuild local model
                     yield DB().rebuildLocalModel();
                 }
                 if (this.db) {
@@ -111,16 +94,14 @@ class WrangleBot extends EventEmitter {
                     this.db.on("notification", (notification) => {
                         this.$emit("notification", notification);
                     });
-                    //start Account Manager
                     yield AccountManager.init();
-                    //start Socket and REST API
                     yield this.startServer({
                         port: options.port || this.config.get("port"),
                         secret: options.secret || this.config.get("jwt-secret"),
                         mailConfig: options.mail || this.config.get("mail"),
                     });
                     yield this.driveBot.updateDrives();
-                    this.driveBot.watch(); //start drive watching
+                    this.driveBot.watch();
                     const libraries = this.getAvailableLibraries().map((l) => l.name);
                     let i = 1;
                     let total = libraries.length;
@@ -157,7 +138,7 @@ class WrangleBot extends EventEmitter {
                     this.driveBot.on("removed", this.handleVolumeUnmount.bind(this));
                     this.driveBot.on("added", this.handleVolumeMount.bind(this));
                     this.status = WrangleBot.OPEN;
-                    LogBot.log(200, "WrangleBot instance opened successfully: https://localhost:" + options.port);
+                    LogBot.log(200, "WrangleBot instance opened successfully: http://localhost:" + options.port);
                     this.$emit("notification", {
                         title: "Howdy!",
                         message: "WrangleBot is ready to wrangle",
@@ -169,7 +150,7 @@ class WrangleBot extends EventEmitter {
                     this.status = WrangleBot.CLOSED;
                     this.$emit("notification", {
                         title: "Could not connect to database",
-                        message: "WrangleBot could not connect to the database. Please check your internet connection and try again.",
+                        message: "WrangleBot could not connect to the database.",
                     });
                     this.$emit("error", new Error("Could not connect to database"));
                     return null;
@@ -181,7 +162,7 @@ class WrangleBot extends EventEmitter {
                 this.$emit("error", e);
                 this.$emit("notification", {
                     title: "Could not connect to database",
-                    message: "WrangleBot could not connect to the database. Please check your internet connection and try again.",
+                    message: "WrangleBot could not connect to the database.",
                 });
                 return null;
             }
@@ -202,9 +183,6 @@ class WrangleBot extends EventEmitter {
             this.servers = yield api.init(this, options);
         });
     }
-    /**
-     * UTILITY FUNCTIONS
-     */
     $emit(event, ...args) {
         return new Promise((resolve, reject) => {
             this.runCustomScript(event, ...args)
@@ -236,19 +214,17 @@ class WrangleBot extends EventEmitter {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 LogBot.log(100, "Loading extensions ... ");
-                //scan the plugins folder in the wranglebot directory
-                //and load the routes from the plugins
-                const pathToPlugins = finder.getPathToUserData("wranglebot/custom/");
+                const pathToPlugins = finder.getPathToUserData("custom/");
                 const thirdPartyPluginsRAW = finder.getContentOfFolder(pathToPlugins);
                 LogBot.log(100, "Found " + thirdPartyPluginsRAW.length + " third party plugins.");
                 if (thirdPartyPluginsRAW.length > 0) {
                     for (let folderName of thirdPartyPluginsRAW) {
                         LogBot.log(100, "Loading plugin " + folderName + " ... ");
-                        const pathToPlugin = finder.getPathToUserData("wranglebot/custom/" + folderName);
+                        const pathToPlugin = finder.getPathToUserData("custom/" + folderName);
                         const folderContents = finder.getContentOfFolder(pathToPlugin);
                         for (let pluginFolder of folderContents) {
                             if (pluginFolder === "hooks") {
-                                const pathToPluginHooks = finder.getPathToUserData("wranglebot/custom/" + folderName + "/" + pluginFolder);
+                                const pathToPluginHooks = finder.getPathToUserData("custom/" + folderName + "/" + pluginFolder);
                                 const hookFolderContent = finder.getContentOfFolder(pathToPluginHooks);
                                 for (let scriptFileName of hookFolderContent) {
                                     LogBot.log(100, "Loading hook " + scriptFileName + " ... ");
@@ -298,23 +274,18 @@ class WrangleBot extends EventEmitter {
                 }
             }
             const allowedPaths = [
-                //macos
                 "/volumes/",
                 "/users/",
-                //linux
                 "/media/",
                 "/home/",
             ];
             const path = options.pathToLibrary.toLowerCase();
-            //check if the folder already exists
             if (!finder.existsSync(path)) {
-                //if it does not create the base folder
                 finder.mkdirSync(path, { recursive: true });
             }
             const allowed = allowedPaths.some((p) => path.startsWith(p));
             if (!allowed)
                 throw new Error("Path is not allowed");
-            //check if lib exists in database
             if (this.index.libraries.find((l) => l.name.toLowerCase() === options.name.toLowerCase())) {
                 throw new Error("Library with that name already exists");
             }
@@ -322,9 +293,7 @@ class WrangleBot extends EventEmitter {
                 throw new Error("Library in path already exists");
             }
             const metaLibrary = new MetaLibrary(this, options);
-            //add library to runtime
             this.index.libraries.unshift(metaLibrary);
-            //add metaLibrary in database
             yield DB().updateOne("libraries", { name: metaLibrary.name }, metaLibrary.toJSON({ db: true }));
             metaLibrary.createFoldersOnDiskFromTemplate();
             this.$emit("metalibrary-new", metaLibrary);
@@ -425,16 +394,6 @@ class WrangleBot extends EventEmitter {
             }
         }
     }
-    /* THUMBNAILS */
-    /**
-     * Generates Thumbnails from a list of MetaFiles
-     *
-     * @param library
-     * @param {MetaFile[]} metaFiles
-     * @param {Function|false} callback
-     * @param finishCallback?
-     * @returns {Promise<boolean>} resolve to false if there is no need to generate thumbnails or if there are no copies reachable
-     */
     generateThumbnails(library_1, metaFiles_1) {
         return __awaiter(this, arguments, void 0, function* (library, metaFiles, callback = (progress) => { }, finishCallback = (success) => { }) {
             const callbackWrapper = function (p) {
@@ -460,19 +419,9 @@ class WrangleBot extends EventEmitter {
             }
         });
     }
-    /**
-     * Generates a Thumbnail from a MetaFile if it is a video or photo
-     *
-     * @param {string} library      - the library name
-     * @param {MetaFile} metaFile   - the metaFile to generate a thumbnail for
-     * @param {MetaCopy} metaCopy   - if not provided or unreachable, the first reachable copy will be used
-     * @param {Function} callback   - callback function to update the progress
-     * @returns {Promise<boolean>}  rejects if there is no way to generate thumbnails or if there are no copies reachable
-     */
     generateThumbnail(library, metaFile, metaCopy, callback) {
         return __awaiter(this, void 0, void 0, function* () {
             if (metaFile.fileType === "photo" || metaFile.fileType === "video") {
-                //find the first copy that is has a reachable path
                 let reachableMetaCopy;
                 if (metaCopy && finder.existsSync(metaCopy.pathToBucket.file)) {
                     reachableMetaCopy = metaCopy;
@@ -496,7 +445,7 @@ class WrangleBot extends EventEmitter {
                                 metaFile.removeOneThumbnail(thumb.id);
                             }
                             yield DB().removeMany("thumbnails", { metafile: metaFile.id, library });
-                            yield utility.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
+                            yield utility.twiddleThumbs(5);
                             LogBot.log(200, "Deleted old Thumbnails now <" + metaFile.thumbnails.length + "> for <" + metaFile.name + ">");
                         }
                         LogBot.log(200, "Saving Thumbnails <" + thumbnails.length + "> for <" + metaFile.name + ">");
@@ -508,7 +457,7 @@ class WrangleBot extends EventEmitter {
                             thumbData.push(thumb.toJSON());
                         }
                         yield DB().insertMany("thumbnails", { metaFile: metaFile.id, library }, thumbData);
-                        yield utility.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
+                        yield utility.twiddleThumbs(5);
                         yield DB().updateOne("metafiles", { id: metaFile.id, library }, {
                             thumbnails: metaFile.getThumbnails().map((t) => t.id),
                         });
@@ -528,14 +477,6 @@ class WrangleBot extends EventEmitter {
     getManyTransactions(filter) {
         return DB().getTransactions(filter);
     }
-    /**
-     * Removes an Object from the runtime
-     * if it already exists it will be overwritten
-     *
-     * @param {string} list i.e. copyTasks
-     * @param {Object} item the object to remove
-     * @return {0|1|-1} 0 if the item was not found, 1 if it was removed, -1 if the list does not exist
-     */
     removeFromRuntime(list, item) {
         try {
             if (this.index[list]) {
@@ -551,14 +492,6 @@ class WrangleBot extends EventEmitter {
             console.error(e);
         }
     }
-    /**
-     * Adds an Object to the runtime
-     * if it already exists it will be overwritten
-     *
-     * @param {string} list i.e. copyTasks
-     * @param {{id:string}} item the object to add
-     * @return {0|1|-1} 0 if the item was overwritten, 1 if it was added, -1 if the list does not exist
-     */
     addToRuntime(list, item) {
         if (this.index[list]) {
             const alreadyExists = this.index[list][item.id];
@@ -573,16 +506,12 @@ class WrangleBot extends EventEmitter {
         }
         return -1;
     }
-    /* LOGGING & DEBUGGING */
     error(message) {
         return LogBot.log(500, message, true);
     }
     notify(title, message) {
         this.$emit("notification", { title, message });
     }
-    //**********************************
-    //* API v2                         *
-    //**********************************
     get query() {
         return {
             library: {
@@ -811,9 +740,6 @@ class WrangleBot extends EventEmitter {
                                     fetch() {
                                         return lib.getManyTranscodeTasks();
                                     },
-                                    // delete: async () => {
-                                    //   return lib.removeManyTranscodeTask({$ids : filters.$ids});
-                                    // },
                                 };
                             },
                             post: (files, options) => __awaiter(this, void 0, void 0, function* () {
@@ -966,7 +892,6 @@ class WrangleBot extends EventEmitter {
     applyTransactionUpdateOne(transaction) {
         return __awaiter(this, void 0, void 0, function* () {
             LogBot.log(100, "applying transaction: " + transaction.id);
-            //LIBRARY ADDED/UPDATED
             if (transaction.$collection === "libraries") {
                 let lib = this.index.libraries.find((l) => l.name === transaction.$query.name);
                 if (lib) {
@@ -980,7 +905,6 @@ class WrangleBot extends EventEmitter {
                 }
                 this.servers.socketServer.inform("database", "libraries", "change");
             }
-            //METAFILE ADDED/UPDATED
             if (transaction.$collection === "metafiles") {
                 if (!transaction.$query.library)
                     throw new Error("No library provided to update metaFile.");
@@ -1011,7 +935,6 @@ class WrangleBot extends EventEmitter {
                     throw new Error("Library not found.");
                 }
             }
-            //METACOPY ADDED/UPDATED
             if (transaction.$collection === "metacopies") {
                 if (!transaction.$query.library)
                     throw new Error("No library provided to update MetaCopy.");
@@ -1024,7 +947,6 @@ class WrangleBot extends EventEmitter {
                         this.servers.socketServer.inform("database", "metafiles", "change");
                     }
                     else {
-                        //find the file that this copy belongs to
                         let file = lib.metaFiles.find((f) => f.id === transaction.$query.metaFile);
                         if (!file) {
                             LogBot.log(404, "MetaFile for MetaCopy not found");
@@ -1041,7 +963,6 @@ class WrangleBot extends EventEmitter {
                     throw new Error("Library not found.");
                 }
             }
-            //TASKS ADDED/UPDATED
             if (transaction.$collection === "tasks") {
                 if (!transaction.$query.library)
                     throw new Error("No library provided to update Task.");
@@ -1065,7 +986,6 @@ class WrangleBot extends EventEmitter {
                     throw new Error("Library not found.");
                 }
             }
-            //TRANSCODES ADDED/UPDATED
             if (transaction.$collection === "transcodes") {
                 if (!transaction.$query.library)
                     throw new Error("No library provided to update Transcodes.");

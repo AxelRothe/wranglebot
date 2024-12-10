@@ -24,23 +24,18 @@ export default {
         };
         const jobFinishCallback = (metaFileId) => {
             server.inform("thumbnails", metaFileId, { status: "done" });
-            //remove job from queue
             thumbnailGenerationQueue[metaFileId] = false;
         };
         const failedCallback = (metaFileId, error) => {
             server.inform("thumbnails", metaFileId, { error: error.message });
-            //remove job from queue
             thumbnailGenerationQueue[metaFileId] = false;
         };
-        //check if any of the files are already in the queue
         let fileIds = files.filter((file) => !thumbnailGenerationQueue[file]);
         let filesToGenerate = bot.query.library.one(id).metafiles.many({ $ids: fileIds }).fetch();
         filesToGenerate = filesToGenerate.filter((f) => f.thumbnails.length === 0);
-        //add metafile ids to the queue
         files.forEach((file) => {
             thumbnailGenerationQueue[file] = true;
         });
-        //dont wait for the job to finish
         bot.generateThumbnails(id, filesToGenerate, progressCallback, jobFinishCallback).catch((e) => {
             LogBot.log(500, e.message);
             filesToGenerate.forEach((f) => {

@@ -1,30 +1,13 @@
 import EventEmitter from "events";
 declare class DriveBot extends EventEmitter {
-    /**
-     * @wbType {Volume[]}
-     */
     drives: any;
     verbose: any;
     watchers: never[];
     private watcher;
     constructor();
-    /**
-     * Starts listening to changes to mounted volumes
-     *
-     * @example
-     * driveBot.watch(["mylib1, mylib2"]);
-     *
-     * @fires DriveBot#removed
-     * @fires DriveBot#added
-     *
-     */
     watch(): void;
     hasWatcher(): boolean;
     stopWatching(): void;
-    /**
-     * scans all mounted drives and returns an Array of Drives
-     * @return {Promise<Volume[]>}
-     */
     scan(): Promise<unknown>;
     updateDrives(): Promise<void>;
     getDriveById(id: any): Promise<any>;

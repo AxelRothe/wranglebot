@@ -13,7 +13,6 @@ export default {
     version: "0.0.1",
     events: ["example-event"],
     handler: (event, data, bot) => __awaiter(void 0, void 0, void 0, function* () {
-        // Do something here
     }),
 };
 //# sourceMappingURL=example-hook.js.map

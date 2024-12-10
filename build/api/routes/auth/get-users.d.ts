@@ -1,9 +1,6 @@
 import type { WrangleBot } from "../../../core/WrangleBot.js";
 import { SocketServer } from "../../SocketServer.js";
 import RouteResult from "../../RouteResult.js";
-/**
- * @description Retrieves all users in the database
- */
 declare const _default: {
     method: string;
     url: string;

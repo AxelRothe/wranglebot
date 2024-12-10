@@ -35,7 +35,6 @@ class Volume {
     scan(options = { limit: 10, extended: false }) {
         if (options.extended) {
             const fullPaths = finder.getFolders(this.mountpoint, options.limit);
-            //trim paths of mountpoint
             const trimmedPaths = fullPaths.map((path) => path.replace(this.mountpoint, ""));
             return {
                 mountpoint: this.mountpoint,
@@ -44,11 +43,6 @@ class Volume {
         }
         return [this.mountpoint, ...finder.getFolders(this.mountpoint, options.limit)];
     }
-    /**
-     * Returns a JSON friendly representation of the drive
-     *
-     * @return {{label: string, removable: boolean, mountpoint: string, size: number,  used: number, free: number}}
-     */
     print() {
         return {
             mountpoint: this.mountpoint,

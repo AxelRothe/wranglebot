@@ -23,11 +23,6 @@ export default class Transaction {
     isRollback(): boolean;
     isRejected(): boolean;
     updateStatus(status: string): void;
-    /**
-     *
-     * @param socket
-     * @returns Promise<Boolean> true if transaction is committed, false if transaction is rejected
-     */
     $commit(socket: any): Promise<unknown>;
     toJSON(): {
         uuid: string;

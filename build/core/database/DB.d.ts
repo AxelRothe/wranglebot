@@ -22,11 +22,6 @@ declare class DB extends EventEmitter {
     private keySalt;
     constructor(options: DBOptions);
     private rebuildLocalModel;
-    /**
-     * Connects the database to and returns itself
-     *
-     * @return {Promise<DB>}
-     */
     connect(token?: string): Promise<this>;
     private fetchTransactions;
     private $emit;

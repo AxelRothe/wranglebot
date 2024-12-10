@@ -19,12 +19,6 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 ffmpeg.setFfprobePath(ffprobePath);
 class TranscodeBot {
     constructor() { }
-    /**
-     *
-     * @param inputPath
-     * @param options
-     * @returns {TranscodeFactory}
-     */
     generateTranscode(inputPath, options) {
         try {
             return new TranscodeFactory(inputPath, options);
@@ -34,24 +28,12 @@ class TranscodeBot {
             return null;
         }
     }
-    /**
-     * Creates a Set of Transcode from a list of metafiles
-     * @param {MetaFile[]} metaFiles
-     * @param options
-     */
     generateTranscodeSet(metaFiles, options) {
         const transcodeSet = metaFiles.map((metaFile) => {
             return this.generateTranscode(metaFile.getMetaCopy().pathToBucket.file, options);
         });
         return new TranscodeSetFactory(transcodeSet);
     }
-    /**
-     * Generates Thumbnails for a given video file
-     *
-     * @param inputPath
-     * @param options
-     * @returns {Promise<{id: string, label: string, data: string}[]>} the id of the generated thumbnail
-     */
     generateThumbnails(inputPath, options) {
         return __awaiter(this, void 0, void 0, function* () {
             const type = finder.getFileType(inputPath);

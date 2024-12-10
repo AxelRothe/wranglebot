@@ -9,9 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import LogBot from "logbotjs";
 import RouteResult from "../../RouteResult.js";
-/**
- * @description Retrieves all users in the database
- */
 export default {
     method: "get",
     url: "/users",

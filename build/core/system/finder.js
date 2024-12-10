@@ -17,9 +17,10 @@ import { sync as writeFileAtomicSync } from "write-file-atomic";
 import LogBot from "logbotjs";
 import Cryptr from "cryptr";
 import { exec } from "child_process";
+import config from "./Config.js";
 class Finder {
     constructor() {
-        this.cryptr = new Cryptr("b2909139-4cdc-46d6-985c-3726ede95335"); //this is just for obfuscation
+        this.cryptr = new Cryptr("b2909139-4cdc-46d6-985c-3726ede95335");
         this.supportedPlatforms = {
             darwin: "MacOS",
             linux: "linux",
@@ -55,18 +56,6 @@ class Finder {
             exec("xdg-open  '" + path + "'", callback);
         }
     }
-    /**
-     * @typedef {Object} DriveOptions
-     * @property {string} label
-     * @property {string} path
-     * @property {string} serialNumber
-     * @property {string} interface
-     * @property {boolean} removable
-     */
-    /**
-     *
-     * @return {Promise<DriveOptions>}
-     */
     getDisks() {
         return new Promise((resolve) => {
             si.fsSize().then((r) => {
@@ -86,9 +75,8 @@ class Finder {
                 si.diskLayout().then((diskLayout) => {
                     for (let device of blockDevices) {
                         for (let disk of diskLayout) {
-                            if (device.fs.includes(disk.device) || // if the device is a disk
-                                (device.mount === "/" && disk.device === "disk0") //is this a macos disk?
-                            ) {
+                            if (device.fs.includes(disk.device) ||
+                                (device.mount === "/" && disk.device === "disk0")) {
                                 device = Object.assign(device, {
                                     type: disk.type,
                                     host: disk.name,
@@ -112,14 +100,6 @@ class Finder {
         }
         return "/" + elements[0] + "/" + elements[1];
     }
-    /**
-     * Retrieve all folders with subfolders within a folder
-     *
-     * @param {string} sourcePath
-     * @param {number} limit max level of subfolders
-     * @param {number} index
-     * @return {String[]} the array of absolute folder paths
-     */
     getFolders(sourcePath, limit, index = 0) {
         let matches = [];
         const paths = this.getContentOfFolder(sourcePath);
@@ -136,14 +116,9 @@ class Finder {
         }
         return matches;
     }
-    getPathToUserData(path = "") {
-        return this.join(os.homedir(), path);
+    getPathToUserData(subPath = "") {
+        return path.join(config.getPathToUserData(), subPath);
     }
-    /**
-     *
-     * @param pathToElement
-     * @return {boolean}
-     */
     access(pathToElement) {
         try {
             fs.accessSync(pathToElement.toString());
@@ -153,12 +128,6 @@ class Finder {
             return false;
         }
     }
-    /**
-     * Returns whether a path is reachable for this app
-     *
-     * @param path
-     * @returns {boolean}
-     */
     isReachable(path) {
         try {
             const elements = path.split("/");
@@ -166,7 +135,6 @@ class Finder {
                 if (el === "")
                     elements.splice(elements.indexOf(el), 1);
             }
-            //works for unix and macos
             return this.existsSync("/" + elements[0] + "/" + elements[1]);
         }
         catch (e) {
@@ -174,35 +142,16 @@ class Finder {
             return false;
         }
     }
-    /**
-     * Returns whether a path exists, can be file or folder
-     * use isDirectory to check for type
-     *
-     * @param pathToElement
-     * @returns {boolean}
-     */
     existsSync(pathToElement) {
         return fs.existsSync(pathToElement);
     }
-    /**
-     * returns if a file is in the home directory
-     * @param pathToElement
-     * @returns {boolean}
-     */
     exists(pathToElement) {
-        return fs.existsSync(this.join(this.getPathToUserData("wranglebot"), pathToElement));
+        return fs.existsSync(this.join(this.getPathToUserData(), pathToElement));
     }
     check(...elements) {
         const path = this.join(...elements);
         return this.existsSync(path);
     }
-    /**
-     * Creates a new folder
-     *
-     * @param pathToNewFolder
-     * @param options? {object|undefined}
-     * @returns {boolean}
-     */
     mkdirSync(pathToNewFolder, options = {}) {
         try {
             fs.mkdirSync(pathToNewFolder, options);
@@ -212,20 +161,9 @@ class Finder {
             return false;
         }
     }
-    /**
-     * Gets file stats
-     * @deprecated use lstatSync instead
-     * @param pathToElement
-     * @returns {*}
-     */
     statSync(pathToElement) {
         return fs.statSync(pathToElement);
     }
-    /**
-     * Gets file stats
-     * @param pathToElement
-     * @returns {*}
-     */
     lstatSync(pathToElement) {
         return fs.lstatSync(pathToElement);
     }
@@ -238,11 +176,6 @@ class Finder {
     readdirSync(pathToFolder) {
         return fs.readdirSync(pathToFolder);
     }
-    /**
-     * Reads a File
-     *
-     * @param {string} pathToElement
-     */
     readFile(pathToElement) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve) => {
@@ -257,21 +190,9 @@ class Finder {
             });
         });
     }
-    /**
-     * Writes to a file
-     * @param pathToNewElement
-     * @param content
-     * @param callback
-     */
     writeFile(pathToNewElement, content, callback) {
         fs.writeFile(pathToNewElement, content, callback);
     }
-    /**
-     * Writes to a file synchronously
-     * @param pathToElement
-     * @param content
-     * @param options?
-     */
     writeFileSync(pathToElement, content, options = undefined) {
         this.mkdirSync(this.dirname(pathToElement), { recursive: true });
         return writeFileAtomicSync(pathToElement, content, options);
@@ -282,7 +203,7 @@ class Finder {
             if (encrypt) {
                 data = this.encrypt(data);
             }
-            this.writeFileSync(this.join(this.getPathToUserData("wranglebot"), fileName), data);
+            this.writeFileSync(this.join(this.getPathToUserData(), fileName), data);
             return true;
         }
         catch (e) {
@@ -296,7 +217,7 @@ class Finder {
             if (encrypt) {
                 data = this.encrypt(data);
             }
-            const createWriteStream = fs.createWriteStream(this.join(this.getPathToUserData("wranglebot"), fileName));
+            const createWriteStream = fs.createWriteStream(this.join(this.getPathToUserData(), fileName));
             createWriteStream.write(data);
             createWriteStream.end();
             createWriteStream.on("finish", () => {
@@ -317,7 +238,7 @@ class Finder {
     }
     load(fileName, decrypt = false) {
         try {
-            let contentOfFile = this.readFileSync(this.join(this.getPathToUserData("wranglebot"), fileName)).toString();
+            let contentOfFile = this.readFileSync(this.join(this.getPathToUserData(), fileName)).toString();
             if (decrypt) {
                 contentOfFile = this.decrypt(contentOfFile);
             }
@@ -328,12 +249,6 @@ class Finder {
             throw e;
         }
     }
-    /**
-     * Reads a File
-     *
-     * @param pathToElement
-     * @returns {Buffer}
-     */
     readFileSync(pathToElement) {
         return fs.readFileSync(pathToElement);
     }
@@ -374,21 +289,9 @@ class Finder {
             });
         });
     }
-    /**
-     * ejects a drive
-     *
-     * @param pathToDevice
-     * @param callback
-     */
     eject(pathToDevice, callback) {
         ejectMedia.eject(pathToDevice, callback);
     }
-    /**
-     * Returns the file type of the given path
-     *
-     * @param filename {string} the path to the file
-     * @returns {'photo'|'video'|'audio'|'sidecar'}
-     */
     getFileType(filename) {
         let type = this.extname(filename);
         if (type.match(/(webm)|(mkv)|(vob)|(ogv)|(ogg)|(gif)|(gifv)|(avi)|(mts)|(m2ts)|(ts)|(mov)|(qt)|(wmv)|(mp4)|(m4p)|(mpeg)|(m4v)|(mpg)|(mpg2)|(mpe)|(mpv)|(m2v)|(3gp)|(3gp2)|(mxf)|(flv)/gim)) {
@@ -405,11 +308,6 @@ class Finder {
         }
         return "sidecar";
     }
-    /**
-     * Returns the items of a folder
-     * @param {String} pathToFolder Absolute Path to Folder
-     * @param options
-     */
     getContentOfFolder(pathToFolder, options = {
         showHidden: false,
         filters: "both",
@@ -419,7 +317,6 @@ class Finder {
         try {
             let list = fs.readdirSync(pathToFolder);
             if (!options.showHidden) {
-                //remove all files that start with a dot
                 list = list.filter((item) => !item.startsWith("."));
             }
             if (options.filters === "files") {
@@ -434,37 +331,19 @@ class Finder {
             return [];
         }
     }
-    /**
-     * Returns true if the given path is a folder
-     * @param path
-     * @returns {false|*}
-     */
     isDirectory(path) {
         return this.isDir(path);
     }
-    /**
-     * Checks if the path is a directory
-     * @param elements
-     * @returns {false|*}
-     */
     isDir(...elements) {
         const path = this.join(...elements);
         try {
-            //check if the path exists
             fs.accessSync(path, fs.constants.F_OK);
-            //check if the path is a directory
             return fs.lstatSync(path).isDirectory();
         }
         catch (e) {
             return false;
         }
     }
-    /**
-     * Rename a file or folder
-     *
-     * @param pathToElement
-     * @param newName
-     */
     rename(pathToElement, newName) {
         const newPath = this.join(this.dirname(pathToElement), newName + this.extname(pathToElement));
         return fs.renameSync(pathToElement, newPath);
@@ -472,23 +351,9 @@ class Finder {
     copy(pathToElement, newPath) {
         return fs.copyFileSync(pathToElement, newPath);
     }
-    /**
-     * Move a file or folder
-     *
-     * @param pathToElement
-     * @param newFolder
-     */
     move(pathToElement, newFolder) {
         return fs.renameSync(pathToElement, this.join(newFolder, this.basename(pathToElement)));
     }
-    /**
-     * Rename a file and move it, returns true if the file was moved
-     *
-     * @param pathToElement
-     * @param newName
-     * @param newFolder
-     * @returns {boolean}
-     */
     renameAndMove(pathToElement, newName, newFolder) {
         const newPath = this.join(newFolder, newName + this.extname(pathToElement));
         fs.renameSync(pathToElement, newPath);
@@ -502,14 +367,12 @@ class Finder {
         try {
             let path = pathToElement.split("/");
             let element = path[1].toLowerCase();
-            //macos
             if (this.platform === "darwin") {
                 if (element === "volumes")
                     return path[2];
                 if (element === "users")
                     return "Macintosh HD";
             }
-            //linux
             if (this.platform === "linux") {
                 if (element === "media")
                     return path[2];

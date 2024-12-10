@@ -11,11 +11,6 @@ import CopyTool from "./CopyTool.js";
 import { v4 as uuidv4 } from "uuid";
 import Status from "./Status.js";
 export default class Job {
-    /**
-     * Creates a Copy Job
-     *
-     * @param options {Object}
-     */
     constructor(options) {
         this.result = {};
         this.stats = {
@@ -30,11 +25,6 @@ export default class Job {
             size: 0,
         };
     }
-    /**
-     * Runs the job
-     *
-     * @return Promise<Job>
-     */
     run(callback, abort) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
@@ -56,7 +46,6 @@ export default class Job {
                     abort.addCallback(() => {
                         cpytl.abort();
                     });
-                    //copy and analyse
                     if (this.destinations !== null) {
                         cpytl
                             .destinations(this.destinations)
@@ -77,7 +66,6 @@ export default class Job {
                         });
                     }
                     else {
-                        //analyse only
                         cpytl
                             .hashFile(this.source, callback)
                             .then((hash) => {
@@ -99,15 +87,11 @@ export default class Job {
                     }
                 }
                 else {
-                    //already done return the result
                     resolve(this);
                 }
             });
         });
     }
-    /**
-     * Returns the job as a json object
-     */
     toJSON(options = { db: false }) {
         return {
             id: this.id,

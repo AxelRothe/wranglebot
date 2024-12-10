@@ -16,23 +16,10 @@ import EventEmitter from "events";
 class DriveBot extends EventEmitter {
     constructor() {
         super();
-        /**
-         * @wbType {Volume[]}
-         */
         this.drives = [];
         this.watchers = [];
         this.watcher = null;
     }
-    /**
-     * Starts listening to changes to mounted volumes
-     *
-     * @example
-     * driveBot.watch(["mylib1, mylib2"]);
-     *
-     * @fires DriveBot#removed
-     * @fires DriveBot#added
-     *
-     */
     watch() {
         this.watcher = finder.watch(finder.pathToVolumes, (eventType, volumeName) => {
             if (eventType === "rename") {
@@ -70,10 +57,6 @@ class DriveBot extends EventEmitter {
             this.watcher = null;
         }
     }
-    /**
-     * scans all mounted drives and returns an Array of Drives
-     * @return {Promise<Volume[]>}
-     */
     scan() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve) => {

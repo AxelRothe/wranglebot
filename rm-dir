@@ -1,1 +1,0 @@
-[ -d "$1" ] && rm -r "$1" || echo "The folder does not exist."

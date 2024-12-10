@@ -32,19 +32,11 @@ class MetaLibrary {
         _MetaLibrary_instances.add(this);
         this.name = "UNNAMED";
         this.folders = [];
-        /**
-         * The metadata of the library, this is info that can be saved and used in the handlebars
-         * @type {MetaLibraryData}
-         */
         this.drops = new MetaLibraryData();
         this.metaFiles = [];
         this.tasks = [];
         this.transcodes = [];
         this.readOnly = false;
-        /**
-         * The creation date of the library
-         * @type {Date}
-         */
         this.creationDate = new Date();
         if (!wb)
             throw new Error("Failed to create library! Reason: Missing WrangleBot Instance");
@@ -61,21 +53,13 @@ class MetaLibrary {
         }
         return this;
     }
-    /**
-     * Updates and saves the library
-     * @param options {{pathToLibrary?:string, drops?:Map<name,value>, folders?:Folders}}
-     * @param save
-     * @returns {boolean}
-     */
     update(options, save = true) {
         if (options.pathToLibrary) {
             if (!finder.isReachable(options.pathToLibrary) && save && !this.readOnly) {
                 throw new Error(options.pathToLibrary + " is not reachable and can not be updated.");
             }
             this.pathToLibrary = options.pathToLibrary;
-            //check if the folder already exists
             if (!finder.existsSync(this.pathToLibrary)) {
-                //if it does not create the base folder
                 finder.mkdirSync(this.pathToLibrary, { recursive: true });
             }
         }
@@ -103,7 +87,6 @@ class MetaLibrary {
                     throw new Error(`No options to update folder ${folderPath}`);
                 }
                 if (overwriteOptions.name && overwriteOptions.name !== folder.name) {
-                    //check if folder is empty
                     if (finder.readdirSync(finder.join(this.pathToLibrary, folderPath)).length > 0) {
                         throw new Error(`Folder ${folderPath} is not empty, can not rename`);
                     }
@@ -131,7 +114,6 @@ class MetaLibrary {
     getFolderByPath(folderPath) {
         if (!this.folders)
             return null;
-        //remove leading slash and trailing slash
         folderPath = folderPath.replace(/^\/|\/$/g, "");
         let folderPathArray = folderPath.split("/");
         let folder = this.folders;
@@ -156,14 +138,6 @@ class MetaLibrary {
     save(options = {}) {
         return DB().updateOne("libraries", { name: this.name }, options);
     }
-    /**
-     * REBUILD
-     * Takes a library database Structure and assembles all attached elements
-     *
-     * @param {Object} metaLibraryProto
-     * @param readOnly
-     * @return {Promise<boolean>}
-     */
     rebuild(metaLibraryProto_1) {
         return __awaiter(this, arguments, void 0, function* (metaLibraryProto, readOnly = false) {
             if (!metaLibraryProto)
@@ -178,13 +152,11 @@ class MetaLibrary {
                 throw new Error("Failed to Rebuild library! Reason: Missing Path To Library");
             this.readOnly = readOnly;
             try {
-                /* GENERAL */
                 this.name = metaLibraryProto.name;
                 this.folders = metaLibraryProto.folders;
                 this.pathToLibrary = metaLibraryProto.pathToLibrary;
                 this.drops = new MetaLibraryData(metaLibraryProto.drops);
                 this.creationDate = new Date(metaLibraryProto.creationDate);
-                /* METAFILES */
                 const metaFilesRaw = DB().getMany("metafiles", { library: this.name });
                 const allMetaCopiesRaw = DB().getMany("metacopies", { library: this.name });
                 for (let metaFileRaw of metaFilesRaw) {
@@ -209,7 +181,6 @@ class MetaLibrary {
                     this.metaFiles.push(newMetaFile);
                     this.wb.addToRuntime("metaFiles", newMetaFile);
                 }
-                /* REBUILD TASKS */
                 const tasks = DB().getMany("tasks", { library: this.name });
                 for (let task of tasks) {
                     for (let job of task.jobs) {
@@ -224,7 +195,6 @@ class MetaLibrary {
                     this.tasks.push(newTask);
                     this.wb.addToRuntime("copyTasks", newTask);
                 }
-                /* REBUILD TRANSCODES */
                 const transcodes = DB().getMany("transcodes", { library: this.name });
                 for (let transcode of transcodes) {
                     try {
@@ -258,9 +228,6 @@ class MetaLibrary {
             }
         });
     }
-    /**
-     * Iterates over the given folders and creates them on the disk relative to pathToLibrary
-     */
     createFoldersOnDiskFromTemplate(folders = this.folders, basePath = this.pathToLibrary, jobs = []) {
         if (!finder.existsSync(this.pathToLibrary)) {
             finder.mkdirSync(this.pathToLibrary, { recursive: true });
@@ -331,13 +298,6 @@ class MetaLibrary {
     log(message, type) {
         LogBot.log(`${this.name}:${type}`, message);
     }
-    /**
-     *
-     * @param {string} list
-     * @param {string} value
-     * @param {"_id"|"id"|"label"|string} property
-     * @return {MetaFile|MetaCopy}
-     */
     get(list, value = "", property = "id") {
         if (this[list]) {
             return SearchLite.find(this[list], property, value).result;
@@ -346,7 +306,6 @@ class MetaLibrary {
             return undefined;
         }
     }
-    /* META DATA (LIBRARY) */
     updateMetaData(col, value) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.drops.updateCol(col, value)) {
@@ -369,39 +328,27 @@ class MetaLibrary {
             return Error("Could not remove key: <" + col + "> from metaData of library <" + this.name + ">");
         });
     }
-    /* METAFILES */
-    /**
-     * Adds a MetaFile to the database(), as well as the runtime
-     *
-     * @param metaFile {MetaFile | Object | string} the MetaFile to add, it can be a MetaFile, a JSON Object or a string to a file
-     * @return {Promise<void>}
-     */
     addOneMetaFile(metaFile) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (this.readOnly)
                     throw new Error("Library is read only");
-                //the metaFile is a path to a file
                 if (typeof metaFile === "string") {
                     metaFile = yield MetaFile.fromFile(metaFile);
-                    //check if the file is already in the library
                     if (this.findMetaFileByHash(metaFile.hash))
                         throw new Error("File already exists in library");
                 }
-                //the metaFile is not a MetaFile instance and is used to initialize one
                 if (!(metaFile instanceof MetaFile)) {
                     metaFile = new MetaFile(metaFile);
                 }
-                //add copies
                 for (let metacopy of metaFile.copies) {
                     yield DB().updateOne("metacopies", { id: metacopy.id, library: this.name, metaFile: metaFile.id }, metacopy.toJSON({ db: true }));
                     this.wb.addToRuntime("metaCopies", metacopy);
                 }
-                //the metaFile is now def a MetaFile instance
                 yield DB().updateOne("metafiles", { id: metaFile.id, library: this.name }, metaFile.toJSON({ db: true }));
-                this.metaFiles.push(metaFile); //add to local array
-                this.wb.addToRuntime("metaFiles", metaFile); //add global index store
-                this.wb.emit("metafile-new", metaFile); //emit event
+                this.metaFiles.push(metaFile);
+                this.wb.addToRuntime("metaFiles", metaFile);
+                this.wb.emit("metafile-new", metaFile);
                 return metaFile;
             }
             catch (e) {
@@ -409,12 +356,6 @@ class MetaLibrary {
             }
         });
     }
-    /**
-     * Retrieves a MetaFile from its library by hash, can lead to collisions
-     *
-     * @param hash
-     * @return {MetaFile}
-     */
     findMetaFileByHash(hash) {
         const search = SearchLite.find(this.metaFiles, "_hash", hash);
         if (search.wasSuccess()) {
@@ -422,12 +363,6 @@ class MetaLibrary {
         }
         return null;
     }
-    /**
-     * Retrieves a MetaFile from its library from its id
-     *
-     * @param {string} metaFileId
-     * @return {MetaFile}
-     */
     getOneMetaFile(metaFileId) {
         return this.metaFiles.find((e) => e.id === metaFileId);
     }
@@ -474,7 +409,6 @@ class MetaLibrary {
                 listOfIdsToRemove.push(file.id);
                 this.wb.removeFromRuntime("metaFiles", file);
             }
-            //remove the files from the library
             for (let f of this.metaFiles) {
                 if (listOfIdsToRemove.includes(f.id)) {
                     if (save) {
@@ -493,7 +427,6 @@ class MetaLibrary {
             return false;
         }
     }
-    /* METACOPIES */
     addOneMetaCopy(metaCopy, metaFile) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -507,7 +440,7 @@ class MetaLibrary {
                 DB().updateOne("metafiles", { id: metaFile.id, library: this.name }, {
                     copies: metaFile.copies.map((c) => c.id),
                 });
-                yield utility.twiddleThumbs(5); //wait 5 seconds to make sure the timestamp is incremented
+                yield utility.twiddleThumbs(5);
                 DB().updateOne("metacopies", { id: metaCopy.id, library: this.name, metaFile: metaFile.id }, metaCopy.toJSON({ db: true }));
                 this.wb.emit("metacopy-new", metaCopy);
                 return metaCopy;
@@ -570,10 +503,8 @@ class MetaLibrary {
         }
         throw new Error("File not found");
     }
-    /* THUMBNAILS */
     downloadOneThumbnail(thumb) {
         return __awaiter(this, void 0, void 0, function* () {
-            //if the thumbnail doesn't exist, try to get it from the database and save it to the thumbnail folder
             const thumbnailInDB = yield DB().getOne("thumbnails", { id: thumb.id });
             if (thumbnailInDB) {
                 finder.mkdirSync(finder.join(config.getPathToUserData(), "thumbnails"));
@@ -583,14 +514,12 @@ class MetaLibrary {
             }
         });
     }
-    /* TASKS */
     generateOneTask(options) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.readOnly)
                 throw new Error("Library is read only");
             if (!options.settings)
                 throw new Error("No options provided");
-            //remove trailing slashes from source and destinations
             options.source = options.source.replace(/\/+$/, "");
             options.destinations = options.destinations.map((d) => d.replace(/\/+$/, ""));
             const index = yield indexer.index(options.source, options.types, options.matchExpression ? new RegExp(options.matchExpression) : null);
@@ -598,7 +527,6 @@ class MetaLibrary {
             if (index) {
                 for (let item of index.items) {
                     let destinations = [];
-                    //if this index items path is a duplicate of metacopy, skip it if the user doesn't want duplicates
                     if (options.settings.ignoreDuplicates) {
                         let metacopy = this.getMetaCopyByPath(item.pathToFile);
                         if (metacopy) {
@@ -645,12 +573,6 @@ class MetaLibrary {
             throw new Error("Indexing failed");
         });
     }
-    /**
-     * Creates CopyTask and adds it to the library
-     *
-     * @param {{label: string; jobs: {source: string; destinations?: string[]}[]}} options
-     * @return {Promise<Task>}
-     */
     addOneTask(options) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.readOnly)
@@ -661,7 +583,6 @@ class MetaLibrary {
             if (!options.jobs) {
                 throw new Error("No jobs provided");
             }
-            //check if task with label already exists
             const search = SearchLite.find(Object.values(this.tasks), "label", options.label);
             if (search.wasFailure()) {
                 for (let job of options.jobs) {
@@ -694,24 +615,12 @@ class MetaLibrary {
             }
         });
     }
-    /**
-     *
-     * @param {string} id
-     * @return {Task}
-     */
     getOneTask(id) {
         const search = this.tasks.find((task) => task.id === id);
         if (search)
             return search;
         throw Error("No task found with that key");
     }
-    /**
-     * Runs all jobs of a task and syncs metafiles and copies as needed
-     *
-     * @param {string} id the id of the task
-     * @param {Function} cb the callback to get progress and speed
-     * @param {{cancel:boolean}} cancelToken cancel the operation
-     */
     runOneTask(id, cb, cancelToken) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.readOnly)
@@ -722,7 +631,6 @@ class MetaLibrary {
             }
             const addMetaCopy = (executedJob, task, metaFile) => __awaiter(this, void 0, void 0, function* () {
                 if (executedJob.destinations === null) {
-                    //add metacopy that is in place
                     const newMetaCopy = new MetaCopy({
                         hash: executedJob.result.hash,
                         pathToSource: executedJob.source,
@@ -730,13 +638,11 @@ class MetaLibrary {
                         label: task.label,
                         metaFile: metaFile,
                     });
-                    //push changes to the database
                     yield this.addOneMetaCopy(newMetaCopy, metaFile);
-                    yield utility.twiddleThumbs(5); //wait 5 milliseconds to make sure the timestamp is incremented
+                    yield utility.twiddleThumbs(5);
                     return;
                 }
                 for (let destination of executedJob.destinations) {
-                    //add metacopy to the metafile
                     const newMetaCopy = new MetaCopy({
                         hash: executedJob.result.hash,
                         pathToSource: executedJob.source,
@@ -744,31 +650,26 @@ class MetaLibrary {
                         label: task.label,
                         metaFile: metaFile,
                     });
-                    //push changes to the database
                     yield this.addOneMetaCopy(newMetaCopy, metaFile);
-                    yield utility.twiddleThumbs(5); //wait 5 milliseconds to make sure the timestamp is incremented
+                    yield utility.twiddleThumbs(5);
                 }
             });
             try {
-                //iterate over all jobs
                 for (let job of task.jobs) {
                     if (job.status === Status.DONE) {
                         continue;
                     }
                     let executedJob;
                     if (cancelToken.cancel)
-                        break; //listen on cancel and exit task before the job is executed
-                    executedJob = yield task.runOneJob(job, cb, cancelToken); //run the job
+                        break;
+                    executedJob = yield task.runOneJob(job, cb, cancelToken);
                     if (cancelToken.cancel)
-                        break; //listen on cancel and skip after the job is executed
-                    //search for hash in library
+                        break;
                     const foundMetaFile = this.findMetaFileByHash(executedJob.result.hash);
                     if (foundMetaFile) {
-                        //if found, add copy to metafile
                         yield addMetaCopy(executedJob, task, foundMetaFile);
                     }
                     else {
-                        //create new metafile
                         const basename = finder.basename(executedJob.source).toString();
                         const newMetaFile = new MetaFile({
                             hash: executedJob.result.hash,
@@ -780,7 +681,7 @@ class MetaLibrary {
                             extension: finder.extname(basename),
                         });
                         yield this.addOneMetaFile(newMetaFile);
-                        yield utility.twiddleThumbs(5); //wait a few ms to make sure the timestamp is different
+                        yield utility.twiddleThumbs(5);
                         yield addMetaCopy(executedJob, task, newMetaFile);
                     }
                 }
@@ -796,19 +697,9 @@ class MetaLibrary {
             }
         });
     }
-    /**
-     * Returns all tasks of the library
-     * @returns {Task[]}
-     */
     getManyTasks() {
         return this.tasks;
     }
-    /**
-     * Updates or Upserts a Task
-     *
-     * @param options {{label:string, jobs: {source:string, destination?:string}}} options
-     * @returns {Promise<Error|boolean>}
-     */
     updateOneTask(options) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.readOnly)
@@ -823,14 +714,6 @@ class MetaLibrary {
             return new Error("No task found with that id.");
         });
     }
-    /**
-     * Remove a Task from the library, it will attempt t remove it from the database() first. If it succeeds it will splice it from the runtime array
-     *
-     * @param {string} key
-     * @param {'id'|'_id'|'label'} by
-     * @param save
-     * @return {Promise<{deletedCount:number}>}
-     */
     removeOneTask(key, by = "id", save = true) {
         if (this.readOnly && save)
             throw new Error("Library is read only");
@@ -845,12 +728,6 @@ class MetaLibrary {
             return true;
         }
     }
-    /**
-     * Removes all tasks that match the filter
-     *
-     * @param filters {{any?:any?}}
-     * @returns {Promise<Task[]>} the remaining tasks
-     */
     removeManyTasks(filters) {
         if (this.readOnly)
             throw new Error("Library is read only");
@@ -861,7 +738,7 @@ class MetaLibrary {
                     if (task[key] !== filters[key])
                         continue;
                     this.removeOneTask(filters[key], key);
-                    yield utility.twiddleThumbs(5); //wait a few ms to make sure the timestamp is different
+                    yield utility.twiddleThumbs(5);
                 }
             }
             resolve(tasks);
@@ -913,7 +790,6 @@ class MetaLibrary {
             if (task) {
                 try {
                     yield task.run(this, cb, cancelToken, (job) => {
-                        //DB().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
                     });
                     DB().updateOne("transcodes", { id: task.id, library: this.name }, task.toJSON({ db: true }));
                     this.wb.emit("transcode-edit", task);
@@ -931,7 +807,6 @@ class MetaLibrary {
             if (metaFiles.length === 0)
                 throw new Error("No files to generate report for.");
             if (options.format === "html") {
-                // return await ExportBot.generateHTML(metaFiles, options);
                 throw new Error("HTML reports are not supported yet.");
             }
             if (options.format === "pdf") {
@@ -952,12 +827,6 @@ class MetaLibrary {
             return false;
         });
     }
-    /* SAVING */
-    /**
-     * Returns the flattened version of the library with statistics
-     *
-     * @return {{metaData: Object, copyTasks: number, buckets: number, name, files: number, creationDate: string}}
-     */
     toJSON(options = { db: false }) {
         let stats = {
             count: {

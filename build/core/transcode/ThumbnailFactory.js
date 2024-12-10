@@ -14,11 +14,9 @@ export default class ThumbnailFactory {
             this.command.input(this.pathToFile);
             const thumbId = uuidv4();
             const thumbnailFolder = finder.join(config.getPathToUserData(), "thumbnails", ".+" + thumbId);
-            //create thumbnail dir if it does not exist
             finder.mkdirSync(thumbnailFolder, { recursive: true });
             const duration = Number(this.options.metaFile.getMetaData().get("video-duration"));
             let fps = 1;
-            //if the duration is longer than 100 seconds, then we will create proportional number of thumbnails
             if (duration > 100) {
                 fps = 1 / (duration / 100);
             }
@@ -37,7 +35,6 @@ export default class ThumbnailFactory {
                 const files = finder.getContentOfFolder(thumbnailFolder);
                 let newGeneratedThumbnails = [];
                 for (let file of files) {
-                    //unique id for each thumbnail
                     const uniqueId = uuidv4();
                     if (finder.renameAndMove(finder.join(thumbnailFolder, file), uniqueId, finder.join(thumbnailFolder, "../"))) {
                         try {

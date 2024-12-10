@@ -5,21 +5,8 @@ export default class Job {
     status: number;
     result: any;
     stats: any;
-    /**
-     * Creates a Copy Job
-     *
-     * @param options {Object}
-     */
     constructor(options: any);
-    /**
-     * Runs the job
-     *
-     * @return Promise<Job>
-     */
     run(callback: any, abort: any): Promise<Job>;
-    /**
-     * Returns the job as a json object
-     */
     toJSON(options?: {
         db: boolean;
     }): {

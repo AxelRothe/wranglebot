@@ -21,7 +21,7 @@ export class TranscodeJob {
     constructor(task, options) {
         _TranscodeJob_instances.add(this);
         this.id = uuidv4();
-        this.status = 1; // 1 = pending, 2 = running, 3 = done, 4 = error
+        this.status = 1;
         this.cancelToken = { cancel: false };
         this.id = options.id || this.id;
         this.task = task;
@@ -71,7 +71,6 @@ export class TranscodeJob {
 }
 _TranscodeJob_instances = new WeakSet(), _TranscodeJob_transcodeOneMetaFile = function _TranscodeJob_transcodeOneMetaFile(metaFile, callback) {
     return __awaiter(this, void 0, void 0, function* () {
-        //find reachable meta copy
         const reachableMetaCopy = metaFile.copies.find((copy) => {
             return finder.existsSync(copy.pathToBucket.file);
         });
@@ -83,7 +82,6 @@ _TranscodeJob_instances = new WeakSet(), _TranscodeJob_transcodeOneMetaFile = fu
         if (finder.existsSync(pathToExportedFile) && !this.task.overwrite) {
             throw new Error("File already exists.");
         }
-        //transcode the meta file
         try {
             const transcode = TranscodeBot.generateTranscode(reachableMetaCopy.pathToBucket.file, Object.assign(Object.assign({}, this.task.template), { output: pathToExportedFile, lut: this.task.lut }));
             if (transcode === null)

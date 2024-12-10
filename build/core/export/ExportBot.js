@@ -34,7 +34,6 @@ class ExportBot {
                 },
             },
         };
-        //keys to convert for better readability
         this.toPrettyBytes = ["video-bit-rate", "audio-bit-rate"];
         this.toPrettyTime = ["video-duration", "audio-duration"];
     }
@@ -43,12 +42,8 @@ class ExportBot {
             if (options.paths.length === 0)
                 throw new Error("No path to export to");
             try {
-                // Define font files
                 const printer = new PdfPrinter(this.assets.fonts);
-                // Define document layout
-                // thumbnail, filename, hash, size ,[...], creation date
                 let widthCols = ["auto", "auto", "auto", "auto", "auto"];
-                // metadata columns are dynamic
                 Scraper.getColumns().forEach(() => {
                     widthCols.push("auto");
                 });
@@ -56,25 +51,20 @@ class ExportBot {
                 for (const file of metaFiles) {
                     let metaData = file.getMetaData();
                     let cells = [];
-                    //prettify entries
                     for (const column of Scraper.getColumns()) {
-                        //find the entry in the file
                         let val = metaData.entries[column.id];
                         if (!val) {
                             cells.push("");
                             continue;
                         }
-                        //convert if needed
                         if (this.toPrettyTime.indexOf(column.id) >= 0) {
                             val = prettyMilliseconds(Number(val) * 1000);
                         }
                         if (this.toPrettyBytes.indexOf(column.id) >= 0) {
                             val = prettyBytes(Number(val));
                         }
-                        //add to list
                         cells.push(val);
                     }
-                    // add thumbnail or empty string
                     let thumbnail = "";
                     if (file.thumbnails.length > 0) {
                         thumbnail = {
@@ -82,7 +72,6 @@ class ExportBot {
                             width: 100,
                         };
                     }
-                    //add line
                     lines.push([thumbnail, file.hash, file.basename, prettyBytes(file.size), ...cells, file.creationDate.toLocaleString()]);
                 }
                 let countOfVideoFiles = 0;
@@ -139,7 +128,6 @@ class ExportBot {
                 let scenes = new Map([...mapOfScenes.entries()].sort((a, b) => b[1] - a[1]));
                 if (countOfScenes > 0) {
                     for (let scene of mapOfScenes.keys()) {
-                        //caluclate size and duration of scene
                         let size = 0;
                         let duration = 0;
                         for (const file of metaFiles) {
@@ -184,7 +172,7 @@ class ExportBot {
                                     },
                                     {
                                         text: [
-                                            `Unique ID: ${uuidv4()}`, //add random id to prevent caching
+                                            `Unique ID: ${uuidv4()}`,
                                         ],
                                         bold: true,
                                         alignment: "right",
@@ -251,12 +239,12 @@ class ExportBot {
                                                 ["Scene", "Size", "Duration", "Count", "Average Duration", "Average Minute / Size"],
                                                 ...[...scenes.keys()].map((scene) => {
                                                     return [
-                                                        scene, //scene name
-                                                        prettyBytes(scenes.get(scene).size), //size
-                                                        prettyMilliseconds(Number(scenes.get(scene).duration) * 1000), //duration
-                                                        scenes.get(scene).count, //count
-                                                        prettyMilliseconds((Number(scenes.get(scene).duration) * 1000) / scenes.get(scene).count), //average duration
-                                                        "1m : " + prettyBytes(Number(scenes.get(scene).size) / (Number(scenes.get(scene).duration) / 60)), //1 min : size
+                                                        scene,
+                                                        prettyBytes(scenes.get(scene).size),
+                                                        prettyMilliseconds(Number(scenes.get(scene).duration) * 1000),
+                                                        scenes.get(scene).count,
+                                                        prettyMilliseconds((Number(scenes.get(scene).duration) * 1000) / scenes.get(scene).count),
+                                                        "1m : " + prettyBytes(Number(scenes.get(scene).size) / (Number(scenes.get(scene).duration) / 60)),
                                                     ];
                                                 }),
                                                 [
@@ -309,9 +297,7 @@ class ExportBot {
                     pageSize: "A1",
                     pageOrientation: "landscape",
                 };
-                const docOptions = {
-                // ...
-                };
+                const docOptions = {};
                 for (let path of options.paths) {
                     const pdfDoc = printer.createPdfKitDocument(docDefinition, docOptions);
                     finder.mkdirSync(path, { recursive: true });

@@ -23,18 +23,11 @@ interface ReturnObject {
     message?: string;
     result?: any;
 }
-/**
- * WrangleBot Interface
- * @class WrangleBot
- */
 declare class WrangleBot extends EventEmitter {
     static OPEN: string;
     static CLOSED: string;
     pingInterval: any;
     ping: any;
-    /**
-     * @type {DriveBot}
-     */
     driveBot: DriveBot;
     accountManager: {
         users: Set<User>;
@@ -73,7 +66,7 @@ declare class WrangleBot extends EventEmitter {
         getDisks(): Promise<any[]>;
         getMountPoint(pathToElement: any): string;
         getFolders(sourcePath: any, limit: any, index?: number): any;
-        getPathToUserData(path?: string): string;
+        getPathToUserData(subPath?: string): string;
         access(pathToElement: any): boolean;
         isReachable(path: any): boolean;
         existsSync(pathToElement: any): boolean;
@@ -93,7 +86,7 @@ declare class WrangleBot extends EventEmitter {
         encrypt(data: any): string;
         decrypt(data: any): string;
         load(fileName: any, decrypt?: boolean): any;
-        readFileSync(pathToElement: any): Buffer;
+        readFileSync(pathToElement: any): Buffer<ArrayBufferLike>;
         parseFileSync(pathToElement: any): any;
         rmSync(pathToElementToRemove: any): void;
         basename(pathToElement: any): string;
@@ -126,7 +119,9 @@ declare class WrangleBot extends EventEmitter {
         versionNumber: string;
         cryptr: import("cryptr");
         pathToConfigFile: string;
+        appDataLocation: string;
         config: any;
+        build(appDataLocation?: string): void;
         getPathToUserData(): string;
         set(key: any, value: any, encrypt?: boolean): void;
         setConfig(key: any, value: any): void;
@@ -135,9 +130,6 @@ declare class WrangleBot extends EventEmitter {
         save(): void;
     };
     status: string;
-    /**
-     * index
-     */
     index: {
         libraries: MetaLibrary[];
         metaFiles: {
@@ -160,9 +152,6 @@ declare class WrangleBot extends EventEmitter {
     open(options: WrangleBotOptions): Promise<this | null>;
     close(): Promise<string>;
     private startServer;
-    /**
-     * UTILITY FUNCTIONS
-     */
     $emit(event: string, ...args: any[]): Promise<boolean>;
     private runCustomScript;
     private loadExtensions;
@@ -174,44 +163,10 @@ declare class WrangleBot extends EventEmitter {
     private unloadOneLibrary;
     handleVolumeMount(volume: any): void;
     handleVolumeUnmount(volume: any): void;
-    /**
-     * Generates Thumbnails from a list of MetaFiles
-     *
-     * @param library
-     * @param {MetaFile[]} metaFiles
-     * @param {Function|false} callback
-     * @param finishCallback?
-     * @returns {Promise<boolean>} resolve to false if there is no need to generate thumbnails or if there are no copies reachable
-     */
     generateThumbnails(library: any, metaFiles: any, callback?: (progress: any) => void, finishCallback?: (success: any) => void): Promise<boolean>;
-    /**
-     * Generates a Thumbnail from a MetaFile if it is a video or photo
-     *
-     * @param {string} library      - the library name
-     * @param {MetaFile} metaFile   - the metaFile to generate a thumbnail for
-     * @param {MetaCopy} metaCopy   - if not provided or unreachable, the first reachable copy will be used
-     * @param {Function} callback   - callback function to update the progress
-     * @returns {Promise<boolean>}  rejects if there is no way to generate thumbnails or if there are no copies reachable
-     */
     private generateThumbnail;
     private getManyTransactions;
-    /**
-     * Removes an Object from the runtime
-     * if it already exists it will be overwritten
-     *
-     * @param {string} list i.e. copyTasks
-     * @param {Object} item the object to remove
-     * @return {0|1|-1} 0 if the item was not found, 1 if it was removed, -1 if the list does not exist
-     */
     removeFromRuntime(list: any, item: any): 1 | -1 | undefined;
-    /**
-     * Adds an Object to the runtime
-     * if it already exists it will be overwritten
-     *
-     * @param {string} list i.e. copyTasks
-     * @param {{id:string}} item the object to add
-     * @return {0|1|-1} 0 if the item was overwritten, 1 if it was added, -1 if the list does not exist
-     */
     addToRuntime(list: any, item: any): 1 | 0 | -1;
     error(message: any): any;
     notify(title: any, message: any): void;

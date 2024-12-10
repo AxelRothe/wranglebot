@@ -9,21 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { IndexItem } from "./IndexItem.js";
 import { finder } from "../system/index.js";
-/**
- * media
- */
 class Indexer {
     constructor(isLazy = true) {
         this.isLazy = isLazy;
     }
-    /**
-     * Indexes the folders recursively
-     *
-     * @param sourcePath {String} the folders to archive
-     * @param toCount {String["video"|"video-raw"|"audio"|"sidecar"|"photo"]} the type of files to count
-     * @param matchExpression {RegExp|null} the expression to match
-     * @return {Promise<Index>}
-     */
     index(sourcePath_1) {
         return __awaiter(this, arguments, void 0, function* (sourcePath, toCount = ["video", "video-raw", "audio", "sidecar", "photo"], matchExpression = null) {
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
@@ -46,19 +35,16 @@ class Indexer {
                         if (this.isLazy) {
                             files = files.filter((item) => !/(^|\/)\.[^\/\.]/g.test(item));
                         }
-                        //filter files that do not match the matchExpression
                         if (matchExpression !== null) {
                             files = files.filter((item) => matchExpression.test(item));
                         }
                         let totalTaskSize = 0;
                         let ListOfPathsToReturn = [];
                         for (let file of files) {
-                            //let pathToBucketLocation = this.bucketPath + "/" + file;
                             let pathToFile = sourcePath + "/" + file;
                             if (finder.existsSync(pathToFile)) {
                                 let indexItem = new IndexItem(pathToFile);
                                 if (!indexItem.isDirectory()) {
-                                    //await indexItem.resolveHash();
                                     let isTypeToCount = false;
                                     for (let type of toCount) {
                                         if (indexItem.is(type)) {
@@ -77,7 +63,6 @@ class Indexer {
                                         for (let type of toCount) {
                                             if (indexItem.is(type)) {
                                                 counter[type]++;
-                                                //console.log(pathToFile + " > " + wbType + ": " + counter[wbType]);
                                             }
                                         }
                                     }
@@ -112,7 +97,6 @@ class Indexer {
                 }
                 else if (finder.existsSync(sourcePath)) {
                     const item = new IndexItem(sourcePath);
-                    //await item.resolveHash();
                     let returnObject = {
                         path: sourcePath,
                         items: [item],

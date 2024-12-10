@@ -29,10 +29,6 @@ import DB from "../database/DB.js";
 import { MLInterface } from "../analyse/MLInterface.js";
 import CopyTool from "../media/CopyTool.js";
 class MetaFile {
-    /**
-     *
-     * @param options {{hash:string, id?: string, metaData?: object, name: string, basename:string, thumbnails?: string[], size: number, fileType: string, extension: string, creationDate?: string}}
-     */
     constructor(options) {
         this.copies = [];
         _MetaFile_hash.set(this, void 0);
@@ -40,9 +36,7 @@ class MetaFile {
         if (!options.hash)
             throw new Error("No hash provided");
         __classPrivateFieldSet(this, _MetaFile_hash, options.hash || "NaN", "f");
-        /* init id or copy from object */
         this.id = options.id || uuidv4();
-        /* Thumbnails init */
         this.thumbnails = [];
         if (options.thumbnails) {
             for (let thumb of options.thumbnails) {
@@ -67,12 +61,6 @@ class MetaFile {
         this.creationDate = options.creationDate ? new Date(options.creationDate) : new Date();
         this._hash = __classPrivateFieldGet(this, _MetaFile_hash, "f");
     }
-    /**
-     * Creates a MetaFile from a source file
-     *
-     * @param source {string} the path to the source file
-     * @return {Promise<MetaFile>} the created MetaFile
-     */
     static fromFile(source) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -115,10 +103,6 @@ class MetaFile {
         }
         return reachableCopies;
     }
-    /**
-     * Get Hash
-     * @return {string} hash
-     */
     get hash() {
         return __classPrivateFieldGet(this, _MetaFile_hash, "f");
     }
@@ -128,7 +112,7 @@ class MetaFile {
                 this.metaData.update(document.metaData);
             }
             if (document.thumbnails) {
-                this.thumbnails = []; //reset thumbnails
+                this.thumbnails = [];
                 for (let thumb of document.thumbnails) {
                     if (thumb instanceof Object && thumb.id && thumb.data) {
                         this.addThumbnail(thumb);
@@ -146,17 +130,11 @@ class MetaFile {
             }
         });
     }
-    /**
-     *
-     * @param thumbnail
-     * @returns {Thumbnail}
-     */
     addThumbnail(thumbnail) {
         if (!thumbnail.data)
             throw new Error("Thumbnail data is missing");
         if (!thumbnail.id)
             throw new Error("Thumbnail id is missing");
-        // if (!thumbnail.frame) throw new Error("Thumbnail frame number is missing");
         const search = SearchLite.find(this.thumbnails, "id", thumbnail.id);
         if (search.wasFailure()) {
             const newThumbnail = new Thumbnail({
@@ -168,35 +146,20 @@ class MetaFile {
             return newThumbnail;
         }
         else {
-            // search.result.frame = thumbnail.frame;
             search.result.data = thumbnail.data;
             return search.result;
         }
     }
-    /**
-     * Removes a Thumbnail from the metafile and deletes its disk counterpart
-     *
-     * Does not remove the thumbnail from the database
-     *
-     * @param {string} thumbnailId
-     * @returns {boolean} True if it was successful, false otherwise
-     */
     removeOneThumbnail(thumbnailId) {
         this.thumbnails = this.thumbnails.filter((thumbnail) => {
             if (thumbnail.id === thumbnailId) {
-                finder.rmSync(finder.join(finder.getPathToUserData("wranglebot"), "thumbnails", thumbnailId + ".jpg"));
+                finder.rmSync(finder.join(finder.getPathToUserData("thumbnails"), thumbnailId + ".jpg"));
                 return false;
             }
             return true;
         });
     }
-    /**
-     *
-     * @param {String} index
-     * @param {String} value
-     */
     updateMetaData(index, value) {
-        //update MetaData here
     }
     getMetaData(options = { table: false }) {
         if (options.table) {
@@ -209,10 +172,6 @@ class MetaFile {
         }
         return this.metaData;
     }
-    /**
-     *
-     * @param {MetaCopy} metaCopy
-     */
     addCopy(metaCopy) {
         for (let copy of this.copies) {
             if (copy.id === metaCopy.id) {
@@ -220,7 +179,6 @@ class MetaFile {
                 return 0;
             }
         }
-        //if not found, add it
         this.copies.push(metaCopy);
         return 1;
     }

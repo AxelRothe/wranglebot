@@ -20,11 +20,6 @@ declare class Volume {
         mountpoint: string;
         paths: any;
     };
-    /**
-     * Returns a JSON friendly representation of the drive
-     *
-     * @return {{label: string, removable: boolean, mountpoint: string, size: number,  used: number, free: number}}
-     */
     print(): {
         mountpoint: string;
         volumeId: string;

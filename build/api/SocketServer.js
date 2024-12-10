@@ -21,26 +21,16 @@ import LogBot from "logbotjs";
 import jwt from "jsonwebtoken";
 import User from "../core/accounts/User.js";
 import { finder } from "../core/system/index.js";
-/* IMPORT ROUTES */
 import routes from "./routes/index.js";
 import RouteFactory from "./RouteFactory.js";
-/* CLASS */
 class SocketServer {
     constructor(http, app, bot, mail, secret) {
         _SocketServer_instances.add(this);
-        // this is temp until we have a better way to manage sockets
         this.users = [];
         this.clients = [];
         this.hooks = [];
         this.sockets = new Set();
         this.cache = {};
-        /**
-         * Checks if the token is valid
-         * @param req the request
-         * @param res the response
-         * @param {string[]} roles
-         * @returns {boolean} true if the token is valid
-         */
         this.checkRequestAuthorization = (req, res, roles = []) => {
             const auth = req.get("authorization");
             if (!auth || !auth.startsWith("Bearer ")) {
@@ -58,7 +48,6 @@ class SocketServer {
             }
             return user;
         };
-        // @ts-ignore
         this.server = new Server(http, {
             cors: {
                 origin: "*",
@@ -84,49 +73,36 @@ class SocketServer {
     start() {
         return __awaiter(this, void 0, void 0, function* () {
             this.server.on("connection", (socket) => {
-                //Send back the client that it has connected
                 this.response(200).tween(socket, "connected", {
                     message: "Connected",
                 });
-                this.sockets.add(socket); //add the socket to the set of sockets
+                this.sockets.add(socket);
                 LogBot.log(200, "new connection " + socket.id, true);
-                /*
-                Open reconnect listener
-                 */
                 this.server.on("reconnect", (socket) => {
                     LogBot.log(200, "reconnect " + socket.id, true);
                 });
-                /*
-                Open disconnect listener
-                 */
                 socket.on("disconnect", () => {
                     LogBot.log(200, "disconnected " + socket.id, true);
                     this.sockets.delete(socket);
                 });
-                /* AUTHENTICATION */
                 socket.once("auth", (betweeny) => {
                     const { username, password, token } = betweeny.data;
                     const user = this.checkAuth(username || null, password || null, token || null);
                     if (user) {
-                        //User has been authenticated
                         LogBot.log(200, "Authenticated " + user.username);
-                        //find client in existing clients
                         const client = this.clients.find((client) => client.username === user.username);
                         if (client) {
-                            //if client exists, update the socket
                             client.socket = socket;
                             client.syncHooks();
                             LogBot.log(200, "Client " + user.username + " has been remapped to previous socket");
                         }
                         else {
-                            //if client does not exist, create a new client
                             const newClient = new Client(socket, user.username);
                             this.clients.push(newClient);
                             this.setHooks(newClient);
                             user.token = __classPrivateFieldGet(this, _SocketServer_instances, "m", _SocketServer_signToken).call(this, user);
                             LogBot.log(200, "New session was opened for " + user.username);
                         }
-                        //Send back the client that it has connected
                         this.response(200).tween(socket, "token", {
                             token: user.token,
                             username: user.username,
@@ -147,7 +123,6 @@ class SocketServer {
                     }
                 });
             });
-            /* ROUTES */
             const routeFactory = new RouteFactory({
                 baseUrl: "/api/v1",
                 express: this.app,
@@ -158,9 +133,7 @@ class SocketServer {
             for (let route of routes) {
                 routeFactory.build(route);
             }
-            //scan the plugins folder in the wranglebot directory
-            //and load the routes from the plugins
-            const pathToPlugins = finder.getPathToUserData("wranglebot/custom/");
+            const pathToPlugins = finder.getPathToUserData("custom/");
             const plugins = finder.getContentOfFolder(pathToPlugins);
             for (let plugin of plugins) {
                 const pluginFolders = finder.getContentOfFolder(pathToPlugins + plugin);
@@ -179,10 +152,6 @@ class SocketServer {
                     }
                 }
             }
-            /*
-            SUBSCRIPTIONS
-             */
-            //subscribe the client to changes and updates to the task
             this.hook("subscribe", (client, betweeny) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     const { data } = betweeny;
@@ -193,7 +162,6 @@ class SocketServer {
                     console.error(e);
                 }
             }));
-            //unsubscribe the client to changes and updates to the task
             this.hook("unsubscribe", (client, betweeny) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     const { data } = betweeny;
@@ -204,23 +172,12 @@ class SocketServer {
                     console.error(e);
                 }
             }));
-            /*
-            End start
-             */
             return this;
         });
     }
     close() {
         this.server.close();
     }
-    /**
-     * Signs in a client with a given username and password
-     *
-     * @param username {string|null}
-     * @param password {string|null}
-     * @param token {string|null}
-     * @returns {Error|{Client}}
-     */
     signInClient(username, password, token) {
         const user = this.checkAuth(username, password, token);
         if (user === null) {
@@ -230,14 +187,6 @@ class SocketServer {
             user.token = __classPrivateFieldGet(this, _SocketServer_instances, "m", _SocketServer_signToken).call(this, user);
         return user;
     }
-    /**
-     * Returns a User object if the username and password or token are correct
-     *
-     * @param username
-     * @param password
-     * @param token
-     * @returns {User}
-     */
     checkAuth(username = null, password = null, token = null) {
         if (token) {
             return __classPrivateFieldGet(this, _SocketServer_instances, "m", _SocketServer_jwtValid).call(this, token);
@@ -268,12 +217,6 @@ class SocketServer {
         const user = __classPrivateFieldGet(this, _SocketServer_instances, "m", _SocketServer_jwtValid).call(this, token);
         return !(!user || user.username !== username);
     }
-    /**
-     *
-     * @param req
-     * @param res
-     * @returns {User}
-     */
     getUser(req, res) {
         const auth = req.get("authorization");
         const token = auth.split(" ")[1];
@@ -319,71 +262,28 @@ class SocketServer {
             client.addHook(hook.event, hook.callback);
         }
     }
-    /**
-     * Subscribes a client to a given event
-     *
-     * @example
-     * this.subscribe(client, "tasks", "cbc34a59-74ee-4dba-9d50-4bbdc03d52e0");
-     *
-     * @param client {Client} the client to subscribe
-     * @param event {string} the event to subscribe to
-     * @param id {string} the uuid of the object to track
-     */
     subscribe(client, event, id) {
         if (!client.subscriptions[event])
             client.subscriptions[event] = [];
         client.subscriptions[event].push(id);
     }
-    /**
-     * Unsubscribes a client to a given event
-     *
-     * @example
-     * this.unsubscribe(client, "tasks", "cbc34a59-74ee-4dba-9d50-4bbdc03d52e0");
-     *
-     * @param client {Client} the client to subscribe
-     * @param event {string} the event to subscribe to
-     * @param id {string} the uuid of the object to track
-     */
     unsubscribe(client, event, id) {
         if (!client.subscriptions[event])
             return;
         client.subscriptions[event] = client.subscriptions[event].filter((sub) => sub !== id);
     }
     getSubscriptions(user) {
-        //find the client of the user
         const client = this.clients.find((client) => client.username === user.username);
         if (!client)
             return [];
         return client.subscriptions;
     }
-    /**
-     * Emits data to all connected sockets
-     *
-     * @example
-     * this.broadcast("tasks", new Betweeny(200,{
-     *    id: "cbc34a59-74ee-4dba-9d50-4bbdc03d52e0",
-     *    name: "My Task",
-     *   }));
-     *
-     * @param {string} event
-     * @param {Betweeny} betweeny
-     */
     broadcast(event, betweeny) {
         this.clients.forEach((client) => {
             client.socket.emit(event, betweeny.toJSON());
             LogBot.log(100, "Broadcasting to " + client.username);
         });
     }
-    /**
-     * emits data to subscribed sockets
-     *
-     * @example
-     * this.inform("tasks", "cbc34a59-74ee-4dba-9d50-4bbdc03d52e0")
-     *
-     * @param event {string} the event to emit
-     * @param id {string} the id of the subscription
-     * @param data {Object} the data to send
-     */
     inform(event, id, data) {
         for (let client of this.clients) {
             if (client.subscriptions[event] && client.subscriptions[event].includes(id)) {
@@ -395,28 +295,8 @@ class SocketServer {
             }
         }
     }
-    /**
-     * Creates a response
-     * @param {number} status the status code
-     * @returns {{tween: function(socket : Socket, event : string, data: any)}}
-     */
     response(status) {
         return {
-            /**
-             * Sends a Package to a socket
-             *
-             * @example
-             *
-             * this.response(200).tween(socket, "tasks", {
-             *    id: "cbc34a59-74ee-4dba-9d50-4bbdc03d52e0",
-             *    name: "My Task",
-             *    description: "My Task Description",
-             *   });
-             *
-             * @param socket {Socket|null} the socket to send to, if null, the response will be sent to all clients
-             * @param event {string} the event to send
-             * @param data {any} the data to send
-             */
             tween: (socket, event, data) => {
                 if (socket === null) {
                     this.broadcast(event, new Betweeny(status, data));

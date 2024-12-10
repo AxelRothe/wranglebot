@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 class AccountManager {
     constructor() {
         this.users = new Set();
-        this.salt = "Wr4ngle_b0t"; //TODO: Salt needs to be stored somewhere else
+        this.salt = "Wr4ngle_b0t";
     }
     init() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -137,7 +137,7 @@ class AccountManager {
             });
             if (res)
                 return true;
-            user.roles.splice(user.roles.indexOf(role), 1); //remove it, if it failed
+            user.roles.splice(user.roles.indexOf(role), 1);
             return false;
         }
         return false;
@@ -157,19 +157,11 @@ class AccountManager {
             });
             if (res)
                 return true;
-            user.roles.push(role); //put it back, if it failed
+            user.roles.push(role);
             return false;
         }
         return false;
     }
-    /**
-     * compares the user's roles to the roles passed in
-     * if the user has any of the roles, it returns true
-     * if the user has none of the roles, it returns false
-     *
-     * @param user
-     * @param roles
-     */
     hasRole(user, roles) {
         for (const role of roles) {
             if (user.roles.includes(role))
@@ -205,7 +197,6 @@ class AccountManager {
         if (options.password) {
             if (options.password.length < 8)
                 throw new Error("Password must be at least 8 characters long");
-            //must contain at least one number, one lowercase letter, one uppercase letter, and one special character
             if (options.password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/) === null)
                 throw new Error("Password must contain at least one number, one lowercase letter, one uppercase letter, and one special character");
         }
@@ -236,7 +227,7 @@ class AccountManager {
             });
             if (res)
                 return true;
-            user.libraries.splice(user.libraries.indexOf(library), 1); //remove it, if it failed
+            user.libraries.splice(user.libraries.indexOf(library), 1);
             return true;
         }
         return false;
@@ -250,7 +241,7 @@ class AccountManager {
             });
             if (res)
                 return true;
-            user.libraries.push(library); //put it back, if it failed
+            user.libraries.push(library);
             return false;
         }
         return false;

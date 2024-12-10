@@ -9,11 +9,6 @@ export default class MetaLibraryData {
     getCols() {
         return this;
     }
-    /**
-     *
-     * @param {String} colID
-     * @param {Number, String, Date} value
-     */
     updateCol(colID, value) {
         this[colID] = value;
         return true;

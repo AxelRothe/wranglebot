@@ -12,14 +12,6 @@ declare class AccountManager {
     addRole(user: User, role: any): boolean;
     setRoles(user: User, roles: any): boolean;
     removeRole(user: User, role: any): boolean;
-    /**
-     * compares the user's roles to the roles passed in
-     * if the user has any of the roles, it returns true
-     * if the user has none of the roles, it returns false
-     *
-     * @param user
-     * @param roles
-     */
     hasRole(user: User, roles: any): boolean;
     changePassword(user: User, password: any): any;
     changeEmail(user: User, email: any): any;

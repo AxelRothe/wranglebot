@@ -20,11 +20,6 @@ declare class EmailTemplate {
         text: string;
         html: string;
     };
-    /**
-     * Renders the email template as HTML
-     *
-     * @return {string}
-     */
     private render;
 }
 export { EmailTemplate, EmailTemplateOptions };

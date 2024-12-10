@@ -90,7 +90,6 @@ class Scraper {
 Scraper.EXTRACT_VIDEO = "video";
 Scraper.EXTRACT_AUDIO = "audio";
 Scraper.availableColumns = {
-    /* SHOT */
     video: [
         { id: "scene", name: "Scene", mask: new FilterMask(["scene"]) },
         { id: "shot", name: "Shot", mask: new FilterMask(["shot"]) },
@@ -104,7 +103,6 @@ Scraper.availableColumns = {
             name: "Creation Date",
             mask: new FilterMask(["creation_date", "creation_time", "encoded_date", "encoded_time", "modification_date", "modification_time"]),
         },
-        /* VIDEO TECHNICAL */
         {
             id: "video-camera-index",
             name: "Camera Index",
@@ -148,7 +146,6 @@ Scraper.availableColumns = {
         { id: "video-codec", name: "Codec", mask: new FilterMask(["codec_long_name"]) },
         { id: "video-profile", name: "Profile", mask: new FilterMask(["profile"]) },
         { id: "video-format", name: "Container", mask: new FilterMask(["format_long_name"]) },
-        /* VIDEO CREATIVE */
         {
             id: "video-camera-model",
             name: "Camera Model",

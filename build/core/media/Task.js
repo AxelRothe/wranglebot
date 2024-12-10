@@ -11,18 +11,11 @@ import { v4 as uuidv4 } from "uuid";
 import Job from "./Job.js";
 import Status from "./Status.js";
 export default class Task {
-    /**
-     *
-     * @param {any?} options
-     */
     constructor(options) {
         this.jobs = [];
-        //name
         this.label = options.label || "NaN";
-        //creation object id
         this.id = options.id || uuidv4();
         this.creationDate = options.creationDate ? new Date(options.creationDate) : new Date();
-        //import jobs if this is a rebuild
         if (options.jobs) {
             for (let job of options.jobs) {
                 this.jobs.push(new Job(job));
@@ -36,14 +29,6 @@ export default class Task {
             this.jobs.push(new Job(job));
         }
     }
-    /**
-     * Returns the job by object
-     *
-     * @param job {Job}
-     * @param cb {Function} callback to get progress
-     * @param cancelToken {{cancel: boolean}} cancel token
-     * @returns {Promise<Job>}
-     */
     runOneJob(job, cb, cancelToken) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

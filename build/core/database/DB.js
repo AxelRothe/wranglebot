@@ -31,7 +31,6 @@ class DB extends EventEmitter {
             throw new Error("No database or token provided. Aborting.");
         this.url = options.url;
         this.token = options.token;
-        //this is not a good solution but it obfuscates the key a bit
         this.pathToTransactions = config.getPathToUserData() + "/transactions/" + `${md5(this.token + this.keySalt)}`;
         if (!finder.existsSync(this.pathToTransactions)) {
             finder.mkdirSync(this.pathToTransactions, { recursive: true });
@@ -39,7 +38,6 @@ class DB extends EventEmitter {
     }
     rebuildLocalModel() {
         return __awaiter(this, void 0, void 0, function* () {
-            //check if offline mode
             if (!this.url && this.token) {
                 let skip = false;
                 if (!finder.existsSync(this.pathToTransactions)) {
@@ -47,7 +45,6 @@ class DB extends EventEmitter {
                     skip = true;
                 }
                 if (finder.getContentOfFolder(this.pathToTransactions).length === 0) {
-                    //create and save the initial transaction
                     yield this.saveTransaction(new Transaction({
                         $collection: "users",
                         $query: {
@@ -78,11 +75,10 @@ class DB extends EventEmitter {
                         LogBot.log(500, "Could not parse transaction file " + file + ". Ignoring File.");
                     }
                 }
-                //sort transactions by timestamp
                 transactions.sort((a, b) => {
                     return a.timestamp - b.timestamp > 0 ? 1 : -1;
                 });
-                this.localModal = {}; //reset
+                this.localModal = {};
                 let transactionCounts = {
                     committed: 0,
                     rejected: 0,
@@ -101,11 +97,6 @@ class DB extends EventEmitter {
             }
         });
     }
-    /**
-     * Connects the database to and returns itself
-     *
-     * @return {Promise<DB>}
-     */
     connect() {
         return __awaiter(this, arguments, void 0, function* (token = this.token) {
             clearTimeout(this.connectTimeout);
@@ -163,10 +154,10 @@ class DB extends EventEmitter {
                             uuid: transaction.uuid,
                             status: "success",
                         }), true);
-                        syncedTransactions++; //increment synced transactions
+                        syncedTransactions++;
                     }
                     this.socket.emit("sync-block-ack:" + blockIndex, { status: "success" });
-                    blockIndex++; //increment block index
+                    blockIndex++;
                 });
                 this.socket.once("sync-end", () => {
                     LogBot.log(200, "Finished Syncing " + syncedTransactions + " transactions");
@@ -198,9 +189,6 @@ class DB extends EventEmitter {
             });
             if (transaction.$method === "updateOne") {
                 if (index !== -1) {
-                    //collection[index] = JSON.parse(JSON.stringify({ ...collection[index], ...transaction.$set }));
-                    //apply changes to collection atomically
-                    //for each key in $set, replace or inject it into the collection
                     for (let key in transaction.$set) {
                         if (typeof transaction.$set[key] === "object" && !Array.isArray(transaction.$set[key]) && transaction.$set[key] !== null) {
                             let keyContent = transaction.$set[key];
@@ -218,7 +206,6 @@ class DB extends EventEmitter {
                 }
                 else {
                     collection.push(JSON.parse(JSON.stringify(Object.assign(Object.assign({}, transaction.$query), transaction.$set))));
-                    //LogBot.log(404, "Document not found. Creating new document");
                 }
             }
             else if (transaction.$method === "insertMany") {
@@ -234,17 +221,13 @@ class DB extends EventEmitter {
             else if (transaction.$method === "removeOne") {
                 if (index !== -1) {
                     collection.splice(index, 1);
-                    // LogBot.log(200, "Removed " + transaction.$collection + " with query " + JSON.stringify(transaction.$query));
                 }
                 else {
-                    // LogBot.log(404, "Could not find document to remove");
                 }
             }
             else if (transaction.$method === "removeMany") {
-                //remove all documents that match the query
                 for (let i = 0; i < collection.length; i++) {
                     const doc = collection[i];
-                    //compare each key in the query to the document
                     let match = true;
                     for (let key in transaction.$query) {
                         if (doc[key] !== transaction.$query[key]) {
@@ -255,7 +238,6 @@ class DB extends EventEmitter {
                     if (match) {
                         collection.splice(i, 1);
                         i--;
-                        // LogBot.log(200, "Removed " + transaction.$collection + " with query " + JSON.stringify(transaction.$query));
                     }
                 }
             }
@@ -284,22 +266,17 @@ class DB extends EventEmitter {
         return transaction;
     }
     addTransactionToQueue(transaction, save = true) {
-        //check if transaction already exists with uuid
         const existingTransaction = this.transactions.find((t) => t.uuid === transaction.uuid);
         if (!existingTransaction) {
             let timestamp = transaction.timestamp;
-            //find the index where the transaction should be inserted
             let index = this.transactions.findIndex((t) => t.timestamp > timestamp);
             if (index === -1) {
                 index = this.transactions.length;
-                //insert the transaction
                 this.transactions.splice(index, 0, transaction);
                 this.apply(transaction);
             }
             else {
-                //insert the transaction
                 this.transactions.splice(index, 0, transaction);
-                //iterate over all transactions after the inserted one and apply them
                 for (let i = index; i < this.transactions.length; i++) {
                     this.apply(this.transactions[i]);
                 }
@@ -330,7 +307,6 @@ class DB extends EventEmitter {
                 }
             }
             if (toCommit.length > 0) {
-                //this.saveTransactions();
                 LogBot.log(200, "Committed a total of " +
                     toCommit.length +
                     " transactions. Successful: " +
@@ -348,7 +324,6 @@ class DB extends EventEmitter {
         return new Promise((resolve, reject) => {
             if (!this.url)
                 reject(new Error("No url provided, can not connect to a cloud node"));
-            // @ts-ignore
             this.socket = io(this.url, {
                 reconnectionDelayMax: 5000,
                 reconnection: true,
@@ -368,9 +343,6 @@ class DB extends EventEmitter {
                     setTimeout(commitIntervalFunc, this.commitIntervalPause);
                 });
             };
-            /**
-             * receive transactions from server and apply them to local database
-             */
             this.socket.on("transaction", (data) => {
                 const t = new Transaction(Object.assign(Object.assign({}, data), { status: "success" }));
                 LogBot.log(100, `Received transaction ${t.uuid} from peer`);
@@ -380,7 +352,7 @@ class DB extends EventEmitter {
             });
             this.socket.on("disconnect", () => {
                 if (!this.offline) {
-                    this.offline = true; //going offline
+                    this.offline = true;
                     clearTimeout(this.commitInterval);
                     LogBot.log(408, "Disconnected from peer");
                 }
@@ -389,7 +361,7 @@ class DB extends EventEmitter {
                 clearTimeout(timer);
                 this.offline = false;
                 LogBot.log(200, "Connected to peer");
-                this.offline = false; //back online
+                this.offline = false;
                 this.fetchTransactions().then(() => {
                     this.commit().then(() => {
                         this.commitInterval = setTimeout(commitIntervalFunc, this.commitIntervalPause);
@@ -409,7 +381,6 @@ class DB extends EventEmitter {
             }
             return true;
         });
-        //deep copying
         return JSON.parse(JSON.stringify(collectionData));
     }
     getMany(collection, query) {

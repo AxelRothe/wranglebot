@@ -13,10 +13,6 @@ var _MetaCopy_pathToSource, _MetaCopy_pathToBucket, _MetaCopy_hash;
 import { v4 as uuidv4 } from "uuid";
 import { finder } from "../system/index.js";
 class MetaCopy {
-    /**
-     *
-     * @param options
-     */
     constructor(options) {
         this.label = "";
         _MetaCopy_pathToSource.set(this, void 0);
@@ -55,10 +51,6 @@ class MetaCopy {
     get hash() {
         return __classPrivateFieldGet(this, _MetaCopy_hash, "f");
     }
-    /**
-     * Is true if both the hash of the MetaCopy and the MetaFile match
-     * @return {boolean}
-     */
     isVerified() {
         return this.hash === this.metaFile.hash;
     }

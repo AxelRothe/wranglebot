@@ -6,9 +6,7 @@ export default class TranscodeFactory {
         this.command = ffmpeg({
             logger: console,
         });
-        //set path to input file
         this.command.input(inputPath);
-        //settings
         this.command
             .inputOptions("-hwaccel auto")
             .videoCodec(options.videoCodec)
@@ -22,7 +20,6 @@ export default class TranscodeFactory {
             .outputOptions([`-pix_fmt ${options.pixelFormat || "yuv422p"}`])
             .fps(options.fps)
             .output(options.output);
-        //LUTs
         if (options.lut) {
             if (finder.existsSync(options.lut) && !finder.isDirectory(options.lut)) {
                 this.command.videoFilter("lut3d=" + options.lut);

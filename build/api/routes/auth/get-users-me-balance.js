@@ -8,9 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import RouteResult from "../../RouteResult.js";
-/**
- * @description Retrieves the balance that is associated with the authenticated user
- */
 export default {
     method: "get",
     url: "/users/me/balance",

@@ -46,9 +46,7 @@ export class TranscodeTask {
                     this.status = 1;
                     return;
                 }
-                //if (job.metaCopy) await library.addOneMetaFile(job.metaCopy);
             }
-            //check if all jobs are done
             if (this.jobs.every((job) => job.status === 3)) {
                 this.status = 3;
             }

@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
 export default class User {
     constructor(options) {
-        this.roles = []; // ["admin", "maintainer", "contributor", "curator"]
-        this.libraries = []; //@deprecated
+        this.roles = [];
+        this.libraries = [];
         this.config = {};
         this.token = "";
         if (!options.username)
@@ -16,7 +16,7 @@ export default class User {
         this.password = options.password;
         this.email = options.email;
         this.roles = options.roles || [];
-        this.libraries = options.libraries || []; //@deprecated
+        this.libraries = options.libraries || [];
         this.config = options.config || {};
     }
     get fullName() {
@@ -28,14 +28,9 @@ export default class User {
         this.lastName = options.lastName || this.lastName;
         this.email = options.email || this.email;
         this.roles = options.roles || this.roles;
-        this.libraries = options.libraries || this.libraries; //@deprecated
+        this.libraries = options.libraries || this.libraries;
         this.config = options.config ? Object.assign(Object.assign({}, this.config), options.config) : this.config;
     }
-    /**
-     * @description Checks if the user has the specified role or roles
-     * @param role The role or roles to check
-     * @returns {boolean} True if the user has the role or roles, false otherwise
-     */
     hasRole(role) {
         if (typeof role === "string") {
             return this.roles.includes(role);
@@ -45,10 +40,6 @@ export default class User {
     setConfig(options) {
         this.config = Object.assign(Object.assign({}, this.config), options);
     }
-    /**
-     * @description Returns a JSON representation of the user
-     * @param options set db to true to include the hashed password
-     */
     toJSON(options = { db: false }) {
         return {
             id: this.id,
@@ -58,7 +49,7 @@ export default class User {
             password: options.db ? this.password : undefined,
             email: this.email,
             roles: this.roles,
-            libraries: this.libraries, //@deprecated,
+            libraries: this.libraries,
             config: this.config,
         };
     }

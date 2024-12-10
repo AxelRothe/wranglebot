@@ -15,17 +15,11 @@ export default class ThumbnailFromImageFactory {
         this.pathToFile = pathToFile;
         this.options = options;
     }
-    /**
-     *
-     * @param type
-     * @returns {Promise<unknown>}
-     */
     generate() {
         return __awaiter(this, arguments, void 0, function* (type = "jpg") {
             try {
                 const thumbId = uuidv4();
                 const thumbnailFolder = finder.join(config.getPathToUserData(), "thumbnails");
-                //create thumbnail dir if it does not exist
                 finder.mkdirSync(thumbnailFolder, { recursive: true });
                 const outputPath = finder.join(thumbnailFolder, thumbId + ".jpg");
                 const image = yield Jimp.read(this.pathToFile);
@@ -33,7 +27,6 @@ export default class ThumbnailFromImageFactory {
                 yield image.quality(70);
                 yield image.write(outputPath);
                 const imageData = yield image.getBase64Async(Jimp.AUTO);
-                //strip base64 header
                 const data = String(imageData.split(",")[1]);
                 return [
                     {
