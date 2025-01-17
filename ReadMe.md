@@ -11,6 +11,7 @@
 ---
 
 WrangleBot is an open source media asset management platform engine.
+
 ---
 
 ## 🧰 Features
@@ -40,27 +41,67 @@ WrangleBot offers a variety of features to make asset management easier and more
 
 --- 
 
-## 👋 Getting Started
+## Dependencies
 
 To build WrangleBot, you will need to have [Node.js](https://nodejs.org/en/) installed on your computer.
+WrangleBot requires Python >=3.12 for node-gyp to compile binaries for the node modules.
 
-### 📦 Install
+You may need to use the `--python` flag when installing the package:
+```bash
+npm i --python=python3.12
+```
+Replace the version number of Python with the version you have installed on your system, i.e. 3.13
+
+## 📦 Install as Package
 
 ```bash
 npm install wranglebot
 ```
 
-Then, run `npm install` to install all the dependencies. After that, run `npm run build` to build the application. Finally, run `npm run test` to start the application.
+## 📦 Install for Development
 
-## 🚀 Booting up Instance
+```bash
+npm install
+```
 
-```js
+After that, run `npm run build` to build the application.
+
+## Getting Started
+
+### Testing
+
+The folder `test` contains a test environment that can be used to boot up an instance of WrangleBot.
+
+⚠️ You will require a `.env` to run the test environment:
+
+```dotenv
+APP_DATA_LOCATION="<YOUR_APP_DATA_LOCATION>" # choose your app data location, i.e. "/Users/username/.wranglebot"
+LOCAL_DATABASE_TOKEN="<YOUR_DATABASE>" # choose your database token to connect to the database, i.e. "my_database"
+SERVER_PORT="3200" # choose your server port, i.e. "3200"
+DEBUG_NOTIFICATIONS="false" #show notifications in console (true/false)
+
+# Optional, required to use the email notfications and password reset functions
+SMTP_HOST="<YOUR_EMAIL_HOST>"
+SMTP_PORT="<YOUR_EMAIL_SMTP_PORT>" # 465 for SSL, 587 for TLS
+SMTP_USER="<YOUR_EMAIL_USERNAME>"
+SMTP_PASS="<YOUR_EMAIL_PASS>"
+```
+
+Run `npm run test` to run the test environment.
+
+### Starting WrangleBot
+
+To use WrangleBot in your own package, use the `.open()` method:
+
+```typescript
+import wranglebot from "wranglebot"
+
 wranglebot.open({
   app_data_location: "<APP_DATA_LOCATION>",
   vault: {
     token: "<LOCAL_DATABASE_TOKEN>"
   },
-  port: 3200,
+  port: "<SERVER_PORT>",
   //optional
   mail: {
     host: "<SMTP_HOST>",
@@ -73,11 +114,17 @@ wranglebot.open({
 })
 ```
 
-## 📑 REST API Documentation
+### Default Login
+
+The default login is `admin` with the password `admin`.
+
+## Documentation
+
+### 📑 REST API Documentation
 
 [(Postman) REST API with Examples](https://documenter.getpostman.com/view/26212996/2s93JtQPKd)
 
-## 📑 NodeJS Documentation
+### 📑 NodeJS Documentation
 
 [(GitBook) NodeJS API & Model Documentation](https://van-rothe.gitbook.io/wranglebot-nodejs-documentation/)
 
@@ -88,36 +135,6 @@ Join our [Discord](https://discord.gg/p3Rmhagvkm) for live support.
 ## 👥 Contributing
 
 We welcome contributions to WrangleBot! Please join us on our Discord to discuss how you can help. We are always looking for new contributors to help us build the best media asset management tool possible and want to make it as easy as possible for you to get involved.
-
-## 🛠 NPM Scripts and Testing
-
-### Build
-
-```bash
-npm run build
-```
-
-### Running Test Environment
-
-Build the application and run the test environment:
-
-⚠️ You will require a `.env` to run the test environment:
-
-```dotenv
-APP_DATA_LOCATION="<YOUR_APP_DATA_LOCATION>" // choose your app data location, i.e. "/Users/username/.wranglebot"
-LOCAL_DATABASE_TOKEN="<YOUR_DATABASE>" // choose your database token to connect to the database, i.e. "my_database"
-
-DEBUG_NOTIFICATIONS="false" #show notifications in console (true/false)
-
-SMTP_HOST="<YOUR_EMAIL_HOST>"
-SMTP_PORT="<YOUR_EMAIL_SMTP_PORT>" # 465 for SSL, 587 for TLS
-SMTP_USER="<YOUR_EMAIL_USERNAME>"
-SMTP_PASS="<YOUR_EMAIL_PASS>"
-```
-
-```bash
-npm run test
-```
 
 ---
 
