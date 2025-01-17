@@ -53,14 +53,12 @@ class Config {
         LogBot.log(409, "Upgrading config from " + this.config.version + " to version " + this.versionNumber);
         this.set("wb-version", this.versionNumber);
         this.set("jwt-secret", this.cryptr.encrypt(ezyrnd.randomString(128)));
-        this.set("port", 3300);
       }
     } else {
       LogBot.log(100, "Creating config version " + this.versionNumber);
       this.config = {
         "jwt-secret": this.cryptr.encrypt(ezyrnd.randomString(128)),
         "wb-version": this.versionNumber,
-        port: 3300,
       };
       this.save();
     }

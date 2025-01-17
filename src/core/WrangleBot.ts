@@ -110,7 +110,7 @@ class WrangleBot extends EventEmitter {
 
     // get or set the port
     if (options.port) config.set("port", options.port);
-    else options.port = config.get("port");
+    else throw new Error("No port provided");
 
     this.pingInterval = this.config.get("pingInterval") || 5000;
 
@@ -167,7 +167,7 @@ class WrangleBot extends EventEmitter {
 
         //start Socket and REST API
         await this.startServer({
-          port: options.port || this.config.get("port"),
+          port: options.port,
           secret: options.secret || this.config.get("jwt-secret"),
           mailConfig: options.mail || this.config.get("mail"),
         });
