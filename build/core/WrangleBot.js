@@ -56,7 +56,7 @@ class WrangleBot extends EventEmitter {
             if (options.port)
                 config.set("port", options.port);
             else
-                options.port = config.get("port");
+                throw new Error("No port provided");
             this.pingInterval = this.config.get("pingInterval") || 5000;
             try {
                 yield this.loadExtensions();
@@ -96,7 +96,7 @@ class WrangleBot extends EventEmitter {
                     });
                     yield AccountManager.init();
                     yield this.startServer({
-                        port: options.port || this.config.get("port"),
+                        port: options.port,
                         secret: options.secret || this.config.get("jwt-secret"),
                         mailConfig: options.mail || this.config.get("mail"),
                     });

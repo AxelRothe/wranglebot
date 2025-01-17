@@ -17,7 +17,7 @@ export default {
             }
             const app = express();
             let transporter;
-            if (!options.mailConfig) {
+            if (!options.mailConfig || !options.mailConfig.auth || !options.mailConfig.auth.user) {
                 transporter = {
                     sendMail: () => {
                         return new Promise((resolve) => {
