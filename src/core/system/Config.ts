@@ -30,7 +30,7 @@ class Config {
       if (!finder.existsSync(this.appDataLocation)) {
         finder.mkdirSync(this.appDataLocation);
         if (!finder.existsSync(this.appDataLocation)) {
-          LogBot.log(500, "Unable to create config directory. No permissions?");
+          LogBot.log(500, `Unable to create config directory at "${this.appDataLocation}". No permissions?`);
           process.exit(1);
         } else {
           LogBot.log(100, "Creating new config in homedir...");
