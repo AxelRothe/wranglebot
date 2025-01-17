@@ -70,6 +70,8 @@ After that, run `npm run build` to build the application.
 
 ### Testing
 
+Clone this repository and run `npm install` to install the dependencies.
+
 The folder `test` contains a test environment that can be used to boot up an instance of WrangleBot.
 
 ⚠️ You will require a `.env` to run the test environment:
@@ -91,7 +93,7 @@ Run `npm run test` to run the test environment.
 
 ### Starting WrangleBot
 
-To use WrangleBot in your own package, use the `.open()` method:
+To use WrangleBot in your own package, install with `npm install wranglebot` and use the `.open()` method:
 
 ```typescript
 import wranglebot from "wranglebot"
