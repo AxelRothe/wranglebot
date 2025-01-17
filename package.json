@@ -19,10 +19,6 @@
   "version": "7.5.0",
   "license": "GPL-3.0",
   "author": "Axel Rothe <hello@axelrothe.com> (https://axelrothe.com)",
-  "funding": {
-    "type": "donate",
-    "url": "https://wranglebot.io/donate"
-  },
   "type": "module",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
